@@ -81,7 +81,10 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 .box2.tone-time,.box2.tone-mon,.box2.tone-start,.box2.tone-any,.box2.tone-end{border-color:var(--tone-ink);border-color:color-mix(in srgb,var(--tone-ink) 35%,var(--line))}
 .task.multi{grid-template-columns:1fr}
 .shiftchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;align-items:center}
-.logbtn{font:600 12.5px "Inter",sans-serif;border-radius:999px;border:0;background:var(--tone-ink,var(--blue));color:var(--bg);padding:4px 12px;min-height:30px;cursor:pointer}
+.logbtn{font:600 12px "Inter",sans-serif;border-radius:999px;border:1.5px solid var(--tone-ink,var(--blue));background:var(--bg);color:var(--tone-ink,var(--blue));padding:2px 11px;min-height:26px;cursor:pointer}
+.logbtn:hover{background:var(--tone,var(--panel))}
+.plainbox{background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}
+.plainbox .shead{margin-left:0}
 .logbtn:disabled{opacity:.5;cursor:default}
 .logent{display:inline-flex;align-items:center;gap:2px;font:500 12px "Inter",sans-serif;border-radius:999px;background:var(--done);color:var(--tick);padding:2px 4px 2px 10px;min-height:26px}
 .logent button{background:none;border:0;color:inherit;font:600 14px/1 "Inter",sans-serif;cursor:pointer;padding:3px 6px;border-radius:999px}
@@ -90,7 +93,12 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 
 /* key */
 details.key{margin:0 2px 8px;font-size:12.5px}
-details.key summary{cursor:pointer;color:var(--blue);font-weight:500;width:max-content}
+details.key summary{cursor:pointer;width:max-content;list-style:none;display:inline-flex;align-items:center;gap:6px;font:600 12.5px "Inter",sans-serif;color:var(--blue);background:var(--t-time);border:1.5px solid var(--blue);border-radius:999px;padding:3px 12px 3px 8px}
+details.key summary::-webkit-details-marker{display:none}
+details.key summary::before{content:"i";display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--blue);color:var(--bg);font:700 11px/1 Georgia,serif}
+details.key summary::after{content:"▾";font-size:11px}
+details.key[open] summary::after{content:"▴"}
+details.key summary:hover{filter:brightness(0.97)}
 details.key dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;margin:8px 0 2px;padding:10px 12px;background:var(--panel);border-radius:12px}
 details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 
@@ -229,55 +237,55 @@ const COMPANY_DOMAIN = "heliosx.com";
         <details class="key" style="margin:8px 12px 0">
           <summary>What each check means</summary>
           <dl>
-            <dt>Titan Q issues checked</dt><dd>Every 2 hours. Check Titan Q for any issues; no order in the queue should be older than 3 hours.</dd>
+            <dt>Titan Q</dt><dd>Every 2 hours. Check Titan Q for any issues; no order in the queue should be older than 3 hours.</dd>
             <dt>AP cleared</dt><dd>Every hour. Confirm AP has been cleared and chase if it's building up. GP leads clear 9–5; GP prescribers cover the hours they work.</dd>
-            <dt>Prescribers added to live chat</dt><dd>At 10am, 2pm and 5pm, add the prescribers covering live chat for that time slot to the live chat inbox, and remove them from the email inbox.</dd>
-            <dt>GP letters – FIN: no breaches</dt><dd>Check there are no breaches on GP letters – FIN. If letters are building up or close to breaching, make sure a prescriber is working on them and assign one if not.</dd>
-            <dt>AP fully cleared</dt><dd>AP must be cleared by 6:30pm.</dd>
-            <dt>Clinical &amp; workflow volumes posted</dt><dd>Paste the clinical and workflow volumes in the <a href="https://heliosx.enterprise.slack.com/archives/C0ANED16VB2" target="_blank" rel="noopener">coordinator channel</a> at 9am, 12pm, 3pm and 6pm.</dd>
+            <dt>Live chat added</dt><dd>At 10am, 2pm and 5pm, add the prescribers covering live chat for that time slot to the live chat inbox, and remove them from the email inbox.</dd>
+            <dt>GP FIN breaches</dt><dd>Check there are no breaches on GP letters – FIN. If letters are building up or close to breaching, make sure a prescriber is working on them and assign one if not.</dd>
+            <dt>AP fully cleared</dt><dd>AP must be fully cleared by 6:30pm.</dd>
+            <dt>Volumes posted</dt><dd>Paste the clinical and workflow volumes in the <a href="https://heliosx.enterprise.slack.com/archives/C0ANED16VB2" target="_blank" rel="noopener">coordinator channel</a> at 9am, 12pm, 3pm and 6pm.</dd>
             <dt>Morning handover</dt><dd>Write it at 3pm in the box at the bottom of the page.</dd>
           </dl>
         </details>
         <div id="timeline" style="padding:6px"></div>
       </section>
+      <section class="plainbox">
+        <div class="shead"><h2 class="sh">Write a handover</h2></div>
+        <p class="when-p">Anything the next coordinator should know: odd allocations, issues, follow-ups. Morning handover by 3pm; afternoon handover before you log off. Each shows at the top of the page for the next shift.</p>
+        <p class="lock" id="noteLock" hidden>Only the coordinators on the handover list can write handover notes. You can still read them here.</p>
+        <div class="notes">
+          <div class="note">
+            <label for="note-am">Morning → afternoon shift</label>
+            <div class="writer" id="writer-am"></div>
+            <textarea id="note-am" placeholder="e.g. Dr X covering side effects until 3pm only, GP letters still need clearing…"></textarea>
+            <div class="meta" id="meta-am"></div>
+          </div>
+          <div class="note">
+            <label for="note-pm">Afternoon → next morning shift</label>
+            <div class="writer" id="writer-pm"></div>
+            <textarea id="note-pm" placeholder="e.g. Special requests loaded for tomorrow, aged orders to chase first thing…"></textarea>
+            <div class="meta" id="meta-pm"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="reqs" class="plainbox">
+        <div class="shead"><h2 class="sh">Special allocation requests</h2><span class="when">Team lead requests for specific prescribers. Each stays until its end date.</span></div>
+        <div class="card" id="reqList" style="padding:0;background:var(--bg);border:1.5px solid var(--line)"></div>
+        <button class="toggle" id="pastToggle" hidden></button>
+        <div class="addreq" id="addReq">
+          <div class="f"><label for="rq-who">Prescriber</label><input type="text" id="rq-who" placeholder="e.g. Dr Sarah Khan"></div>
+          <div class="f wide"><label for="rq-what">Request</label><input type="text" id="rq-what" placeholder="e.g. Side effects only, no GP letters"></div>
+          <div class="f"><label for="rq-by">Requested by</label><input type="text" id="rq-by" placeholder="Team lead's name"></div>
+          <div class="f"><label for="rq-until">Until</label><input type="date" id="rq-until">
+            <div class="row"><input type="checkbox" id="rq-open"><label for="rq-open" style="margin:0;font-weight:400">Until further notice</label></div></div>
+          <button class="addbtn" id="rq-add">Add request</button>
+          <p class="formerr" id="rq-err"></p>
+        </div>
+      </section>
     </div>
     <aside class="side" id="side" aria-label="One-off tasks"></aside>
   </div>
 
-  <section>
-    <div class="shead"><h2 class="sh">Write a handover</h2></div>
-    <p class="when-p">Anything the next coordinator should know: odd allocations, issues, follow-ups. Mornings see last night's handover at the top of the page; afternoons see this morning's.</p>
-    <p class="lock" id="noteLock" hidden>Only the coordinators on the handover list can write handover notes. You can still read them here.</p>
-    <div class="notes">
-      <div class="note">
-        <label for="note-am">Morning → afternoon shift</label>
-        <div class="writer" id="writer-am"></div>
-        <textarea id="note-am" placeholder="e.g. Dr X covering side effects until 3pm only, GP letters still need clearing…"></textarea>
-        <div class="meta" id="meta-am"></div>
-      </div>
-      <div class="note">
-        <label for="note-pm">Afternoon → next morning shift</label>
-        <div class="writer" id="writer-pm"></div>
-        <textarea id="note-pm" placeholder="e.g. Special requests loaded for tomorrow, aged orders to chase first thing…"></textarea>
-        <div class="meta" id="meta-pm"></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="reqs">
-    <div class="shead"><h2 class="sh">Special allocation requests</h2><span class="when">Team lead requests for specific prescribers. Each stays until its end date.</span></div>
-    <div class="card" id="reqList" style="padding:0;background:var(--bg);border:1.5px solid var(--line)"></div>
-    <button class="toggle" id="pastToggle" hidden></button>
-    <div class="addreq" id="addReq">
-      <div class="f"><label for="rq-who">Prescriber</label><input type="text" id="rq-who" placeholder="e.g. Dr Sarah Khan"></div>
-      <div class="f wide"><label for="rq-what">Request</label><input type="text" id="rq-what" placeholder="e.g. Side effects only, no GP letters"></div>
-      <div class="f"><label for="rq-by">Requested by</label><input type="text" id="rq-by" placeholder="Team lead's name"></div>
-      <div class="f"><label for="rq-until">Until</label><input type="date" id="rq-until">
-        <div class="row"><input type="checkbox" id="rq-open"><label for="rq-open" style="margin:0;font-weight:400">Until further notice</label></div></div>
-      <button class="addbtn" id="rq-add">Add request</button>
-      <p class="formerr" id="rq-err"></p>
-    </div>
-  </section>
 </div>
 
 <script>
@@ -298,16 +306,16 @@ const L = {
 // Timeline: each hour's checks. Ids match the older layout so earlier ticks still count.
 // "due" = time after which an unticked check shows as overdue (when viewing today).
 const HOURS = [
-  {h:"09:00", due:"09:30", items:[["titan-09","Titan Q issues checked"],["ap-hr-09","AP cleared"],["vol-post-09","Clinical & workflow volumes posted"]]},
-  {h:"10:00", due:"10:30", items:[["chat-10","Prescribers added to live chat"],["ap-hr-10","AP cleared"]]},
-  {h:"11:00", due:"11:30", items:[["titan-11","Titan Q issues checked"],["ap-hr-11","AP cleared"],["gp-am","GP letters – FIN: no breaches (morning)"]]},
-  {h:"12:00", due:"12:30", items:[["ap-hr-12","AP cleared"],["vol-post-12","Clinical & workflow volumes posted"]]},
-  {h:"13:00", due:"13:30", items:[["titan-13","Titan Q issues checked"],["ap-hr-13","AP cleared"]]},
-  {h:"14:00", due:"14:30", items:[["chat-14","Prescribers added to live chat"],["ap-hr-14","AP cleared"]]},
-  {h:"15:00", due:"15:30", items:[["titan-15","Titan Q issues checked"],["ap-hr-15","AP cleared"],["gp-pm","GP letters – FIN: no breaches (afternoon)"],["vol-post-15","Clinical & workflow volumes posted"],["handover-am","Morning handover written"]]},
+  {h:"09:00", due:"09:30", items:[["titan-09","Titan Q"],["ap-hr-09","AP cleared"],["vol-post-09","Volumes posted"]]},
+  {h:"10:00", due:"10:30", items:[["ap-hr-10","AP cleared"],["chat-10","Live chat added"]]},
+  {h:"11:00", due:"11:30", items:[["titan-11","Titan Q"],["ap-hr-11","AP cleared"],["gp-am","GP FIN breaches"]]},
+  {h:"12:00", due:"12:30", items:[["ap-hr-12","AP cleared"],["vol-post-12","Volumes posted"]]},
+  {h:"13:00", due:"13:30", items:[["titan-13","Titan Q"],["ap-hr-13","AP cleared"]]},
+  {h:"14:00", due:"14:30", items:[["ap-hr-14","AP cleared"],["chat-14","Live chat added"]]},
+  {h:"15:00", due:"15:30", items:[["titan-15","Titan Q"],["ap-hr-15","AP cleared"],["gp-pm","GP FIN breaches"],["vol-post-15","Volumes posted"],["handover-am","Morning handover"]]},
   {h:"16:00", due:"16:30", items:[["ap-hr-16","AP cleared"]]},
-  {h:"17:00", due:"17:30", items:[["titan-17","Titan Q issues checked"],["chat-17","Prescribers added to live chat"],["ap-hr-17","AP cleared"]]},
-  {h:"18:00", due:"18:30", items:[["ap-hr-18","AP cleared"],["gp-eve","GP letters – FIN: no breaches (evening)"],["ap-clear","AP fully cleared (by 18:30)"],["vol-post-18","Clinical & workflow volumes posted"]]},
+  {h:"17:00", due:"17:30", items:[["titan-17","Titan Q"],["ap-hr-17","AP cleared"],["chat-17","Live chat added"]]},
+  {h:"18:00", due:"18:30", items:[["ap-hr-18","AP cleared"],["gp-eve","GP FIN breaches"],["vol-post-18","Volumes posted"],["ap-clear","AP fully cleared"]]},
   {h:"19:00", due:"19:30", items:[["ap-hr-19","AP cleared"]]},
   {h:"20:00", due:"20:30", items:[["ap-hr-20","AP cleared"]]},
   {h:"21:00", due:"21:30", items:[["ap-hr-21","AP cleared"]]}
@@ -324,7 +332,7 @@ const SIDE = [
     {id:"ops-post", t:"Post in the Ops Tactical channel", links:[L.ops]},
     {id:"aged", t:"Check aged orders and assign to SPs", links:[L.hex]}
   ]},
-  {title:"Anytime", when:"Click Mark as done each time you check", tone:"any", log:true, tasks:[
+  {title:"Anytime", when:"Click + Mark as done each time you check", tone:"any", log:true, tasks:[
     {id:"wf-volume", t:"Check workflow volume and reallocate", d:"Move prescribers around as needed.", links:[L.overview]},
     {id:"shifts", t:"One-off shift change requests", d:"Check for new one-off shift change requests.", links:[L.shiftreq]},
     {id:"wf-queries", t:"Check workflow queries", d:"Pick up anything outstanding in the workflow queries list.", links:[L.wfq]}
@@ -435,7 +443,7 @@ function renderSide(){
         const logs=logsFor(t.id);
         row=el("div","task multi"+(logs.length?" logged":""));
         const chips=el("div","shiftchips");
-        const lb=el("button","logbtn","Mark as done"); lb.disabled=readOnly; lb.setAttribute("aria-label","Mark as done: "+t.t);
+        const lb=el("button","logbtn","+ Mark as done"); lb.disabled=readOnly; lb.setAttribute("aria-label","Mark as done: "+t.t);
         lb.onclick=()=>toggle(t.id+"-x"+Date.now()); chips.append(lb);
         logs.forEach(e=>{
           const pill=el("span","logent"); pill.append(hm(e.at)+" "+nameOf(e.by));
