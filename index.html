@@ -307,7 +307,10 @@ const HOURS = [
   {h:"15:00", due:"15:30", items:[["titan-15","Titan Q"],["ap-hr-15","AP check"],["gp-pm","GP letters (afternoon)"],["vol-post-15","Volume update posted"]]},
   {h:"16:00", due:"16:30", items:[["ap-hr-16","AP check"]]},
   {h:"17:00", due:"17:30", items:[["titan-17","Titan Q"],["chat-17","Live chat swap"],["ap-hr-17","AP check"]]},
-  {h:"18:00", due:"18:30", items:[["ap-hr-18","AP check"],["gp-eve","GP letters (evening)"],["ap-clear","AP fully cleared (by 18:30)"],["vol-post-18","Volume update posted"]]}
+  {h:"18:00", due:"18:30", items:[["ap-hr-18","AP check"],["gp-eve","GP letters (evening)"],["ap-clear","AP fully cleared (by 18:30)"],["vol-post-18","Volume update posted"]]},
+  {h:"19:00", due:"19:30", items:[["ap-hr-19","AP check"]]},
+  {h:"20:00", due:"20:30", items:[["ap-hr-20","AP check"]]},
+  {h:"21:00", due:"21:30", items:[["ap-hr-21","AP check"]]}
 ];
 const SIDE = [
   {title:"Monday: plan the week", when:"Mondays only", tone:"mon", mondayOnly:true, tasks:[
@@ -624,7 +627,25 @@ let myName="";
   firebase.initializeApp(FIREBASE_CONFIG);
   const auth=firebase.auth();
   const provider=new firebase.auth.GoogleAuthProvider(); provider.setCustomParameters({hd:COMPANY_DOMAIN});
-  document.getElementById("signin").onclick=()=>auth.signInWithPopup(provider).catch(()=>setNotice("Sign-in didn't finish. Try again."));
+  const explain=e=>{
+    const c=(e&&e.code)||"unknown";
+    const why={
+      "auth/unauthorized-domain":"This web address isn't on Firebase's list of authorised domains yet. Add it under Authentication → Settings → Authorized domains.",
+      "auth/popup-blocked":"Your browser blocked the sign-in pop-up. Trying a full-page sign-in instead…",
+      "auth/popup-closed-by-user":"The sign-in window was closed before finishing. Try again.",
+      "auth/cancelled-popup-request":"Sign-in was interrupted. Try again.",
+      "auth/operation-not-allowed":"Google sign-in isn't switched on in Firebase. Turn it on under Authentication → Sign-in method.",
+      "auth/invalid-api-key":"The Firebase apiKey in the page doesn't match your project. Copy it again from Project settings.",
+      "auth/api-key-not-valid.-please-pass-a-valid-api-key.":"The Firebase apiKey in the page doesn't match your project. Copy it again from Project settings.",
+      "auth/network-request-failed":"Couldn't reach Google. Check your connection and try again."
+    }[c];
+    setNotice((why||"Sign-in didn't finish.")+" (Error code: "+c+")");
+  };
+  document.getElementById("signin").onclick=()=>auth.signInWithPopup(provider).catch(e=>{
+    explain(e);
+    if(e&&e.code==="auth/popup-blocked") auth.signInWithRedirect(provider);
+  });
+  auth.getRedirectResult().catch(explain);
   auth.onAuthStateChanged(u=>{
     if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;}
     if(!u){
