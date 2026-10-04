@@ -16,19 +16,19 @@
   --t-any:#DFF5F1; --t-any-ink:#0B6159;
   --t-end:#FFF0DE; --t-end-ink:#8A4300;
   --tip:#FFF4C2; --tip-ink:#5C4400; --tip-line:#D4A72C;
-  --note:#F5EFE6; --note-ink:#5A4632; --chipline:#C9D1DE;
+  --note:#EEF1F6; --note-ink:#334155; --t-req:#F1F3F6; --t-req-ink:#3B4250; --chipline:#C9D1DE;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#2E261C; --note-ink:#E8D8C2; --chipline:#3A4370;
+    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --chipline:#3A4370;
   }
 }
 :root[data-theme="dark"]{
   --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#2E261C; --note-ink:#E8D8C2; --chipline:#3A4370;
+  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --chipline:#3A4370;
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -89,6 +89,15 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 .tone-start{--tone:var(--t-start);--tone-ink:var(--t-start-ink)}
 .tone-any{--tone:var(--t-any);--tone-ink:var(--t-any-ink)}
 .tone-end{--tone:var(--t-end);--tone-ink:var(--t-end-ink)}
+.tone-note{--tone:var(--note);--tone-ink:var(--note-ink)}
+.tone-req{--tone:var(--t-req);--tone-ink:var(--t-req-ink)}
+.box2 .pad{padding:12px}
+.readfirst{font:700 10.5px "Inter",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:var(--blue);border-radius:999px;padding:2px 9px;align-self:center}
+.carry.empty .readfirst{display:none}
+.addopen{font:600 12.5px "Inter",sans-serif;border-radius:999px;border:1.5px dashed var(--blue);background:transparent;color:var(--blue);padding:5px 14px;cursor:pointer}
+.reqfoot{padding:9px 12px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.reqfoot .toggle{padding:0}
+.sd-cancel.small{font-size:12px}
 .box2.tone-time,.box2.tone-mon,.box2.tone-start,.box2.tone-any,.box2.tone-end{border-color:var(--tone-ink);border-color:color-mix(in srgb,var(--tone-ink) 35%,var(--line))}
 .task.multi{grid-template-columns:1fr}
 .shiftchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;align-items:center}
@@ -186,7 +195,7 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .note .writer b{color:var(--ink);font-weight:600}
 .note textarea{width:100%;min-height:96px;resize:vertical;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px 12px;font:400 13px/1.45 "Inter",sans-serif}
 .note .meta{font-size:11.5px;color:var(--muted);margin:4px 2px 0}
-.lock{margin:0 2px 10px;font-size:12.5px;color:var(--muted);background:var(--bg);border-radius:10px;padding:8px 12px}
+.lock{margin:0 2px 10px;font-size:12px;color:var(--muted)}
 .when-p{margin:0 2px 10px;font-size:12px;color:var(--muted)}
 
 /* requests */
@@ -260,6 +269,7 @@ const COMPANY_DOMAIN = "heliosx.com";
 
   <section class="carry" id="carry" aria-live="polite">
     <div class="ch">
+      <span class="readfirst">Read first</span>
       <h2 id="carryTitle">Handover</h2>
       <span class="cdate" id="carryDate"></span>
       <button class="linkbtn" id="carrySwap"></button>
@@ -280,38 +290,42 @@ const COMPANY_DOMAIN = "heliosx.com";
         </details>
         <div id="timeline" style="padding:6px"></div>
       </section>
-      <section class="plainbox">
-        <div class="shead"><h2 class="sh">Write a handover</h2></div>
-        <p class="when-p">Anything the next coordinator should know: odd allocations, issues, follow-ups. Morning handover by 3pm; afternoon handover before you log off. Each shows at the top of the page for the next shift.</p>
-        <p class="lock" id="noteLock" hidden>Only the coordinators on the handover list can write handover notes. You can still read them here.</p>
-        <div class="notes">
-          <div class="note">
-            <label for="note-am">Morning → afternoon shift</label>
-            <div class="writer" id="writer-am"></div>
-            <textarea id="note-am" placeholder="e.g. Dr X covering side effects until 3pm only, GP letters still need clearing…"></textarea>
-            <div class="meta" id="meta-am"></div>
-          </div>
-          <div class="note">
-            <label for="note-pm">Afternoon → next morning shift</label>
-            <div class="writer" id="writer-pm"></div>
-            <textarea id="note-pm" placeholder="e.g. Special requests loaded for tomorrow, aged orders to chase first thing…"></textarea>
-            <div class="meta" id="meta-pm"></div>
+      <section class="box2 tone-note">
+        <div class="bh"><h2>Write a handover</h2><span class="when">Morning handover by 3pm; afternoon handover before you log off.</span></div>
+        <div class="pad">
+          <p class="lock" id="noteLock" hidden>Only the coordinators on the handover list can write handover notes. You can still read them here.</p>
+          <div class="notes">
+            <div class="note">
+              <label for="note-am">Morning → afternoon shift</label>
+              <div class="writer" id="writer-am"></div>
+              <textarea id="note-am" placeholder="e.g. Dr X covering side effects until 3pm only, GP letters still need clearing…"></textarea>
+              <div class="meta" id="meta-am"></div>
+            </div>
+            <div class="note">
+              <label for="note-pm">Afternoon → next morning shift</label>
+              <div class="writer" id="writer-pm"></div>
+              <textarea id="note-pm" placeholder="e.g. Special requests loaded for tomorrow, aged orders to chase first thing…"></textarea>
+              <div class="meta" id="meta-pm"></div>
+            </div>
           </div>
         </div>
       </section>
-
-      <section id="reqs" class="plainbox">
-        <div class="shead"><h2 class="sh">Special allocation &amp; other requests</h2><span class="when">Team lead requests for prescribers, plus any other requests to keep track of. Each stays until its end date.</span></div>
-        <div class="card" id="reqList" style="padding:0;background:var(--bg);border:1.5px solid var(--line)"></div>
-        <button class="toggle" id="pastToggle" hidden></button>
-        <div class="addreq" id="addReq">
+      <section id="reqs" class="box2 tone-req">
+        <div class="bh"><h2>Special allocation &amp; other requests</h2><span class="when">Each stays until its end date.</span></div>
+        <div id="reqList"></div>
+        <div class="reqfoot">
+          <button class="addopen" id="addOpen">+ Add a request</button>
+          <button class="toggle" id="pastToggle" hidden></button>
+        </div>
+        <div class="addreq pad" id="addReq" hidden style="margin-top:0;border-top:1px solid var(--line)">
           <div class="f" style="flex:0 1 150px"><label for="rq-type">Type</label><select id="rq-type"><option value="allocation">Allocation request</option><option value="other">Other request</option></select></div>
-      <div class="f"><label for="rq-who" id="rq-who-l">Prescriber</label><input type="text" id="rq-who" placeholder="e.g. Dr Sarah Khan"></div>
+          <div class="f"><label for="rq-who" id="rq-who-l">Prescriber</label><input type="text" id="rq-who" placeholder="e.g. Dr Sarah Khan"></div>
           <div class="f wide"><label for="rq-what">Request</label><input type="text" id="rq-what" placeholder="e.g. Side effects only, no GP letters"></div>
           <div class="f"><label for="rq-by">Requested by</label><input type="text" id="rq-by" placeholder="Team lead's name"></div>
           <div class="f"><label for="rq-until">Until</label><input type="date" id="rq-until">
             <div class="row"><input type="checkbox" id="rq-open"><label for="rq-open" style="margin:0;font-weight:400">Until further notice</label></div></div>
           <button class="addbtn" id="rq-add">Add request</button>
+          <button class="sd-cancel small" id="rq-cancel">Cancel</button>
           <p class="formerr" id="rq-err"></p>
         </div>
       </section>
@@ -421,7 +435,7 @@ const EMPTY=()=>({text:"",by:null,lastBy:null,at:null});
 const NOTE_PATH={am:"meta/am", pm:"meta/note"};           // older location, read-only fallback
 const notePath=(day,k)=>"handover/"+day+"_"+k;             // only editors can write here
 let noteSrc={am:{},pm:{},prev:{}}, notesLocked=false;
-let requests=[], showPast=false, unsubReqs=null;
+let requests=[], showPast=false, unsubReqs=null, reqFormOpen=false;
 let notes = {am:EMPTY(), pm:EMPTY()}, prevPm = EMPTY();
 let db=null, user=null, myId=null, names={}, unsubTicks=null, unsubNotes=[], readOnly=false, mode="local";
 
@@ -454,7 +468,7 @@ function renderRequests(){
   });
   const pt=document.getElementById("pastToggle");
   pt.hidden=!past.length; pt.textContent=showPast? "Hide past requests" : "Show past requests ("+past.length+")";
-  document.getElementById("addReq").hidden=readOnly;
+  document.getElementById("addReq").hidden=readOnly||!reqFormOpen; document.getElementById("addOpen").hidden=readOnly||reqFormOpen;
 }
 
 function labelFor(id){
@@ -682,6 +696,8 @@ document.getElementById("rq-type").onchange=e=>{
   document.getElementById("rq-who").placeholder= other? "e.g. a prescriber, team or inbox" : "e.g. Dr Sarah Khan";
   document.getElementById("rq-what").placeholder= other? "e.g. Cover the coordinator inbox 2–3pm" : "e.g. Side effects only, no GP letters";
 };
+document.getElementById("addOpen").onclick=()=>{ reqFormOpen=true; renderRequests(); document.getElementById("rq-who").focus(); };
+document.getElementById("rq-cancel").onclick=()=>{ reqFormOpen=false; document.getElementById("rq-err").textContent=""; renderRequests(); };
 document.getElementById("pastToggle").onclick=()=>{ showPast=!showPast; renderRequests(); };
 document.getElementById("rq-open").onchange=e=>{ document.getElementById("rq-until").disabled=e.target.checked; };
 document.getElementById("rq-add").onclick=async()=>{
@@ -697,7 +713,7 @@ document.getElementById("rq-add").onclick=async()=>{
   try{
     if(mode==="local"){ rec.id="r"+rec.at; requests.push(rec); saveLocalReqs(); render(); }
     else await db.collection("requests").add(rec);
-    ["rq-who","rq-what","rq-by","rq-until"].forEach(id=>g(id).value=""); g("rq-open").checked=false; g("rq-until").disabled=false; g("rq-type").value="allocation"; g("rq-type").dispatchEvent(new Event("change"));
+    ["rq-who","rq-what","rq-by","rq-until"].forEach(id=>g(id).value=""); g("rq-open").checked=false; g("rq-until").disabled=false; g("rq-type").value="allocation"; g("rq-type").dispatchEvent(new Event("change")); reqFormOpen=false; renderRequests();
   }catch(e){ err.textContent= e&&(e.code==="invalid_argument"||e.code==="permission-denied") ? "You don't have access to add requests." : "That request didn't save. Try again."; }
   btn.disabled=false;
 };
