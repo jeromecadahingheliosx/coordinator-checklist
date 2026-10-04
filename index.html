@@ -15,18 +15,19 @@
   --t-start:#F0E8FF; --t-start-ink:#5B21B6;
   --t-any:#DFF5F1; --t-any-ink:#0B6159;
   --t-end:#FFF0DE; --t-end-ink:#8A4300;
+  --tip:#FFF4C2; --tip-ink:#5C4400; --tip-line:#D4A72C;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A;
+    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F;
   }
 }
 :root[data-theme="dark"]{
   --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A;
+  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F;
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -87,6 +88,27 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 .shiftchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;align-items:center}
 .logbtn{font:600 12px "Inter",sans-serif;border-radius:999px;border:1.5px solid var(--tone-ink,var(--blue));background:var(--bg);color:var(--tone-ink,var(--blue));padding:2px 11px;min-height:26px;cursor:pointer}
 .logbtn:hover{background:var(--tone,var(--panel))}
+.editsched{margin-left:auto;font:600 12px "Inter",sans-serif;border-radius:999px;border:1.5px solid var(--tone-ink);background:var(--bg);color:var(--tone-ink);padding:3px 12px;cursor:pointer}
+.editsched:hover{background:var(--panel)}
+dialog#schedDlg{width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 40px);border:0;border-radius:16px;padding:0;background:var(--page);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog#schedDlg::backdrop{background:rgba(10,12,30,.45)}
+.sd-head{padding:16px 18px 8px}
+.sd-head h2{margin:0;font:700 17px "Space Grotesk",sans-serif}
+.sd-head p{margin:4px 0 0;font-size:12.5px;color:var(--muted)}
+.sd-list{padding:6px 18px;display:flex;flex-direction:column;gap:10px}
+.sd-card{background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+.sd-card label{display:block;font-size:11.5px;font-weight:600;margin:0 0 3px}
+.sd-card input,.sd-card textarea{width:100%;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:6px 9px;font:400 13px "Inter",sans-serif}
+.sd-card textarea{min-height:52px;resize:vertical}
+.sd-card .full{grid-column:1/-1}
+.sd-card .row{display:flex;gap:6px;align-items:center;justify-content:flex-end;grid-column:1/-1}
+.sd-card .row button,.sd-cancel,.sd-reset{font:500 12px "Inter",sans-serif;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:4px 11px;cursor:pointer}
+.sd-card .row .del{color:var(--late)}
+.sd-add{margin:8px 18px 0;font:600 12.5px "Inter",sans-serif;border-radius:999px;border:1.5px dashed var(--blue);background:transparent;color:var(--blue);padding:6px 14px;cursor:pointer}
+.sd-foot{position:sticky;bottom:0;display:flex;gap:8px;align-items:center;padding:12px 18px;background:var(--page);border-top:1px solid var(--line);margin-top:10px}
+#schedErr{margin:6px 18px 0}
+.orphans{margin:4px 12px 8px;font-size:11.5px;color:var(--muted)}
+@media (max-width:560px){.sd-card{grid-template-columns:1fr}}
 .plainbox{background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}
 .plainbox .shead{margin-left:0}
 .logbtn:disabled{opacity:.5;cursor:default}
@@ -97,10 +119,10 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 
 /* key */
 details.key{margin:0 2px 8px;font-size:12.5px}
-details.key summary{cursor:pointer;width:max-content;list-style:none;display:inline-flex;align-items:center;gap:6px;font:600 12.5px "Inter",sans-serif;color:var(--late);background:var(--t-time);border:1.5px solid var(--blue);border-radius:999px;padding:3px 12px 3px 8px}
+details.key summary{cursor:pointer;width:max-content;list-style:none;display:inline-flex;align-items:center;gap:6px;font:600 12.5px "Inter",sans-serif;color:var(--tip-ink);background:var(--tip);border:1.5px solid var(--tip-line);border-radius:999px;padding:3px 12px 3px 8px}
 details.key summary::-webkit-details-marker{display:none}
-details.key summary::before{content:"i";display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--blue);color:var(--bg);font:700 11px/1 Georgia,serif}
-details.key summary::after{content:"▾";font-size:11px;color:var(--blue)}
+details.key summary::before{content:"i";display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--tip-ink);color:var(--tip);font:700 11px/1 Georgia,serif}
+details.key summary::after{content:"▾";font-size:11px;color:var(--tip-ink)}
 details.key[open] summary::after{content:"▴"}
 details.key summary:hover{filter:brightness(0.97)}
 details.key dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;margin:8px 0 2px;padding:10px 12px;background:var(--panel);border-radius:12px}
@@ -238,18 +260,10 @@ const COMPANY_DOMAIN = "heliosx.com";
   <div class="cols">
     <div class="main">
       <section class="box2 tone-time">
-        <div class="bh"><h2>Through the day, hour by hour</h2><span class="when">Tick each check as you do it. Finished hours fold away.</span></div>
+        <div class="bh"><h2>Through the day, hour by hour</h2><span class="when">Tick each check as you do it. Finished hours fold away.</span><button class="editsched" id="editSched" hidden>Edit schedule</button></div>
         <details class="key" style="margin:8px 12px 0">
           <summary>What each check means</summary>
-          <dl>
-            <dt>Titan Q</dt><dd>Every 2 hours. Check Titan Q for any issues; no order in the queue should be older than 3 hours.</dd>
-            <dt>AP cleared</dt><dd>Every hour. Confirm AP has been cleared and chase if it's building up. GP leads clear 9–5; GP prescribers cover the hours they work.</dd>
-            <dt>Live chat added</dt><dd>At 10am, 2pm and 5pm, add the prescribers covering live chat for that time slot to the live chat inbox, and remove them from the email inbox.</dd>
-            <dt>GP FIN breaches</dt><dd>Check there are no breaches on GP letters – FIN. If letters are building up or close to breaching, make sure a prescriber is working on them and assign one if not.</dd>
-            <dt>AP fully cleared</dt><dd>AP must be fully cleared by 6:30pm.</dd>
-            <dt>Volumes posted</dt><dd>Paste the clinical and workflow volumes in the <a href="https://heliosx.enterprise.slack.com/archives/C0ANED16VB2" target="_blank" rel="noopener">coordinator channel</a> at 9am, 12pm, 3pm and 6pm.</dd>
-            <dt>Morning handover</dt><dd>Write it at 3pm in the box at the bottom of the page.</dd>
-          </dl>
+          <dl id="keyList"></dl>
         </details>
         <div id="timeline" style="padding:6px"></div>
       </section>
@@ -293,6 +307,22 @@ const COMPANY_DOMAIN = "heliosx.com";
 
 </div>
 
+<dialog id="schedDlg" aria-labelledby="schedTitle">
+  <div class="sd-head">
+    <h2 id="schedTitle">Edit the hour-by-hour schedule</h2>
+    <p>Changes apply to everyone straight away. Times use the 24-hour clock, separated by commas (for example 09:00, 11:00, 13:00).</p>
+  </div>
+  <div id="schedList" class="sd-list"></div>
+  <button class="sd-add" id="schedAdd">+ Add a check</button>
+  <p class="formerr" id="schedErr"></p>
+  <div class="sd-foot">
+    <button class="sd-reset" id="schedReset">Reset to original schedule</button>
+    <span style="flex:1"></span>
+    <button class="sd-cancel" id="schedCancel">Cancel</button>
+    <button class="addbtn" id="schedSave">Save schedule</button>
+  </div>
+</dialog>
+
 <script>
 const CHECK = '<svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';
 const L = {
@@ -310,21 +340,35 @@ const L = {
 };
 // Timeline: each hour's checks. Ids match the older layout so earlier ticks still count.
 // "due" = time after which an unticked check shows as overdue (when viewing today).
-const HOURS = [
-  {h:"09:00", due:"09:30", items:[["titan-09","Titan Q"],["ap-hr-09","AP cleared"],["vol-post-09","Volumes posted"]]},
-  {h:"10:00", due:"10:30", items:[["ap-hr-10","AP cleared"],["chat-10","Live chat added"]]},
-  {h:"11:00", due:"11:30", items:[["titan-11","Titan Q"],["ap-hr-11","AP cleared"],["gp-am","GP FIN breaches"]]},
-  {h:"12:00", due:"12:30", items:[["ap-hr-12","AP cleared"],["vol-post-12","Volumes posted"]]},
-  {h:"13:00", due:"13:30", items:[["titan-13","Titan Q"],["ap-hr-13","AP cleared"]]},
-  {h:"14:00", due:"14:30", items:[["ap-hr-14","AP cleared"],["chat-14","Live chat added"]]},
-  {h:"15:00", due:"15:30", items:[["titan-15","Titan Q"],["ap-hr-15","AP cleared"],["gp-pm","GP FIN breaches"],["vol-post-15","Volumes posted"],["handover-am","Morning handover"]]},
-  {h:"16:00", due:"16:30", items:[["ap-hr-16","AP cleared"]]},
-  {h:"17:00", due:"17:30", items:[["titan-17","Titan Q"],["ap-hr-17","AP cleared"],["chat-17","Live chat added"]]},
-  {h:"18:00", due:"18:30", items:[["ap-hr-18","AP cleared"],["gp-eve","GP FIN breaches"],["vol-post-18","Volumes posted"],["ap-clear","AP fully cleared"]]},
-  {h:"19:00", due:"19:30", items:[["ap-hr-19","AP cleared"]]},
-  {h:"20:00", due:"20:30", items:[["ap-hr-20","AP cleared"]]},
-  {h:"21:00", due:"21:30", items:[["ap-hr-21","AP cleared"]]}
+// The hour-by-hour checks. Editable from the page via "Edit schedule"; this is the original default.
+// Each time can carry the id used before, so earlier ticks keep counting.
+const hh=t=>t.slice(0,2);
+const DEFAULT_CHECKS = [
+  {key:"titan", label:"Titan Q", grace:30, desc:"Every 2 hours. Check Titan Q for any issues; no order in the queue should be older than 3 hours.",
+    times:["09:00","11:00","13:00","15:00","17:00"].map(t=>({t,id:"titan-"+hh(t)}))},
+  {key:"ap-hr", label:"AP cleared", grace:30, desc:"Every hour. Confirm AP has been cleared and chase if it's building up. GP leads clear 9–5; GP prescribers cover the hours they work.",
+    times:["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00"].map(t=>({t,id:"ap-hr-"+hh(t)}))},
+  {key:"chat", label:"Live chat added", grace:30, desc:"Add the prescribers covering live chat for that time slot to the live chat inbox, and remove them from the email inbox.",
+    times:["10:00","14:00","17:00"].map(t=>({t,id:"chat-"+hh(t)}))},
+  {key:"gp", label:"GP FIN breaches", grace:30, desc:"Check there are no breaches on GP letters – FIN. If letters are building up or close to breaching, make sure a prescriber is working on them and assign one if not.",
+    times:[{t:"11:00",id:"gp-am"},{t:"15:00",id:"gp-pm"},{t:"18:00",id:"gp-eve"}]},
+  {key:"vol-post", label:"Volumes posted", grace:30, desc:"Paste the clinical and workflow volumes in the coordinator channel.",
+    link:{label:"Coordinator channel",url:"https://heliosx.enterprise.slack.com/archives/C0ANED16VB2"},
+    times:["09:00","12:00","15:00","18:00"].map(t=>({t,id:"vol-post-"+hh(t)}))},
+  {key:"handover-am", label:"Morning handover", grace:30, desc:"Write the morning → afternoon handover in the box below the timeline.",
+    times:[{t:"15:00",id:"handover-am"}]},
+  {key:"ap-clear", label:"AP fully cleared", grace:30, desc:"AP must be fully cleared by the end of this slot.",
+    times:[{t:"18:00",id:"ap-clear"}]}
 ];
+function addMins(t,m){ const [H,M]=t.split(":").map(Number); const x=Math.min(23*60+59,H*60+M+(Number(m)||0)); return String(Math.floor(x/60)).padStart(2,"0")+":"+String(x%60).padStart(2,"0"); }
+function validChecks(c){ return Array.isArray(c) && c.length>0 && c.every(k=>k&&typeof k.label==="string"&&Array.isArray(k.times)&&k.times.every(x=>x&&/^\d{2}:\d{2}$/.test(x.t)&&typeof x.id==="string")); }
+function buildHours(checks){
+  const map={};
+  checks.forEach(c=>c.times.forEach(x=>{ (map[x.t]=map[x.t]||[]).push({id:x.id,label:c.label,due:addMins(x.t,c.grace)}); }));
+  return Object.keys(map).sort().map(t=>({h:t, due:map[t].reduce((a,i)=>i.due>a?i.due:a,"00:00"), items:map[t]}));
+}
+let CHECKS = DEFAULT_CHECKS, HOURS = buildHours(CHECKS);
+try{ const ls=JSON.parse(localStorage.getItem("cc-schedule")||"null"); if(validChecks(ls)){ CHECKS=ls; HOURS=buildHours(ls); } }catch(e){}
 const SIDE = [
   {title:"Monday: plan the week", when:"Mondays only", tone:"mon", mondayOnly:true, tasks:[
     {id:"ap-week", t:"AP: confirm coverage for the whole week", d:"GP leads clear 9–5; GP prescribers cover the hours they work.", links:[L.ap]},
@@ -352,7 +396,7 @@ const SIDE = [
 const AFTERNOON_FROM = 15; // from 3pm the afternoon shift sees this morning's handover at the top
 function isMonday(key){ const [y,m,d]=key.split("-").map(Number); return new Date(y,m-1,d).getDay()===1; }
 function sideFor(key){ return SIDE.filter(s=>!s.mondayOnly||isMonday(key)); }
-function idsFor(key){ const ids=[]; HOURS.forEach(h=>h.items.forEach(i=>ids.push(i[0]))); sideFor(key).forEach(s=>s.tasks.forEach(t=>ids.push(t.id))); return ids; }
+function idsFor(key){ const ids=[]; HOURS.forEach(h=>h.items.forEach(i=>ids.push(i.id))); sideFor(key).forEach(s=>s.tasks.forEach(t=>ids.push(t.id))); return ids; }
 let expanded={}, carryOverride=null;
 function logsFor(id){ const p=id+"-x"; return Object.keys(ticks).filter(k=>k.startsWith(p)).map(k=>({key:k,...ticks[k]})).sort((a,b)=>(a.at||0)-(b.at||0)); }
 function isDone(id){ return !!ticks[id] || logsFor(id).length>0; }
@@ -399,14 +443,20 @@ function renderRequests(){
   document.getElementById("addReq").hidden=readOnly;
 }
 
+function labelFor(id){
+  for(const h of HOURS) for(const i of h.items) if(i.id===id) return i.label+" "+h.h;
+  for(const s of SIDE) for(const t of s.tasks) if(t.id===id) return t.t;
+  return id;
+}
+function canEditSchedule(){ return mode==="local" || (!!db && !readOnly && !notesLocked); }
 function hhmm(){ const n=new Date(); return String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0"); }
 function whoLine(id){ const t=ticks[id]; return t? nameOf(t.by)+" at "+hm(t.at) : ""; }
 function renderTimeline(isToday,nowHM){
   const tl=document.getElementById("timeline"); tl.replaceChildren();
   const nowIdx = isToday ? HOURS.reduce((acc,h,i)=> nowHM>=h.h ? i : acc, -1) : -1;
   HOURS.forEach((h,i)=>{
-    const allDone=h.items.every(it=>ticks[it[0]]);
-    const late=isToday && nowHM>h.due && h.items.some(it=>!ticks[it[0]]);
+    const allDone=h.items.every(it=>ticks[it.id]);
+    const late=isToday && h.items.some(it=>!ticks[it.id] && nowHM>it.due);
     const isNow=i===nowIdx && !allDone;
     const row=el("div","hour"+(isNow?" now":"")+(late?" late":""));
     const lab=el("div","lab"); lab.append(el("b",null,h.label||h.h));
@@ -420,8 +470,8 @@ function renderTimeline(isToday,nowHM){
       db_.append(b); body.append(db_); row.append(body); tl.append(row); return;
     }
     const chips=el("div","chips"); const who=[];
-    h.items.forEach(([id,label])=>{
-      const on=!!ticks[id], lateChip=!on&&isToday&&nowHM>h.due;
+    h.items.forEach(({id,label,due})=>{
+      const on=!!ticks[id], lateChip=!on&&isToday&&nowHM>due;
       const c=el("button","chip"+(on?" on":"")+(lateChip?" late":""),label);
       c.setAttribute("aria-pressed",on?"true":"false"); c.disabled=readOnly;
       c.setAttribute("aria-label",label+", "+(h.label||h.h)+(on?", done by "+whoLine(id):lateChip?", overdue":""));
@@ -434,6 +484,21 @@ function renderTimeline(isToday,nowHM){
     if(allDone){ const b=el("button","linkbtn","Fold away"); b.onclick=()=>{ expanded[h.h]=false; render(); }; body.append(b); }
     row.append(body); tl.append(row);
   });
+  const known=new Set(idsFor(viewDate));
+  const sideLogs=SIDE.filter(s=>s.log).flatMap(s=>s.tasks.map(t=>t.id+"-x"));
+  const orph=Object.keys(ticks).filter(k=>!known.has(k) && !sideLogs.some(p=>k.startsWith(p)));
+  if(orph.length){
+    tl.append(el("p","orphans","Also ticked this day, from an earlier version of the schedule: "+orph.map(k=>(ticks[k].lab||k)+" ("+whoLine(k)+")").join(", ")));
+  }
+  const kl=document.getElementById("keyList"); kl.replaceChildren();
+  CHECKS.forEach(c=>{
+    kl.append(el("dt",null,c.label));
+    const dd=el("dd",null,(c.desc||"")+" ");
+    if(c.link&&c.link.url){ const a=el("a",null,c.link.label||"Link"); a.href=c.link.url; a.target="_blank"; a.rel="noopener"; dd.append(a,". "); }
+    dd.append("Times: "+c.times.map(x=>x.t).join(", ")+".");
+    kl.append(dd);
+  });
+  document.getElementById("editSched").hidden=!canEditSchedule();
 }
 function renderSide(){
   const side=document.getElementById("side"); side.replaceChildren();
@@ -533,7 +598,7 @@ function subscribe(){
   const day=viewDate;
   unsubTicks = db.collection("days/"+day+"/ticks").onSnapshot(snap=>{
     if(day!==viewDate) return;
-    const next={}; snap.docs.forEach(d=>{ const v=d.data(); if(v){ next[d.id]={by:v.by||null,at:v.at||null}; if(v.by&&v.byName) names[v.by]=v.byName; } });
+    const next={}; snap.docs.forEach(d=>{ const v=d.data(); if(v){ next[d.id]={by:v.by||null,at:v.at||null,lab:v.lab||null}; if(v.by&&v.byName) names[v.by]=v.byName; } });
     ticks=next; render(); resolveNames();
   }, ()=>setNotice("Couldn't load today's ticks. Refresh the page to try again."));
   const toNote=sn=>{ const v=sn.exists? sn.data() : null; if(v){ if(v.by&&v.byName) names[v.by]=v.byName; if(v.lastBy&&v.lastByName) names[v.lastBy]=v.lastByName; } return v? {text:v.text||"",by:v.by||null,lastBy:v.lastBy||null,at:v.at||null} : null; };
@@ -557,7 +622,7 @@ async function toggle(id){
   render();
   if(mode==="local"){ localSave(); return; }
   const ref=db.doc("days/"+viewDate+"/ticks/"+id);
-  try{ if(was) await ref.delete(); else await ref.set({by:myId,byName:myName,at:ticks[id].at}); }
+  try{ if(was) await ref.delete(); else await ref.set({by:myId,byName:myName,at:ticks[id].at,lab:labelFor(id)}); }
   catch(e){
     if(was) ticks[id]=was; else delete ticks[id];
     if(e&&(e.code==="invalid_argument"||e.code==="permission-denied")){ readOnly=true; setNotice("You have view-only access, so you can't tick items. Ask the owner for Contributor access."); }
@@ -618,6 +683,68 @@ async function removeReq(r){
   try{ await db.doc("requests/"+r.id).delete(); }catch(e){ setNotice("That request couldn't be removed. Try again."); }
 }
 
+let unsubSched=null;
+function applySchedule(c){ CHECKS = validChecks(c)? c : DEFAULT_CHECKS; HOURS=buildHours(CHECKS); render(); }
+function subscribeSchedule(){
+  if(unsubSched){ unsubSched(); unsubSched=null; }
+  unsubSched=db.doc("config/schedule").onSnapshot(sn=>{ const v=sn.exists? sn.data() : null; applySchedule(v&&v.checks); }, ()=>{});
+}
+let draft=[];
+function slug(x){ return (x||"check").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,20)||"check"; }
+function openSched(){
+  draft=JSON.parse(JSON.stringify(CHECKS)).map(c=>({...c, timesText:c.times.map(x=>x.t).join(", ")}));
+  document.getElementById("schedErr").textContent="";
+  drawSched(); document.getElementById("schedDlg").showModal();
+}
+function drawSched(){
+  const list=document.getElementById("schedList"); list.replaceChildren();
+  draft.forEach((c,i)=>{
+    const card=el("div","sd-card");
+    const f=(lab,node,full)=>{ const w=el("div",full?"full":null); const l=el("label",null,lab); const idf="sd-"+i+"-"+lab.replace(/\W+/g,""); l.htmlFor=idf; node.id=idf; w.append(l,node); card.append(w); };
+    const name=el("input"); name.value=c.label||""; name.oninput=e=>c.label=e.target.value; f("Name shown on the button",name);
+    const grace=el("input"); grace.type="number"; grace.min="0"; grace.max="240"; grace.step="5"; grace.value=c.grace??30; grace.oninput=e=>c.grace=Number(e.target.value); f("Turns overdue after (minutes)",grace);
+    const times=el("input"); times.value=c.timesText; times.placeholder="09:00, 11:00, 13:00"; times.oninput=e=>c.timesText=e.target.value; f("Times",times,true);
+    const desc=el("textarea"); desc.value=c.desc||""; desc.oninput=e=>c.desc=e.target.value; f("What it means (shown in the key)",desc,true);
+    const row=el("div","row");
+    const up=el("button",null,"↑ Move up"); up.disabled=i===0; up.onclick=()=>{ [draft[i-1],draft[i]]=[draft[i],draft[i-1]]; drawSched(); };
+    const dn=el("button",null,"↓ Move down"); dn.disabled=i===draft.length-1; dn.onclick=()=>{ [draft[i+1],draft[i]]=[draft[i],draft[i+1]]; drawSched(); };
+    const del=el("button","del","Remove"); del.onclick=()=>{ if(confirm("Remove "+(c.label||"this check")+" from the schedule?")){ draft.splice(i,1); drawSched(); } };
+    row.append(up,dn,del); card.append(row); list.append(card);
+  });
+}
+function normTimes(txt){
+  const out=[]; for(const raw of (txt||"").split(/[,;\s]+/).filter(Boolean)){
+    const m=raw.match(/^(\d{1,2})[:.](\d{2})$/) || raw.match(/^(\d{1,2})$/);
+    if(!m) return null; const H=Number(m[1]), M=Number(m[2]||0); if(H>23||M>59) return null;
+    out.push(String(H).padStart(2,"0")+":"+String(M).padStart(2,"0"));
+  } return [...new Set(out)].sort();
+}
+document.getElementById("editSched").onclick=openSched;
+document.getElementById("schedCancel").onclick=()=>document.getElementById("schedDlg").close();
+document.getElementById("schedAdd").onclick=()=>{ draft.push({key:"",label:"",grace:30,desc:"",times:[],timesText:""}); drawSched(); const ins=document.querySelectorAll("#schedList input"); if(ins.length) ins[ins.length-3].focus(); };
+document.getElementById("schedReset").onclick=()=>{ if(confirm("Put the schedule back to the original times and checks?")){ draft=JSON.parse(JSON.stringify(DEFAULT_CHECKS)).map(c=>({...c,timesText:c.times.map(x=>x.t).join(", ")})); drawSched(); } };
+document.getElementById("schedSave").onclick=async()=>{
+  const err=document.getElementById("schedErr"); err.textContent="";
+  const used=new Set(), out=[];
+  for(const c of draft){
+    const label=(c.label||"").trim(); if(!label){ err.textContent="Every check needs a name."; return; }
+    const ts=normTimes(c.timesText); if(!ts||!ts.length){ err.textContent="Check the times for "+label+". Use 24-hour times separated by commas, like 09:00, 13:30."; return; }
+    const key=c.key||(slug(label)+"-"+Math.random().toString(36).slice(2,6));
+    const old={}; (c.times||[]).forEach(x=>old[x.t]=x.id);
+    const times=ts.map(t=>{ let id=old[t]||(key+"-"+t.replace(":","")); while(used.has(id)) id+="b"; used.add(id); return {t,id}; });
+    const o={key,label,grace:Math.max(0,Math.min(240,Number(c.grace)||0)),desc:(c.desc||"").trim(),times}; if(c.link) o.link=c.link;
+    out.push(o);
+  }
+  if(!out.length){ err.textContent="Keep at least one check on the schedule."; return; }
+  const btn=document.getElementById("schedSave"); btn.disabled=true;
+  try{
+    if(mode==="local"){ try{ localStorage.setItem("cc-schedule",JSON.stringify(out)); }catch(e){} applySchedule(out); }
+    else await db.doc("config/schedule").set({checks:out, by:myId, at:Date.now()});
+    document.getElementById("schedDlg").close();
+  }catch(e){ err.textContent=(e&&(e.code==="permission-denied"||e.code==="invalid_argument"))? "You don't have permission to change the schedule." : "The schedule didn't save. Try again."; }
+  btn.disabled=false;
+};
+
 function setNotice(t){ document.getElementById("notice").textContent=t; }
 function go(key){
   saveAll();
@@ -662,7 +789,7 @@ let myName="";
   });
   auth.getRedirectResult().catch(explain);
   auth.onAuthStateChanged(u=>{
-    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;}
+    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubSched){unsubSched();unsubSched=null;}
     if(!u){
       mode="shared"; db=null; ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
       readOnly=true; gate.hidden=false; content.forEach(e=>e.hidden=true); setNotice(""); return;
@@ -680,7 +807,7 @@ let myName="";
     const n=document.getElementById("notice"); n.textContent="Shared live. Signed in as "+myName+".";
     const so=el("button","signout","Sign out"); so.onclick=()=>auth.signOut(); n.append(so);
     ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
-    render(); subscribe(); subscribeRequests();
+    render(); subscribe(); subscribeRequests(); subscribeSchedule();
   });
 })();
 </script>
