@@ -374,7 +374,7 @@ const SIDE = [
     {id:"ap-week", t:"AP: confirm coverage for the whole week", d:"GP leads clear 9–5; GP prescribers cover the hours they work.", links:[L.ap]},
     {id:"calendly-week", t:"Calendly schedules set for the whole week", d:"Check every Calendly schedule is set up and correct for Monday to Sunday."}
   ]},
-  {title:"Start of shift", when:"First thing, reports by 9:30am", tone:"start", tasks:[
+  {title:"Start of shift", when:"In the morning", tone:"start", tasks:[
     {id:"rota-se", t:"Side effect rota has cover today", links:[L.se]},
     {id:"rota-cs", t:"Clinical support rota has cover today", links:[L.cs]},
     {id:"silent", t:"Silent failures updated", d:"Make sure these are up to date by 9:30am.", links:[L.sfSheet,L.sfReport]},
@@ -386,7 +386,7 @@ const SIDE = [
     {id:"shifts", t:"One-off shift change requests", d:"Check for new one-off shift change requests.", links:[L.shiftreq]},
     {id:"wf-queries", t:"Check workflow queries", d:"Pick up anything outstanding in the workflow queries list.", links:[L.wfq]}
   ]},
-  {title:"End of day", when:"Before 9pm", tone:"end", tasks:[
+  {title:"End of day", when:"By 9–9:30pm", tone:"end", tasks:[
     {id:"inbox", t:"Coordinator inbox cleared"},
     {id:"engine", t:"Rota for tomorrow prepared", d:"Before the 9pm engine run: fill tomorrow's backlogs, manually assign the prescribers scheduled for side effects and clinical support, and factor in the special allocation requests at the bottom of this page."},
     {id:"alloc-posted", t:"Live chat and side effects allocations posted to the group chats"},
