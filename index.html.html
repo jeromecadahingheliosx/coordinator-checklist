@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Coordinator daily checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#F3F5FA; --bg:#FFFFFF; --panel:#EDF2FA; --ink:#0A0A0A; --muted:#555B66; --line:#DCE3EF;
+  --blue:#0000FF; --done:#0A7D55; --late:#C8102E; --latebg:#FDECEE; --chip:#FFFFFF; --tick:#FFFFFF; --nowbg:#FFFFFF;
+  --grad:linear-gradient(120deg,#4400CC 0%,#0000FF 40%,#0066FF 75%,#00A3C4 100%);
+  --t-time:#E6EEFF; --t-time-ink:#0000B8;
+  --t-mon:#F0E8FF; --t-mon-ink:#5B21B6;
+  --t-start:#E3F0FF; --t-start-ink:#0B4FA8;
+  --t-any:#DFF5F1; --t-any-ink:#0B6159;
+  --t-end:#FFF0DE; --t-end-ink:#8A4300;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
+    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#2A1A4F; --t-mon-ink:#D6C4FF; --t-start:#122A4D; --t-start-ink:#A9CCFF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A;
+  }
+}
+:root[data-theme="dark"]{
+  --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
+  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#2A1A4F; --t-mon-ink:#D6C4FF; --t-start:#122A4D; --t-start-ink:#A9CCFF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--page);color:var(--ink);font:400 13px/1.45 "Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--blue)}
+button{font-family:inherit}
+.wrap{max-width:1320px;margin:0 auto;padding:16px 16px 48px;display:flex;flex-direction:column;gap:14px}
+:focus-visible{outline:3px solid #00A3C4;outline-offset:2px}
+
+/* header */
+.hero{background:var(--grad);color:#fff;border-radius:16px;padding:12px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.hero .ttl{flex:1 1 260px;min-width:0}
+.hero h1{margin:0;font:700 21px/1.1 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.01em}
+.hero .day{margin:3px 0 0;font:500 13px "Inter",sans-serif}
+.navs{display:flex;gap:6px}
+.nav{height:32px;min-width:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.12);color:#fff;font:500 13px "Inter",sans-serif;cursor:pointer}
+.nav:hover{background:rgba(255,255,255,.22)} .nav:disabled{opacity:.5;cursor:default}
+.progress{flex:0 1 260px;display:flex;align-items:center;gap:10px}
+.bar{flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,.28);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:#fff;border-radius:999px;transition:width .35s ease}
+.count{font:700 16px "Space Grotesk",sans-serif;min-width:52px;text-align:right}
+.alldone{flex-basis:100%;margin:0;font-weight:600}
+.notice{margin:-4px 2px 0;font-size:12px;color:var(--muted)}
+
+/* applicable handover */
+.carry{border:2px solid var(--blue);border-radius:14px;padding:11px 14px;background:var(--bg)}
+.carry .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.carry h2{margin:0;font:600 13.5px "Inter",sans-serif;flex:1 1 auto}
+.carry .txt{white-space:pre-wrap;margin:5px 0 0;font-size:13.5px}
+.carry .txt.empty{color:var(--muted);font-style:italic}
+.carry .meta{font-size:11.5px;color:var(--muted);margin-top:5px}
+.linkbtn{background:none;border:0;color:var(--blue);font:500 12px "Inter",sans-serif;cursor:pointer;padding:2px 0;text-decoration:underline}
+
+/* columns */
+.cols{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.main{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.side{flex:1 1 330px;min-width:0;display:flex;flex-direction:column;gap:14px}
+section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
+.shead{display:flex;align-items:baseline;gap:8px;margin:0 2px 7px;flex-wrap:wrap}
+.shead .when{font-size:12px;color:var(--muted)}
+.card{background:var(--panel);border-radius:14px;padding:4px}
+.box2{border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:var(--bg)}
+.box2 > .bh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding:9px 12px;background:var(--tone);border-bottom:1.5px solid var(--line)}
+.box2 > .bh h2{margin:0;font:700 13.5px "Inter",sans-serif;color:var(--tone-ink);letter-spacing:.01em}
+.box2 > .bh .when{font-size:12px;color:var(--tone-ink)}
+.tone-time{--tone:var(--t-time);--tone-ink:var(--t-time-ink)}
+.tone-mon{--tone:var(--t-mon);--tone-ink:var(--t-mon-ink)}
+.tone-start{--tone:var(--t-start);--tone-ink:var(--t-start-ink)}
+.tone-any{--tone:var(--t-any);--tone-ink:var(--t-any-ink)}
+.tone-end{--tone:var(--t-end);--tone-ink:var(--t-end-ink)}
+.box2.tone-time,.box2.tone-mon,.box2.tone-start,.box2.tone-any,.box2.tone-end{border-color:var(--tone-ink);border-color:color-mix(in srgb,var(--tone-ink) 35%,var(--line))}
+.task.multi{grid-template-columns:1fr}
+.shiftchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;align-items:center}
+.logbtn{font:600 12.5px "Inter",sans-serif;border-radius:999px;border:0;background:var(--tone-ink,var(--blue));color:var(--bg);padding:4px 12px;min-height:30px;cursor:pointer}
+.logbtn:disabled{opacity:.5;cursor:default}
+.logent{display:inline-flex;align-items:center;gap:2px;font:500 12px "Inter",sans-serif;border-radius:999px;background:var(--done);color:var(--tick);padding:2px 4px 2px 10px;min-height:26px}
+.logent button{background:none;border:0;color:inherit;font:600 14px/1 "Inter",sans-serif;cursor:pointer;padding:3px 6px;border-radius:999px}
+.logent button:hover{background:rgba(255,255,255,.2)}
+.logcount{font-size:11.5px;color:var(--muted)}
+
+/* key */
+details.key{margin:0 2px 8px;font-size:12.5px}
+details.key summary{cursor:pointer;color:var(--blue);font-weight:500;width:max-content}
+details.key dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;margin:8px 0 2px;padding:10px 12px;background:var(--panel);border-radius:12px}
+details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
+
+/* timeline */
+.hour{display:flex;gap:12px;align-items:flex-start;padding:7px 12px;border-radius:10px;border:2px solid transparent}
+.hour + .hour{margin-top:2px}
+.hour .lab{width:50px;flex:0 0 50px;padding-top:3px}
+.hour .lab b{display:block;font:700 12.5px "Space Grotesk",sans-serif}
+.hour .lab span{display:block;font:600 10px "Inter",sans-serif;color:var(--blue)}
+.hour .body{flex:1;min-width:0}
+.hour .chips{gap:5px}
+.hour .who{font-size:11px;margin-top:4px}
+.hour.now{background:var(--nowbg);border-color:var(--blue)}
+.hour.now .lab b{color:var(--blue)}
+.hour.late{background:var(--latebg)}
+.hour.late .lab span{color:var(--late)}
+.hour.collapsed{padding:4px 12px;align-items:center}
+.hour.collapsed .lab b{font-size:12.5px;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:500 11.5px "Inter",sans-serif;border-radius:999px;border:1.5px solid var(--blue);background:var(--chip);color:var(--blue);padding:2px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;min-height:26px}
+.chip.on{background:var(--done);border-color:var(--done);color:var(--tick)}
+.chip.late{border-color:var(--late);color:var(--late)}
+.chip.late::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--late)}
+.chip:disabled{cursor:default}
+.who{font-size:11.5px;color:var(--muted);margin-top:5px}
+.donebar{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--done);font-weight:500}
+
+/* tasks */
+.task{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:9px 12px}
+.task + .task{border-top:1px solid var(--line)}
+.box{width:20px;height:20px;border-radius:6px;border:2px solid var(--blue);background:transparent;cursor:pointer;display:grid;place-items:center;margin-top:1px;padding:0}
+.box svg{width:12px;height:12px;opacity:0}
+.task.is-done .box{background:var(--done);border-color:var(--done)}
+.task.is-done .box svg{opacity:1}
+.task.is-done .t{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
+.t{font-weight:600;margin:0}
+.d{margin:2px 0 0;color:var(--muted);font-size:12.5px}
+.links{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.links a{font-size:12px;font-weight:500;text-decoration:none;background:var(--chip);border:1px solid var(--line);padding:2px 9px;border-radius:999px}
+.links a:hover{border-color:var(--blue)}
+.task .done-by{font-size:11.5px;color:var(--done);margin-top:3px}
+
+/* notes */
+.notes{display:flex;flex-wrap:wrap;gap:14px}
+.note{flex:1 1 300px;min-width:0}
+.note label{display:block;font-weight:600;margin:0 2px 3px}
+.gate{background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:20px}
+.gate p{margin:0 0 12px;font-size:14px}
+.signout{background:none;border:0;color:var(--blue);font:500 12px "Inter",sans-serif;cursor:pointer;padding:0;margin-left:6px;text-decoration:underline}
+.note .writer{font-size:12px;margin:0 2px 5px;color:var(--muted)}
+.note .writer b{color:var(--ink);font-weight:600}
+.note textarea{width:100%;min-height:96px;resize:vertical;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px 12px;font:400 13px/1.45 "Inter",sans-serif}
+.note .meta{font-size:11.5px;color:var(--muted);margin:4px 2px 0}
+.lock{margin:0 2px 10px;font-size:12.5px;color:var(--muted);background:var(--bg);border-radius:10px;padding:8px 12px}
+.when-p{margin:0 2px 10px;font-size:12px;color:var(--muted)}
+
+/* requests */
+.req{display:grid;grid-template-columns:1fr auto;gap:10px;padding:10px 12px;align-items:start}
+.req + .req{border-top:1px solid var(--line)}
+.req .p{font-weight:600;margin:0}
+.req .r{margin:2px 0 0;white-space:pre-wrap}
+.req .m{margin:3px 0 0;font-size:11.5px;color:var(--muted)}
+.req.past{opacity:.55}
+.tag{display:inline-block;font-size:10.5px;font-weight:600;border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:1px;background:var(--late);color:var(--tick)}
+.rm{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:3px 11px;font:500 12px "Inter",sans-serif;cursor:pointer}
+.rm:hover{border-color:var(--late);color:var(--late)}
+.empty{padding:12px;color:var(--muted);margin:0}
+.addreq{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.addreq .f{flex:1 1 170px;min-width:0}
+.addreq .f.wide{flex:2 1 240px}
+.addreq label{display:block;font-size:12px;font-weight:600;margin:0 2px 3px}
+.addreq input[type=text],.addreq input[type=date]{width:100%;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:0 10px;font:400 13px "Inter",sans-serif}
+.addreq .row{display:flex;align-items:center;gap:6px;font-size:12.5px;margin-top:5px}
+.addbtn{height:36px;padding:0 18px;border-radius:999px;border:0;background:var(--blue);color:#fff;font:600 13px "Inter",sans-serif;cursor:pointer}
+.addbtn:disabled{opacity:.5;cursor:default}
+.toggle{background:none;border:0;color:var(--blue);font:500 12.5px "Inter",sans-serif;cursor:pointer;padding:6px 2px}
+.formerr{color:var(--late);font-size:12.5px;margin:4px 2px 0;flex-basis:100%}
+.formerr:empty{display:none}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+@media (max-width:560px){.hour{gap:10px}.hour .lab{width:46px;flex-basis:46px}}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ===== STEP 4 OF SETUP: paste your Firebase settings here ===== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBEuvsrU8rEA2zuzLM5ZoJ_tZJFkkJFUL8",
+  authDomain: "coordinator-checklist.firebaseapp.com",
+  projectId: "coordinator-checklist",
+  storageBucket: "coordinator-checklist.firebasestorage.app",
+  messagingSenderId: "217189135198",
+  appId: "1:217189135198:web:4d959015e019b53bec15cf"
+};
+/* Who can write handover notes is set only in the Firestore rules, not here. */
+const COMPANY_DOMAIN = "heliosx.com";
+</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="ttl">
+      <h1>Coordinator daily checklist</h1>
+      <p class="day" id="dayLabel">Today</p>
+    </div>
+    <div class="navs">
+      <button class="nav" id="prev" aria-label="Previous day">‹</button>
+      <button class="nav" id="today">Today</button>
+      <button class="nav" id="next" aria-label="Next day">›</button>
+    </div>
+    <div class="progress">
+      <div class="bar" role="progressbar" aria-label="Checklist progress" aria-valuemin="0" aria-valuemax="100" id="bar"><i id="barFill"></i></div>
+      <div class="count" id="count">0/0</div>
+    </div>
+    <p class="alldone" id="alldone" hidden>All done for today. Nice work.</p>
+  </header>
+  <p class="notice" id="notice">Connecting…</p>
+  <div class="gate" id="gate" hidden>
+    <p>Sign in with your HeliosX Google account to see and tick the shared checklist.</p>
+    <button class="addbtn" id="signin">Sign in with Google</button>
+  </div>
+
+  <section class="carry" id="carry" aria-live="polite">
+    <div class="top">
+      <h2 id="carryTitle">Handover</h2>
+      <button class="linkbtn" id="carrySwap"></button>
+    </div>
+    <p class="txt" id="carryText"></p>
+    <div class="meta" id="carryMeta"></div>
+  </section>
+
+  <div class="cols">
+    <div class="main">
+      <section class="box2 tone-time">
+        <div class="bh"><h2>Through the day, hour by hour</h2><span class="when">Tick each check as you do it. Finished hours fold away.</span></div>
+        <details class="key" style="margin:8px 12px 0">
+          <summary>What each check means</summary>
+          <dl>
+            <dt>Titan Q</dt><dd>Every 2 hours. No order in the queue should be older than 3 hours.</dd>
+            <dt>AP check</dt><dd>Every hour. Check AP is being cleared and chase if it's building up. GP leads clear 9–5; GP prescribers cover the hours they work.</dd>
+            <dt>Live chat swap</dt><dd>Add the starting prescribers to the live chat inbox and remove them from email.</dd>
+            <dt>GP letters</dt><dd>Check GP letters and assign a prescriber to clear them.</dd>
+            <dt>AP fully cleared</dt><dd>AP must be cleared by 6:30pm.</dd>
+            <dt>Volume update posted</dt><dd>Post the volume update in the <a href="https://heliosx.enterprise.slack.com/archives/C0ANED16VB2" target="_blank" rel="noopener">coordinator channel</a> at 9am, 12pm, 3pm and 6pm.</dd>
+            <dt>Morning handover</dt><dd>Write it in the box at the bottom of the page by 2:30pm.</dd>
+          </dl>
+        </details>
+        <div id="timeline" style="padding:6px"></div>
+      </section>
+    </div>
+    <aside class="side" id="side" aria-label="One-off tasks"></aside>
+  </div>
+
+  <section>
+    <div class="shead"><h2 class="sh">Write a handover</h2></div>
+    <p class="when-p">Anything the next coordinator should know: odd allocations, issues, follow-ups. Mornings see last night's handover at the top of the page; afternoons see this morning's.</p>
+    <p class="lock" id="noteLock" hidden>Only the coordinators on the handover list can write handover notes. You can still read them here.</p>
+    <div class="notes">
+      <div class="note">
+        <label for="note-am">Morning → afternoon shift</label>
+        <div class="writer" id="writer-am"></div>
+        <textarea id="note-am" placeholder="e.g. Dr X covering side effects until 3pm only, GP letters still need clearing…"></textarea>
+        <div class="meta" id="meta-am"></div>
+      </div>
+      <div class="note">
+        <label for="note-pm">Afternoon → next morning shift</label>
+        <div class="writer" id="writer-pm"></div>
+        <textarea id="note-pm" placeholder="e.g. Special requests loaded for tomorrow, aged orders to chase first thing…"></textarea>
+        <div class="meta" id="meta-pm"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reqs">
+    <div class="shead"><h2 class="sh">Special allocation requests</h2><span class="when">Team lead requests for specific prescribers. Each stays until its end date.</span></div>
+    <div class="card" id="reqList" style="padding:0;background:var(--bg);border:1.5px solid var(--line)"></div>
+    <button class="toggle" id="pastToggle" hidden></button>
+    <div class="addreq" id="addReq">
+      <div class="f"><label for="rq-who">Prescriber</label><input type="text" id="rq-who" placeholder="e.g. Dr Sarah Khan"></div>
+      <div class="f wide"><label for="rq-what">Request</label><input type="text" id="rq-what" placeholder="e.g. Side effects only, no GP letters"></div>
+      <div class="f"><label for="rq-by">Requested by</label><input type="text" id="rq-by" placeholder="Team lead's name"></div>
+      <div class="f"><label for="rq-until">Until</label><input type="date" id="rq-until">
+        <div class="row"><input type="checkbox" id="rq-open"><label for="rq-open" style="margin:0;font-weight:400">Until further notice</label></div></div>
+      <button class="addbtn" id="rq-add">Add request</button>
+      <p class="formerr" id="rq-err"></p>
+    </div>
+  </section>
+</div>
+
+<script>
+const CHECK = '<svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';
+const L = {
+  overview:{label:"Prescribing overview",url:"https://rx.medexpress.co.uk/admin/react/prescribing-overview"},
+  hex:{label:"Aged orders (Hex)",url:"https://app.hex.tech/96c8aabd-bd80-40a5-8eb4-810f94e7f38c/app/ME-Prescribe-review-delays-peformance-031OGgoHfpOYElh4L5S2EG/latest"},
+  se:{label:"Side effect rota",url:"https://docs.google.com/spreadsheets/d/16jRB9blmq0nPGnM4iqSDytGbpjPigOi2FUSvwO3iUMI/edit?gid=23782059#gid=23782059"},
+  ap:{label:"AP coverage rota",url:"https://docs.google.com/spreadsheets/d/1Hc2iyKJp70MBX6qfkOGVQMBmKpTGwLujSOjnOIwtbOE/edit?gid=1070881177#gid=1070881177"},
+  coord:{label:"Coordinator channel",url:"https://heliosx.enterprise.slack.com/archives/C0ANED16VB2"},
+  ops:{label:"Ops Tactical channel",url:"https://heliosx.enterprise.slack.com/archives/C09D5FZ6LP5"},
+  wfq:{label:"Workflow queries list",url:"https://heliosx.enterprise.slack.com/lists/T0S3GQENQ/F0AP6U3V335?view_id=View0AQ7J3JD2L"},
+  shiftreq:{label:"Shift change requests list",url:"https://heliosx.enterprise.slack.com/lists/T0S3GQENQ/F0ANTBQRTR9?view_id=View0ANX9FLHL3"},
+  sfSheet:{label:"Silent failures spreadsheet",url:"https://docs.google.com/spreadsheets/d/1S0c35dv50cNvcfHHGWqwhQoiUns8N0Xh6Wjug5U8OEg/edit?gid=518773077#gid=518773077"},
+  sfReport:{label:"Silent failures report (Hex)",url:"https://app.hex.tech/96c8aabd-bd80-40a5-8eb4-810f94e7f38c/app/Silent-failures---stuck-orders-all-brands-033coyQ0KHCf6OirDqRYJO/latest"},
+  cs:{label:"Clinical support rota",url:"https://docs.google.com/spreadsheets/d/1mNjWUMHHcprMZX4bu9ZMVAruTzjZdxyHvKkugmRYVbg/edit?gid=0#gid=0"}
+};
+// Timeline: each hour's checks. Ids match the older layout so earlier ticks still count.
+// "due" = time after which an unticked check shows as overdue (when viewing today).
+const HOURS = [
+  {h:"09:00", due:"09:30", items:[["titan-09","Titan Q"],["ap-hr-09","AP check"],["vol-post-09","Volume update posted"]]},
+  {h:"10:00", due:"10:30", items:[["chat-10","Live chat swap"],["ap-hr-10","AP check"]]},
+  {h:"11:00", due:"11:30", items:[["titan-11","Titan Q"],["ap-hr-11","AP check"],["gp-am","GP letters (morning)"]]},
+  {h:"12:00", due:"12:30", items:[["ap-hr-12","AP check"],["vol-post-12","Volume update posted"]]},
+  {h:"13:00", due:"13:30", items:[["titan-13","Titan Q"],["ap-hr-13","AP check"]]},
+  {h:"14:00", due:"14:30", items:[["chat-14","Live chat swap"],["ap-hr-14","AP check"],["handover-am","Morning handover written"]]},
+  {h:"15:00", due:"15:30", items:[["titan-15","Titan Q"],["ap-hr-15","AP check"],["gp-pm","GP letters (afternoon)"],["vol-post-15","Volume update posted"]]},
+  {h:"16:00", due:"16:30", items:[["ap-hr-16","AP check"]]},
+  {h:"17:00", due:"17:30", items:[["titan-17","Titan Q"],["chat-17","Live chat swap"],["ap-hr-17","AP check"]]},
+  {h:"18:00", due:"18:30", items:[["ap-hr-18","AP check"],["gp-eve","GP letters (evening)"],["ap-clear","AP fully cleared (by 18:30)"],["vol-post-18","Volume update posted"]]}
+];
+const SIDE = [
+  {title:"Monday: plan the week", when:"Mondays only", tone:"mon", mondayOnly:true, tasks:[
+    {id:"ap-week", t:"AP: confirm coverage for the whole week", d:"GP leads clear 9–5; GP prescribers cover the hours they work.", links:[L.ap]},
+    {id:"calendly-week", t:"Calendly schedules set for the whole week", d:"Check every Calendly schedule is set up and correct for Monday to Sunday."}
+  ]},
+  {title:"Start of shift", when:"First thing, reports by 9:30am", tone:"start", tasks:[
+    {id:"rota-se", t:"Side effect rota has cover today", links:[L.se]},
+    {id:"rota-cs", t:"Clinical support rota has cover today", links:[L.cs]},
+    {id:"silent", t:"Silent failures updated", d:"Make sure these are up to date by 9:30am.", links:[L.sfSheet,L.sfReport]},
+    {id:"ops-post", t:"Post in the Ops Tactical channel", links:[L.ops]},
+    {id:"aged", t:"Check aged orders and assign to SPs", links:[L.hex]}
+  ]},
+  {title:"Anytime", when:"Click Mark as done each time you check", tone:"any", log:true, tasks:[
+    {id:"wf-volume", t:"Check workflow volume and reallocate", d:"Move prescribers around as needed.", links:[L.overview]},
+    {id:"shifts", t:"One-off shift change requests", d:"Check for new one-off shift change requests.", links:[L.shiftreq]},
+    {id:"wf-queries", t:"Check workflow queries", d:"Pick up anything outstanding in the workflow queries list.", links:[L.wfq]}
+  ]},
+  {title:"End of day", when:"Before 9pm", tone:"end", tasks:[
+    {id:"inbox", t:"Coordinator inbox cleared"},
+    {id:"engine", t:"Rota for tomorrow prepared", d:"Before the 9pm engine run: fill tomorrow's backlogs, manually assign the prescribers scheduled for side effects and clinical support, and factor in the special allocation requests at the bottom of this page."},
+    {id:"alloc-posted", t:"Live chat and side effects allocations posted to the group chats"},
+    {id:"handover-pm", t:"Afternoon handover written", d:"Use the box at the bottom of the page."}
+  ]}
+];
+const AFTERNOON_FROM = 14; // from 2pm the afternoon shift sees this morning's handover at the top
+function isMonday(key){ const [y,m,d]=key.split("-").map(Number); return new Date(y,m-1,d).getDay()===1; }
+function sideFor(key){ return SIDE.filter(s=>!s.mondayOnly||isMonday(key)); }
+function idsFor(key){ const ids=[]; HOURS.forEach(h=>h.items.forEach(i=>ids.push(i[0]))); sideFor(key).forEach(s=>s.tasks.forEach(t=>ids.push(t.id))); return ids; }
+let expanded={}, carryOverride=null;
+function logsFor(id){ const p=id+"-x"; return Object.keys(ticks).filter(k=>k.startsWith(p)).map(k=>({key:k,...ticks[k]})).sort((a,b)=>(a.at||0)-(b.at||0)); }
+function isDone(id){ return !!ticks[id] || logsFor(id).length>0; }
+
+let viewDate = todayKey();
+let ticks = {};
+const EMPTY=()=>({text:"",by:null,lastBy:null,at:null});
+const NOTE_PATH={am:"meta/am", pm:"meta/note"};           // older location, read-only fallback
+const notePath=(day,k)=>"handover/"+day+"_"+k;             // only editors can write here
+let noteSrc={am:{},pm:{},prev:{}}, notesLocked=false;
+let requests=[], showPast=false, unsubReqs=null;
+let notes = {am:EMPTY(), pm:EMPTY()}, prevPm = EMPTY();
+let db=null, user=null, myId=null, names={}, unsubTicks=null, unsubNotes=[], readOnly=false, mode="local";
+
+function todayKey(d=new Date()){ const z=n=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate()); }
+function shift(key,n){ const [y,m,d]=key.split("-").map(Number); return todayKey(new Date(y,m-1,d+n)); }
+function niceDate(key){ const [y,m,d]=key.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"}); }
+function hm(ts){ return ts? new Date(ts).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}) : ""; }
+function nameOf(id){ if(!id) return mode==="local"?"you":"Someone"; if(id===myId) return "you"; return names[id] || "Someone"; }
+function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+
+function renderRequests(){
+  const listEl=document.getElementById("reqList"); listEl.replaceChildren();
+  const active=requests.filter(r=>!r.until||r.until>=viewDate).sort((a,b)=>(a.until||"9999").localeCompare(b.until||"9999"));
+  const past=requests.filter(r=>r.until&&r.until<viewDate).sort((a,b)=>b.until.localeCompare(a.until));
+  const shown=showPast? active.concat(past) : active;
+  if(!shown.length) listEl.append(el("p","empty","No special requests right now. Add one below when a team lead asks."));
+  shown.forEach(r=>{
+    const isPast=r.until&&r.until<viewDate;
+    const row=el("div","req"+(isPast?" past":"")), body=el("div");
+    const pn=el("p","p",r.prescriber||"Prescriber");
+    if(r.until===viewDate) pn.append(el("span","tag","Ends today"));
+    body.append(pn, el("p","r",r.request||""));
+    const bits=[]; if(r.requestedBy) bits.push("Requested by "+r.requestedBy);
+    bits.push(r.until? (isPast?"Ended ":"Until ")+niceDate(r.until) : "Until further notice");
+    if(r.addedBy) bits.push("added by "+nameOf(r.addedBy));
+    body.append(el("p","m",bits.join(", ")));
+    row.append(body);
+    if(!readOnly){ const b=el("button","rm","Remove"); b.setAttribute("aria-label","Remove request for "+(r.prescriber||"prescriber")); b.onclick=()=>removeReq(r); row.append(b); }
+    listEl.append(row);
+  });
+  const pt=document.getElementById("pastToggle");
+  pt.hidden=!past.length; pt.textContent=showPast? "Hide past requests" : "Show past requests ("+past.length+")";
+  document.getElementById("addReq").hidden=readOnly;
+}
+
+function hhmm(){ const n=new Date(); return String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0"); }
+function whoLine(id){ const t=ticks[id]; return t? nameOf(t.by)+" at "+hm(t.at) : ""; }
+function renderTimeline(isToday,nowHM){
+  const tl=document.getElementById("timeline"); tl.replaceChildren();
+  const nowIdx = isToday ? HOURS.reduce((acc,h,i)=> nowHM>=h.h ? i : acc, -1) : -1;
+  HOURS.forEach((h,i)=>{
+    const allDone=h.items.every(it=>ticks[it[0]]);
+    const late=isToday && nowHM>h.due && h.items.some(it=>!ticks[it[0]]);
+    const isNow=i===nowIdx && !allDone;
+    const row=el("div","hour"+(isNow?" now":"")+(late?" late":""));
+    const lab=el("div","lab"); lab.append(el("b",null,h.label||h.h));
+    if(late) lab.append(el("span",null,"Overdue")); else if(isNow) lab.append(el("span",null,"Now"));
+    row.append(lab);
+    const body=el("div","body");
+    if(allDone && !expanded[h.h]){
+      row.classList.add("collapsed");
+      const db_=el("div","donebar"); db_.append("All "+h.items.length+" done");
+      const b=el("button","linkbtn","Show"); b.setAttribute("aria-label","Show "+(h.label||h.h)+" checks"); b.onclick=()=>{ expanded[h.h]=true; render(); };
+      db_.append(b); body.append(db_); row.append(body); tl.append(row); return;
+    }
+    const chips=el("div","chips"); const who=[];
+    h.items.forEach(([id,label])=>{
+      const on=!!ticks[id], lateChip=!on&&isToday&&nowHM>h.due;
+      const c=el("button","chip"+(on?" on":"")+(lateChip?" late":""),label);
+      c.setAttribute("aria-pressed",on?"true":"false"); c.disabled=readOnly;
+      c.setAttribute("aria-label",label+", "+(h.label||h.h)+(on?", done by "+whoLine(id):lateChip?", overdue":""));
+      if(on) c.title="Done by "+whoLine(id);
+      c.onclick=()=>toggle(id); chips.append(c);
+      if(on) who.push(label+": "+whoLine(id));
+    });
+    body.append(chips);
+    if(who.length) body.append(el("div","who",who.join("   |   ")));
+    if(allDone){ const b=el("button","linkbtn","Fold away"); b.onclick=()=>{ expanded[h.h]=false; render(); }; body.append(b); }
+    row.append(body); tl.append(row);
+  });
+}
+function renderSide(){
+  const side=document.getElementById("side"); side.replaceChildren();
+  sideFor(viewDate).forEach(s=>{
+    const sec=el("section","box2 tone-"+(s.tone||"start")); const head=el("div","bh"); head.append(el("h2",null,s.title)); if(s.when) head.append(el("span","when",s.when)); sec.append(head);
+    const list=el("div");
+    s.tasks.forEach(t=>{
+      const body=el("div"); body.append(el("p","t",t.t)); if(t.d) body.append(el("p","d",t.d));
+      if(t.links){ const lk=el("div","links"); t.links.forEach(l=>{ const a=el("a",null,l.label); a.href=l.url; a.target="_blank"; a.rel="noopener"; lk.append(a); }); body.append(lk); }
+      let row;
+      if(s.log){
+        const logs=logsFor(t.id);
+        row=el("div","task multi"+(logs.length?" logged":""));
+        const chips=el("div","shiftchips");
+        const lb=el("button","logbtn","Mark as done"); lb.disabled=readOnly; lb.setAttribute("aria-label","Mark as done: "+t.t);
+        lb.onclick=()=>toggle(t.id+"-x"+Date.now()); chips.append(lb);
+        logs.forEach(e=>{
+          const pill=el("span","logent"); pill.append(hm(e.at)+" "+nameOf(e.by));
+          if(!readOnly){ const x=el("button",null,"×"); x.setAttribute("aria-label","Remove the "+hm(e.at)+" check by "+nameOf(e.by)); x.onclick=()=>toggle(e.key); pill.append(x); }
+          chips.append(pill);
+        });
+        body.append(chips);
+        body.append(el("div","logcount", logs.length? "Checked "+logs.length+(logs.length===1?" time":" times")+" today" : "Not checked yet today"));
+        row.append(body);
+      } else {
+        const on=!!ticks[t.id]; row=el("div","task"+(on?" is-done":""));
+        const b=el("button","box"); b.innerHTML=CHECK; b.setAttribute("aria-pressed",on?"true":"false");
+        b.setAttribute("aria-label",(on?"Untick: ":"Tick: ")+t.t); b.disabled=readOnly; b.onclick=()=>toggle(t.id); row.append(b);
+        if(on) body.append(el("div","done-by","Done by "+whoLine(t.id)));
+        row.append(body);
+      }
+      list.append(row);
+    });
+    sec.append(list); side.append(sec);
+  });
+}
+function renderCarry(isToday){
+  const afternoon = isToday && new Date().getHours()>=AFTERNOON_FROM;
+  const which = carryOverride || (afternoon? "am" : "prev");
+  const n = which==="am"? notes.am : prevPm;
+  document.getElementById("carryTitle").textContent = which==="am"
+    ? (isToday? "Handover for this afternoon, from this morning's shift" : "Morning → afternoon handover, "+niceDate(viewDate))
+    : (isToday? "Handover for this morning, from yesterday afternoon ("+niceDate(shift(viewDate,-1))+")" : "Handover into "+niceDate(viewDate)+", from the afternoon before");
+  const tx=document.getElementById("carryText");
+  tx.textContent = n.text || "Not written yet."; tx.classList.toggle("empty",!n.text);
+  document.getElementById("carryMeta").textContent = n.at? "Written by "+nameOf(n.by)+(n.lastBy&&n.lastBy!==n.by?", edited by "+nameOf(n.lastBy):"")+" at "+hm(n.at) : "";
+  const sw=document.getElementById("carrySwap");
+  sw.textContent = which==="am" ? "Show last night's handover instead" : "Show this morning's handover instead";
+  sw.onclick=()=>{ carryOverride = which==="am"?"prev":"am"; render(); };
+}
+function render(){
+  renderRequests();
+  const isToday = viewDate===todayKey(), nowHM=hhmm();
+  document.getElementById("dayLabel").textContent = (isToday? "Today, " : "") + niceDate(viewDate);
+  document.getElementById("today").disabled = isToday;
+  renderCarry(isToday);
+  renderTimeline(isToday,nowHM);
+  renderSide();
+  const ALL_IDS = idsFor(viewDate);
+  const done = ALL_IDS.filter(isDone).length, pct=Math.round(done/ALL_IDS.length*100);
+  document.getElementById("barFill").style.width=pct+"%";
+  document.getElementById("bar").setAttribute("aria-valuenow",pct);
+  document.getElementById("count").textContent=done+"/"+ALL_IDS.length;
+  document.getElementById("alldone").hidden = done!==ALL_IDS.length;
+  ["am","pm"].forEach(k=>{
+    const box=document.getElementById("note-"+k), n=notes[k];
+    if(document.activeElement!==box) box.value=n.text||"";
+    box.disabled=readOnly||notesLocked;
+    const w=document.getElementById("writer-"+k); w.replaceChildren();
+    if(n.by){ w.append("Written by "); w.append(el("b",null,nameOf(n.by)));
+      if(n.lastBy && n.lastBy!==n.by){ w.append(", edited by "); w.append(el("b",null,nameOf(n.lastBy))); } }
+    else w.textContent="Not written yet";
+    document.getElementById("meta-"+k).textContent = n.at? "Last saved at "+hm(n.at) : "";
+  });
+  document.getElementById("noteLock").hidden=!notesLocked;
+}
+
+function localLoad(){
+  const rd=(k)=>{ try{ return JSON.parse(localStorage.getItem(k)||"null"); }catch(e){ return null; } };
+  ticks=rd("cc-ticks-"+viewDate)||{};
+  notes={am:rd("cc-am-"+viewDate)||EMPTY(), pm:rd("cc-note-"+viewDate)||EMPTY()};
+  prevPm=rd("cc-note-"+shift(viewDate,-1))||EMPTY();
+  if(mode==="local") requests=rd("cc-requests")||[];
+}
+function localSave(){ try{ localStorage.setItem("cc-ticks-"+viewDate,JSON.stringify(ticks)); localStorage.setItem("cc-am-"+viewDate,JSON.stringify(notes.am)); localStorage.setItem("cc-note-"+viewDate,JSON.stringify(notes.pm)); }catch(e){} }
+
+async function resolveNames(){
+  if(!user) return;
+  const ids=[...new Set([...Object.values(ticks).map(v=>v.by), notes.am.by, notes.pm.by, prevPm.by, notes.am.lastBy, notes.pm.lastBy, prevPm.lastBy, ...requests.map(r=>r.addedBy)].filter(Boolean))].filter(id=>id!==myId && !(id in names));
+  if(!ids.length) return;
+  try{ const ps=await user.profiles(ids); ids.forEach(id=>{ names[id]=(ps&&ps[id]&&ps[id].name)||""; }); render(); }catch(e){}
+}
+
+function subscribe(){
+  if(unsubTicks) unsubTicks(); unsubNotes.forEach(u=>u()); unsubNotes=[];
+  const day=viewDate;
+  unsubTicks = db.collection("days/"+day+"/ticks").onSnapshot(snap=>{
+    if(day!==viewDate) return;
+    const next={}; snap.docs.forEach(d=>{ const v=d.data(); if(v){ next[d.id]={by:v.by||null,at:v.at||null}; if(v.by&&v.byName) names[v.by]=v.byName; } });
+    ticks=next; render(); resolveNames();
+  }, ()=>setNotice("Couldn't load today's ticks. Refresh the page to try again."));
+  const toNote=sn=>{ const v=sn.exists? sn.data() : null; if(v){ if(v.by&&v.byName) names[v.by]=v.byName; if(v.lastBy&&v.lastByName) names[v.lastBy]=v.lastByName; } return v? {text:v.text||"",by:v.by||null,lastBy:v.lastBy||null,at:v.at||null} : null; };
+  noteSrc={am:{},pm:{},prev:{}};
+  const eff=k=>noteSrc[k].n||noteSrc[k].l||EMPTY();
+  const apply=k=>{
+    if(day!==viewDate) return;
+    if(k==="prev"){ prevPm=eff("prev"); }
+    else { const nn=eff(k); if(notes[k].dirty){ nn.text=notes[k].text; nn.dirty=true; } notes[k]=nn; }
+    render(); resolveNames();
+  };
+  const watch=(path,k,slot)=>unsubNotes.push(db.doc(path).onSnapshot(sn=>{ noteSrc[k][slot]=toNote(sn); apply(k); }, ()=>{}));
+  ["am","pm"].forEach(k=>watch(notePath(day,k),k,"n"));
+  watch(notePath(shift(day,-1),"pm"),"prev","n");
+}
+
+async function toggle(id){
+  if(readOnly) return;
+  const was=ticks[id];
+  if(was) delete ticks[id]; else ticks[id]={by:myId,at:Date.now()};
+  render();
+  if(mode==="local"){ localSave(); return; }
+  const ref=db.doc("days/"+viewDate+"/ticks/"+id);
+  try{ if(was) await ref.delete(); else await ref.set({by:myId,byName:myName,at:ticks[id].at}); }
+  catch(e){
+    if(was) ticks[id]=was; else delete ticks[id];
+    if(e&&(e.code==="invalid_argument"||e.code==="permission-denied")){ readOnly=true; setNotice("You have view-only access, so you can't tick items. Ask the owner for Contributor access."); }
+    else setNotice("That tick didn't save. Check your connection and try again.");
+    render();
+  }
+}
+
+const timers={}, lastSaved={am:null,pm:null};
+["am","pm"].forEach(k=>{
+  const box=document.getElementById("note-"+k);
+  box.addEventListener("input",e=>{ notes[k].text=e.target.value; notes[k].dirty=true; clearTimeout(timers[k]); timers[k]=setTimeout(()=>saveNote(k),900); });
+  box.addEventListener("blur",()=>{ clearTimeout(timers[k]); saveNote(k); });
+});
+async function saveNote(k){
+  const n=notes[k];
+  if(readOnly || notesLocked || !n.dirty || n.text===lastSaved[k]) return;
+  const day=viewDate; lastSaved[k]=n.text; n.dirty=false; n.by=n.by||myId; n.lastBy=myId; n.at=Date.now();
+  if(mode==="local"){ localSave(); render(); return; }
+  try{ await db.doc(notePath(day,k)).set({text:n.text,by:n.by,byName:names[n.by]||myName,lastBy:myId,lastByName:myName,at:n.at}); }
+  catch(e){
+    lastSaved[k]=null;
+    if(e&&(e.code==="invalid_argument"||e.code==="permission-denied")){ notesLocked=true; n.dirty=false; noteSrc={am:{},pm:{},prev:{}}; subscribe(); }
+    else { n.dirty=true; setNotice("A handover note didn't save. Try again."); }
+    render();
+  }
+}
+function saveAll(){ ["am","pm"].forEach(k=>{ clearTimeout(timers[k]); saveNote(k); }); }
+
+function subscribeRequests(){
+  if(unsubReqs) return;
+  unsubReqs=db.collection("requests").onSnapshot(snap=>{
+    requests=snap.docs.map(d=>Object.assign({id:d.id}, d.data()||{})); requests.forEach(r=>{ if(r.addedBy&&r.addedByName) names[r.addedBy]=r.addedByName; }); render();
+  }, ()=>setNotice("Couldn't load special requests. Refresh the page to try again."));
+}
+function saveLocalReqs(){ try{ localStorage.setItem("cc-requests",JSON.stringify(requests)); }catch(e){} }
+document.getElementById("pastToggle").onclick=()=>{ showPast=!showPast; renderRequests(); };
+document.getElementById("rq-open").onchange=e=>{ document.getElementById("rq-until").disabled=e.target.checked; };
+document.getElementById("rq-add").onclick=async()=>{
+  const g=id=>document.getElementById(id), err=g("rq-err");
+  const prescriber=g("rq-who").value.trim(), request=g("rq-what").value.trim(), requestedBy=g("rq-by").value.trim();
+  const open=g("rq-open").checked, until=open? null : g("rq-until").value||null;
+  if(!prescriber||!request){ err.textContent="Add the prescriber's name and what the request is."; return; }
+  if(!open&&!until){ err.textContent="Pick an end date, or tick until further notice."; return; }
+  err.textContent="";
+  const rec={prescriber,request,requestedBy,until,addedBy:myId,addedByName:myName,at:Date.now()};
+  const btn=g("rq-add"); btn.disabled=true;
+  try{
+    if(mode==="local"){ rec.id="r"+rec.at; requests.push(rec); saveLocalReqs(); render(); }
+    else await db.collection("requests").add(rec);
+    ["rq-who","rq-what","rq-by","rq-until"].forEach(id=>g(id).value=""); g("rq-open").checked=false; g("rq-until").disabled=false;
+  }catch(e){ err.textContent= e&&(e.code==="invalid_argument"||e.code==="permission-denied") ? "You don't have access to add requests." : "That request didn't save. Try again."; }
+  btn.disabled=false;
+};
+async function removeReq(r){
+  if(!confirm("Remove the request for "+(r.prescriber||"this prescriber")+"?")) return;
+  if(mode==="local"){ requests=requests.filter(x=>x.id!==r.id); saveLocalReqs(); render(); return; }
+  try{ await db.doc("requests/"+r.id).delete(); }catch(e){ setNotice("That request couldn't be removed. Try again."); }
+}
+
+function setNotice(t){ document.getElementById("notice").textContent=t; }
+function go(key){
+  saveAll();
+  viewDate=key; expanded={}; carryOverride=null; lastSaved.am=lastSaved.pm=null; ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY();
+  if(mode==="local") localLoad();
+  render(); if(mode==="shared"&&db) subscribe();
+}
+document.getElementById("prev").onclick=()=>go(shift(viewDate,-1));
+document.getElementById("next").onclick=()=>go(shift(viewDate,1));
+document.getElementById("today").onclick=()=>go(todayKey());
+setInterval(()=>{ if(viewDate===todayKey() && !document.activeElement.matches("textarea")) render(); }, 60000);
+
+localLoad(); render();
+let myName="";
+(function boot(){
+  const gate=document.getElementById("gate");
+  const content=[...document.querySelectorAll(".wrap > section, .wrap > .cols")];
+  if(typeof firebase==="undefined" || FIREBASE_CONFIG.apiKey==="PASTE_HERE"){
+    setNotice("Not connected to Firebase yet, so ticks save in this browser only. Follow the setup guide to connect it."); return;
+  }
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const auth=firebase.auth();
+  const provider=new firebase.auth.GoogleAuthProvider(); provider.setCustomParameters({hd:COMPANY_DOMAIN});
+  document.getElementById("signin").onclick=()=>auth.signInWithPopup(provider).catch(()=>setNotice("Sign-in didn't finish. Try again."));
+  auth.onAuthStateChanged(u=>{
+    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;}
+    if(!u){
+      mode="shared"; db=null; ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
+      readOnly=true; gate.hidden=false; content.forEach(e=>e.hidden=true); setNotice(""); return;
+    }
+    const email=(u.email||"").toLowerCase();
+    if(!email.endsWith("@"+COMPANY_DOMAIN)){
+      setNotice("Please sign in with your @"+COMPANY_DOMAIN+" Google account."); auth.signOut(); return;
+    }
+    gate.hidden=true; content.forEach(e=>e.hidden=false);
+    db=firebase.firestore(); mode="shared"; readOnly=false;
+    myId=u.uid; myName=u.displayName||email; names[myId]=myName;
+    notesLocked=false;
+    db.doc("canwrite/handover").get().then(()=>{ notesLocked=false; render(); })
+      .catch(e=>{ if(e&&e.code==="permission-denied"){ notesLocked=true; render(); } });
+    const n=document.getElementById("notice"); n.textContent="Shared live. Signed in as "+myName+".";
+    const so=el("button","signout","Sign out"); so.onclick=()=>auth.signOut(); n.append(so);
+    ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
+    render(); subscribe(); subscribeRequests();
+  });
+})();
+</script>
+</body>
+</html>
