@@ -16,7 +16,7 @@
   --t-any:#DFF5F1; --t-any-ink:#0B6159;
   --t-end:#FFF0DE; --t-end-ink:#8A4300;
   --tip:#FFF4C2; --tip-ink:#5C4400; --tip-line:#D4A72C;
-  --note:#EEF1F6; --note-ink:#334155; --t-req:#F1F3F6; --t-req-ink:#3B4250; --t-flag:#FDF0E7; --t-flag-ink:#8A3B12; --t-flag-line:#F0C4A8;
+  --note:#EAF2EA; --note-ink:#2F5233; --t-req:#EAF2EA; --t-req-ink:#2F5233; --t-flag:#FDF0E7; --t-flag-ink:#8A3B12; --t-flag-line:#F0C4A8;
   --boxline:#8E9BE0; --linkbg:#EEF1FD; --linkink:#3D4DB0; --linkline:#D9DFFA; --chipline:#C9D1DE;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
@@ -24,12 +24,12 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --t-flag:#33190D; --t-flag-ink:#FFBE98; --t-flag-line:#6B3519; --boxline:#6C79C4; --linkbg:#1A2047; --linkink:#B8C2FF; --linkline:#2F3870; --chipline:#3A4370;
+    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#16261A; --note-ink:#BFDDC2; --t-req:#16261A; --t-req-ink:#BFDDC2; --t-flag:#33190D; --t-flag-ink:#FFBE98; --t-flag-line:#6B3519; --boxline:#6C79C4; --linkbg:#1A2047; --linkink:#B8C2FF; --linkline:#2F3870; --chipline:#3A4370;
   }
 }
 :root[data-theme="dark"]{
   --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --t-flag:#33190D; --t-flag-ink:#FFBE98; --t-flag-line:#6B3519; --boxline:#6C79C4; --linkbg:#1A2047; --linkink:#B8C2FF; --linkline:#2F3870; --chipline:#3A4370;
+  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#16261A; --note-ink:#BFDDC2; --t-req:#16261A; --t-req-ink:#BFDDC2; --t-flag:#33190D; --t-flag-ink:#FFBE98; --t-flag-line:#6B3519; --boxline:#6C79C4; --linkbg:#1A2047; --linkink:#B8C2FF; --linkline:#2F3870; --chipline:#3A4370;
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -75,8 +75,8 @@ button{font-family:inherit}
 
 /* columns */
 .cols{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
-.main{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:14px}
-.side{flex:1 1 330px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.main{flex:1.4 1 520px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.side{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:14px}
 section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 .shead{display:flex;align-items:baseline;gap:8px;margin:0 2px 7px;flex-wrap:wrap}
 .shead .when{font-size:12px;color:var(--muted)}
