@@ -11,8 +11,8 @@
   --blue:#0000FF; --done:#0A7D55; --late:#C8102E; --latebg:#FDECEE; --chip:#FFFFFF; --tick:#FFFFFF; --nowbg:#FFFFFF;
   --grad:linear-gradient(120deg,#4400CC 0%,#0000FF 40%,#0066FF 75%,#00A3C4 100%);
   --t-time:#E6EEFF; --t-time-ink:#0000B8;
-  --t-mon:#F0E8FF; --t-mon-ink:#5B21B6;
-  --t-start:#E3F0FF; --t-start-ink:#0B4FA8;
+  --t-mon:#FCE7F0; --t-mon-ink:#9D174D;
+  --t-start:#F0E8FF; --t-start-ink:#5B21B6;
   --t-any:#DFF5F1; --t-any-ink:#0B6159;
   --t-end:#FFF0DE; --t-end-ink:#8A4300;
   box-sizing:border-box;
@@ -21,12 +21,12 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#2A1A4F; --t-mon-ink:#D6C4FF; --t-start:#122A4D; --t-start-ink:#A9CCFF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A;
+    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A;
   }
 }
 :root[data-theme="dark"]{
   --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#2A1A4F; --t-mon-ink:#D6C4FF; --t-start:#122A4D; --t-start-ink:#A9CCFF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A;
+  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A;
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -44,7 +44,11 @@ button{font-family:inherit}
 .hero .day{margin:3px 0 0;font:500 13px "Inter",sans-serif}
 .navs{display:flex;gap:6px}
 .nav{height:32px;min-width:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.12);color:#fff;font:500 13px "Inter",sans-serif;cursor:pointer}
-.nav:hover{background:rgba(255,255,255,.22)} .nav:disabled{opacity:.5;cursor:default}
+.nav:hover{background:rgba(255,255,255,.22)}
+.navs{align-items:center;flex-wrap:wrap}
+.navdate input{height:32px;border-radius:999px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.12);color:#fff;font:500 13px "Inter",sans-serif;padding:0 10px;color-scheme:dark;cursor:pointer}
+.navdate input:hover{background:rgba(255,255,255,.22)}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap} .nav:disabled{opacity:.5;cursor:default}
 .progress{flex:0 1 260px;display:flex;align-items:center;gap:10px}
 .bar{flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,.28);overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:#fff;border-radius:999px;transition:width .35s ease}
@@ -93,10 +97,10 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 
 /* key */
 details.key{margin:0 2px 8px;font-size:12.5px}
-details.key summary{cursor:pointer;width:max-content;list-style:none;display:inline-flex;align-items:center;gap:6px;font:600 12.5px "Inter",sans-serif;color:var(--blue);background:var(--t-time);border:1.5px solid var(--blue);border-radius:999px;padding:3px 12px 3px 8px}
+details.key summary{cursor:pointer;width:max-content;list-style:none;display:inline-flex;align-items:center;gap:6px;font:600 12.5px "Inter",sans-serif;color:var(--late);background:var(--t-time);border:1.5px solid var(--blue);border-radius:999px;padding:3px 12px 3px 8px}
 details.key summary::-webkit-details-marker{display:none}
 details.key summary::before{content:"i";display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--blue);color:var(--bg);font:700 11px/1 Georgia,serif}
-details.key summary::after{content:"▾";font-size:11px}
+details.key summary::after{content:"▾";font-size:11px;color:var(--blue)}
 details.key[open] summary::after{content:"▴"}
 details.key summary:hover{filter:brightness(0.97)}
 details.key dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;margin:8px 0 2px;padding:10px 12px;background:var(--panel);border-radius:12px}
@@ -208,6 +212,7 @@ const COMPANY_DOMAIN = "heliosx.com";
       <button class="nav" id="prev" aria-label="Previous day">‹</button>
       <button class="nav" id="today">Today</button>
       <button class="nav" id="next" aria-label="Next day">›</button>
+      <label class="navdate" title="Jump to a date"><span class="vh">Jump to a date</span><input type="date" id="jump"></label>
     </div>
     <div class="progress">
       <div class="bar" role="progressbar" aria-label="Checklist progress" aria-valuemin="0" aria-valuemax="100" id="bar"><i id="barFill"></i></div>
@@ -484,6 +489,7 @@ function render(){
   const isToday = viewDate===todayKey(), nowHM=hhmm();
   document.getElementById("dayLabel").textContent = (isToday? "Today, " : "") + niceDate(viewDate);
   document.getElementById("today").disabled = isToday;
+  const jp=document.getElementById("jump"); if(document.activeElement!==jp) jp.value=viewDate;
   renderCarry(isToday);
   renderTimeline(isToday,nowHM);
   renderSide();
@@ -622,6 +628,7 @@ function go(key){
 document.getElementById("prev").onclick=()=>go(shift(viewDate,-1));
 document.getElementById("next").onclick=()=>go(shift(viewDate,1));
 document.getElementById("today").onclick=()=>go(todayKey());
+document.getElementById("jump").addEventListener("change",e=>{ const v=e.target.value; if(/^\d{4}-\d{2}-\d{2}$/.test(v) && v!==viewDate) go(v); });
 setInterval(()=>{ if(viewDate===todayKey() && !document.activeElement.matches("textarea")) render(); }, 60000);
 
 localLoad(); render();
