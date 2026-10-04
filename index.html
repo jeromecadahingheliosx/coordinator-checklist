@@ -229,13 +229,13 @@ const COMPANY_DOMAIN = "heliosx.com";
         <details class="key" style="margin:8px 12px 0">
           <summary>What each check means</summary>
           <dl>
-            <dt>Titan Q</dt><dd>Every 2 hours. No order in the queue should be older than 3 hours.</dd>
-            <dt>AP check</dt><dd>Every hour. Check AP is being cleared and chase if it's building up. GP leads clear 9–5; GP prescribers cover the hours they work.</dd>
-            <dt>Live chat swap</dt><dd>Add the starting prescribers to the live chat inbox and remove them from email.</dd>
-            <dt>GP letters</dt><dd>Check GP letters and assign a prescriber to clear them.</dd>
+            <dt>Titan Q issues checked</dt><dd>Every 2 hours. Check Titan Q for any issues; no order in the queue should be older than 3 hours.</dd>
+            <dt>AP cleared</dt><dd>Every hour. Confirm AP has been cleared and chase if it's building up. GP leads clear 9–5; GP prescribers cover the hours they work.</dd>
+            <dt>Prescribers added to live chat</dt><dd>At 10am, 2pm and 5pm, add the prescribers covering live chat for that time slot to the live chat inbox, and remove them from the email inbox.</dd>
+            <dt>GP letters – FIN: no breaches</dt><dd>Check there are no breaches on GP letters – FIN. If letters are building up or close to breaching, make sure a prescriber is working on them and assign one if not.</dd>
             <dt>AP fully cleared</dt><dd>AP must be cleared by 6:30pm.</dd>
-            <dt>Volume update posted</dt><dd>Post the volume update in the <a href="https://heliosx.enterprise.slack.com/archives/C0ANED16VB2" target="_blank" rel="noopener">coordinator channel</a> at 9am, 12pm, 3pm and 6pm.</dd>
-            <dt>Morning handover</dt><dd>Write it in the box at the bottom of the page by 2:30pm.</dd>
+            <dt>Clinical &amp; workflow volumes posted</dt><dd>Paste the clinical and workflow volumes in the <a href="https://heliosx.enterprise.slack.com/archives/C0ANED16VB2" target="_blank" rel="noopener">coordinator channel</a> at 9am, 12pm, 3pm and 6pm.</dd>
+            <dt>Morning handover</dt><dd>Write it at 3pm in the box at the bottom of the page.</dd>
           </dl>
         </details>
         <div id="timeline" style="padding:6px"></div>
@@ -298,19 +298,19 @@ const L = {
 // Timeline: each hour's checks. Ids match the older layout so earlier ticks still count.
 // "due" = time after which an unticked check shows as overdue (when viewing today).
 const HOURS = [
-  {h:"09:00", due:"09:30", items:[["titan-09","Titan Q"],["ap-hr-09","AP check"],["vol-post-09","Volume update posted"]]},
-  {h:"10:00", due:"10:30", items:[["chat-10","Live chat swap"],["ap-hr-10","AP check"]]},
-  {h:"11:00", due:"11:30", items:[["titan-11","Titan Q"],["ap-hr-11","AP check"],["gp-am","GP letters (morning)"]]},
-  {h:"12:00", due:"12:30", items:[["ap-hr-12","AP check"],["vol-post-12","Volume update posted"]]},
-  {h:"13:00", due:"13:30", items:[["titan-13","Titan Q"],["ap-hr-13","AP check"]]},
-  {h:"14:00", due:"14:30", items:[["chat-14","Live chat swap"],["ap-hr-14","AP check"],["handover-am","Morning handover written"]]},
-  {h:"15:00", due:"15:30", items:[["titan-15","Titan Q"],["ap-hr-15","AP check"],["gp-pm","GP letters (afternoon)"],["vol-post-15","Volume update posted"]]},
-  {h:"16:00", due:"16:30", items:[["ap-hr-16","AP check"]]},
-  {h:"17:00", due:"17:30", items:[["titan-17","Titan Q"],["chat-17","Live chat swap"],["ap-hr-17","AP check"]]},
-  {h:"18:00", due:"18:30", items:[["ap-hr-18","AP check"],["gp-eve","GP letters (evening)"],["ap-clear","AP fully cleared (by 18:30)"],["vol-post-18","Volume update posted"]]},
-  {h:"19:00", due:"19:30", items:[["ap-hr-19","AP check"]]},
-  {h:"20:00", due:"20:30", items:[["ap-hr-20","AP check"]]},
-  {h:"21:00", due:"21:30", items:[["ap-hr-21","AP check"]]}
+  {h:"09:00", due:"09:30", items:[["titan-09","Titan Q issues checked"],["ap-hr-09","AP cleared"],["vol-post-09","Clinical & workflow volumes posted"]]},
+  {h:"10:00", due:"10:30", items:[["chat-10","Prescribers added to live chat"],["ap-hr-10","AP cleared"]]},
+  {h:"11:00", due:"11:30", items:[["titan-11","Titan Q issues checked"],["ap-hr-11","AP cleared"],["gp-am","GP letters – FIN: no breaches (morning)"]]},
+  {h:"12:00", due:"12:30", items:[["ap-hr-12","AP cleared"],["vol-post-12","Clinical & workflow volumes posted"]]},
+  {h:"13:00", due:"13:30", items:[["titan-13","Titan Q issues checked"],["ap-hr-13","AP cleared"]]},
+  {h:"14:00", due:"14:30", items:[["chat-14","Prescribers added to live chat"],["ap-hr-14","AP cleared"]]},
+  {h:"15:00", due:"15:30", items:[["titan-15","Titan Q issues checked"],["ap-hr-15","AP cleared"],["gp-pm","GP letters – FIN: no breaches (afternoon)"],["vol-post-15","Clinical & workflow volumes posted"],["handover-am","Morning handover written"]]},
+  {h:"16:00", due:"16:30", items:[["ap-hr-16","AP cleared"]]},
+  {h:"17:00", due:"17:30", items:[["titan-17","Titan Q issues checked"],["chat-17","Prescribers added to live chat"],["ap-hr-17","AP cleared"]]},
+  {h:"18:00", due:"18:30", items:[["ap-hr-18","AP cleared"],["gp-eve","GP letters – FIN: no breaches (evening)"],["ap-clear","AP fully cleared (by 18:30)"],["vol-post-18","Clinical & workflow volumes posted"]]},
+  {h:"19:00", due:"19:30", items:[["ap-hr-19","AP cleared"]]},
+  {h:"20:00", due:"20:30", items:[["ap-hr-20","AP cleared"]]},
+  {h:"21:00", due:"21:30", items:[["ap-hr-21","AP cleared"]]}
 ];
 const SIDE = [
   {title:"Monday: plan the week", when:"Mondays only", tone:"mon", mondayOnly:true, tasks:[
@@ -336,7 +336,7 @@ const SIDE = [
     {id:"handover-pm", t:"Afternoon handover written", d:"Use the box at the bottom of the page."}
   ]}
 ];
-const AFTERNOON_FROM = 14; // from 2pm the afternoon shift sees this morning's handover at the top
+const AFTERNOON_FROM = 15; // from 3pm the afternoon shift sees this morning's handover at the top
 function isMonday(key){ const [y,m,d]=key.split("-").map(Number); return new Date(y,m-1,d).getDay()===1; }
 function sideFor(key){ return SIDE.filter(s=>!s.mondayOnly||isMonday(key)); }
 function idsFor(key){ const ids=[]; HOURS.forEach(h=>h.items.forEach(i=>ids.push(i[0]))); sideFor(key).forEach(s=>s.tasks.forEach(t=>ids.push(t.id))); return ids; }
