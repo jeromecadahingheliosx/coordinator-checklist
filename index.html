@@ -16,18 +16,19 @@
   --t-any:#DFF5F1; --t-any-ink:#0B6159;
   --t-end:#FFF0DE; --t-end-ink:#8A4300;
   --tip:#FFF4C2; --tip-ink:#5C4400; --tip-line:#D4A72C;
+  --note:#F5EFE6; --note-ink:#5A4632; --chipline:#C9D1DE;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F;
+    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#2E261C; --note-ink:#E8D8C2; --chipline:#3A4370;
   }
 }
 :root[data-theme="dark"]{
   --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F;
+  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#2E261C; --note-ink:#E8D8C2; --chipline:#3A4370;
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -58,12 +59,17 @@ button{font-family:inherit}
 .notice{margin:-4px 2px 0;font-size:12px;color:var(--muted)}
 
 /* applicable handover */
-.carry{border:2px solid var(--blue);border-radius:14px;padding:11px 14px;background:var(--bg)}
-.carry .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.carry h2{margin:0;font:600 13.5px "Inter",sans-serif;flex:1 1 auto}
-.carry .txt{white-space:pre-wrap;margin:5px 0 0;font-size:13.5px}
-.carry .txt.empty{color:var(--muted);font-style:italic}
+.carry{border:1.5px solid var(--line);border-radius:14px;background:var(--bg);overflow:hidden}
+.carry .ch{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding:8px 12px;background:var(--note);color:var(--note-ink)}
+.carry h2{margin:0;font:700 13.5px "Inter",sans-serif;color:var(--note-ink)}
+.carry .cdate{font-size:12px;color:var(--note-ink)}
+.carry .linkbtn{margin-left:auto;font-size:11.5px;color:var(--note-ink)}
+.carry .cb{padding:10px 12px 11px;border-top:1.5px solid var(--line)}
+.carry .txt{white-space:pre-wrap;margin:0;font-size:13.5px;line-height:1.5}
 .carry .meta{font-size:11.5px;color:var(--muted);margin-top:5px}
+.carry.empty .cb{display:none}
+.carry.empty .ch{padding:7px 12px}
+.carry.empty h2{font-weight:600}
 .linkbtn{background:none;border:0;color:var(--blue);font:500 12px "Inter",sans-serif;cursor:pointer;padding:2px 0;text-decoration:underline}
 
 /* columns */
@@ -144,7 +150,9 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .hour.collapsed{padding:4px 12px;align-items:center}
 .hour.collapsed .lab b{font-size:12.5px;color:var(--muted)}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{font:500 11.5px "Inter",sans-serif;border-radius:999px;border:1.5px solid var(--blue);background:var(--chip);color:var(--blue);padding:2px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;min-height:26px}
+.chip{font:500 11.5px "Inter",sans-serif;border-radius:999px;border:1.5px solid var(--chipline);background:var(--chip);color:var(--ink);padding:2px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;min-height:26px}
+.chip:hover:not(:disabled){border-color:var(--blue);color:var(--blue)}
+.chip.cur{border-color:var(--blue);color:var(--blue)}
 .chip.on{background:var(--done);border-color:var(--done);color:var(--tick)}
 .chip.late{border-color:var(--late);color:var(--late)}
 .chip.late::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--late)}
@@ -196,6 +204,8 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .addreq .f{flex:1 1 170px;min-width:0}
 .addreq .f.wide{flex:2 1 240px}
 .addreq label{display:block;font-size:12px;font-weight:600;margin:0 2px 3px}
+.addreq select{width:100%;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:0 8px;font:400 13px "Inter",sans-serif}
+.tag.type{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
 .addreq input[type=text],.addreq input[type=date]{width:100%;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:0 10px;font:400 13px "Inter",sans-serif}
 .addreq .row{display:flex;align-items:center;gap:6px;font-size:12.5px;margin-top:5px}
 .addbtn{height:36px;padding:0 18px;border-radius:999px;border:0;background:var(--blue);color:#fff;font:600 13px "Inter",sans-serif;cursor:pointer}
@@ -249,12 +259,15 @@ const COMPANY_DOMAIN = "heliosx.com";
   </div>
 
   <section class="carry" id="carry" aria-live="polite">
-    <div class="top">
+    <div class="ch">
       <h2 id="carryTitle">Handover</h2>
+      <span class="cdate" id="carryDate"></span>
       <button class="linkbtn" id="carrySwap"></button>
     </div>
-    <p class="txt" id="carryText"></p>
-    <div class="meta" id="carryMeta"></div>
+    <div class="cb">
+      <p class="txt" id="carryText"></p>
+      <div class="meta" id="carryMeta"></div>
+    </div>
   </section>
 
   <div class="cols">
@@ -288,11 +301,12 @@ const COMPANY_DOMAIN = "heliosx.com";
       </section>
 
       <section id="reqs" class="plainbox">
-        <div class="shead"><h2 class="sh">Special allocation requests</h2><span class="when">Team lead requests for specific prescribers. Each stays until its end date.</span></div>
+        <div class="shead"><h2 class="sh">Special allocation &amp; other requests</h2><span class="when">Team lead requests for prescribers, plus any other requests to keep track of. Each stays until its end date.</span></div>
         <div class="card" id="reqList" style="padding:0;background:var(--bg);border:1.5px solid var(--line)"></div>
         <button class="toggle" id="pastToggle" hidden></button>
         <div class="addreq" id="addReq">
-          <div class="f"><label for="rq-who">Prescriber</label><input type="text" id="rq-who" placeholder="e.g. Dr Sarah Khan"></div>
+          <div class="f" style="flex:0 1 150px"><label for="rq-type">Type</label><select id="rq-type"><option value="allocation">Allocation request</option><option value="other">Other request</option></select></div>
+      <div class="f"><label for="rq-who" id="rq-who-l">Prescriber</label><input type="text" id="rq-who" placeholder="e.g. Dr Sarah Khan"></div>
           <div class="f wide"><label for="rq-what">Request</label><input type="text" id="rq-what" placeholder="e.g. Side effects only, no GP letters"></div>
           <div class="f"><label for="rq-by">Requested by</label><input type="text" id="rq-by" placeholder="Team lead's name"></div>
           <div class="f"><label for="rq-until">Until</label><input type="date" id="rq-until">
@@ -427,7 +441,7 @@ function renderRequests(){
   shown.forEach(r=>{
     const isPast=r.until&&r.until<viewDate;
     const row=el("div","req"+(isPast?" past":"")), body=el("div");
-    const pn=el("p","p",r.prescriber||"Prescriber");
+    const pn=el("p","p",r.prescriber||(r.type==="other"?"Other request":"Prescriber")); if(r.type==="other"&&r.prescriber) pn.append(el("span","tag type","Other request"));
     if(r.until===viewDate) pn.append(el("span","tag","Ends today"));
     body.append(pn, el("p","r",r.request||""));
     const bits=[]; if(r.requestedBy) bits.push("Requested by "+r.requestedBy);
@@ -472,7 +486,7 @@ function renderTimeline(isToday,nowHM){
     const chips=el("div","chips"); const who=[];
     h.items.forEach(({id,label,due})=>{
       const on=!!ticks[id], lateChip=!on&&isToday&&nowHM>due;
-      const c=el("button","chip"+(on?" on":"")+(lateChip?" late":""),label);
+      const c=el("button","chip"+(on?" on":"")+(lateChip?" late":"")+(isNow&&!on&&!lateChip?" cur":""),label);
       c.setAttribute("aria-pressed",on?"true":"false"); c.disabled=readOnly;
       c.setAttribute("aria-label",label+", "+(h.label||h.h)+(on?", done by "+whoLine(id):lateChip?", overdue":""));
       if(on) c.title="Done by "+whoLine(id);
@@ -539,14 +553,17 @@ function renderCarry(isToday){
   const afternoon = isToday && new Date().getHours()>=AFTERNOON_FROM;
   const which = carryOverride || (afternoon? "am" : "prev");
   const n = which==="am"? notes.am : prevPm;
-  document.getElementById("carryTitle").textContent = which==="am"
-    ? (isToday? "Handover for this afternoon, from this morning's shift" : "Morning → afternoon handover, "+niceDate(viewDate))
-    : (isToday? "Handover for this morning, from yesterday afternoon ("+niceDate(shift(viewDate,-1))+")" : "Handover into "+niceDate(viewDate)+", from the afternoon before");
-  const tx=document.getElementById("carryText");
-  tx.textContent = n.text || "Not written yet."; tx.classList.toggle("empty",!n.text);
+  const srcDay = which==="am"? viewDate : shift(viewDate,-1);
+  const name = which==="am"
+    ? (isToday? "this morning" : "the morning shift")
+    : (isToday? "yesterday afternoon" : "the afternoon before");
+  const box=document.getElementById("carry"); box.classList.toggle("empty",!n.text);
+  document.getElementById("carryTitle").textContent = n.text? "Handover from "+name : "No handover from "+name+" yet";
+  document.getElementById("carryDate").textContent = niceDate(srcDay);
+  document.getElementById("carryText").textContent = n.text||"";
   document.getElementById("carryMeta").textContent = n.at? "Written by "+nameOf(n.by)+(n.lastBy&&n.lastBy!==n.by?", edited by "+nameOf(n.lastBy):"")+" at "+hm(n.at) : "";
   const sw=document.getElementById("carrySwap");
-  sw.textContent = which==="am" ? "Show last night's handover instead" : "Show this morning's handover instead";
+  sw.textContent = which==="am" ? "Show last night's instead" : "Show this morning's instead";
   sw.onclick=()=>{ carryOverride = which==="am"?"prev":"am"; render(); };
 }
 function render(){
@@ -659,26 +676,33 @@ function subscribeRequests(){
   }, ()=>setNotice("Couldn't load special requests. Refresh the page to try again."));
 }
 function saveLocalReqs(){ try{ localStorage.setItem("cc-requests",JSON.stringify(requests)); }catch(e){} }
+document.getElementById("rq-type").onchange=e=>{
+  const other=e.target.value==="other";
+  document.getElementById("rq-who-l").textContent= other? "Who it's about (optional)" : "Prescriber";
+  document.getElementById("rq-who").placeholder= other? "e.g. a prescriber, team or inbox" : "e.g. Dr Sarah Khan";
+  document.getElementById("rq-what").placeholder= other? "e.g. Cover the coordinator inbox 2–3pm" : "e.g. Side effects only, no GP letters";
+};
 document.getElementById("pastToggle").onclick=()=>{ showPast=!showPast; renderRequests(); };
 document.getElementById("rq-open").onchange=e=>{ document.getElementById("rq-until").disabled=e.target.checked; };
 document.getElementById("rq-add").onclick=async()=>{
   const g=id=>document.getElementById(id), err=g("rq-err");
-  const prescriber=g("rq-who").value.trim(), request=g("rq-what").value.trim(), requestedBy=g("rq-by").value.trim();
+  const type=g("rq-type").value, prescriber=g("rq-who").value.trim(), request=g("rq-what").value.trim(), requestedBy=g("rq-by").value.trim();
   const open=g("rq-open").checked, until=open? null : g("rq-until").value||null;
-  if(!prescriber||!request){ err.textContent="Add the prescriber's name and what the request is."; return; }
+  if(!request){ err.textContent="Add what the request is."; return; }
+  if(type==="allocation"&&!prescriber){ err.textContent="Add the prescriber's name for an allocation request."; return; }
   if(!open&&!until){ err.textContent="Pick an end date, or tick until further notice."; return; }
   err.textContent="";
-  const rec={prescriber,request,requestedBy,until,addedBy:myId,addedByName:myName,at:Date.now()};
+  const rec={type,prescriber,request,requestedBy,until,addedBy:myId,addedByName:myName,at:Date.now()};
   const btn=g("rq-add"); btn.disabled=true;
   try{
     if(mode==="local"){ rec.id="r"+rec.at; requests.push(rec); saveLocalReqs(); render(); }
     else await db.collection("requests").add(rec);
-    ["rq-who","rq-what","rq-by","rq-until"].forEach(id=>g(id).value=""); g("rq-open").checked=false; g("rq-until").disabled=false;
+    ["rq-who","rq-what","rq-by","rq-until"].forEach(id=>g(id).value=""); g("rq-open").checked=false; g("rq-until").disabled=false; g("rq-type").value="allocation"; g("rq-type").dispatchEvent(new Event("change"));
   }catch(e){ err.textContent= e&&(e.code==="invalid_argument"||e.code==="permission-denied") ? "You don't have access to add requests." : "That request didn't save. Try again."; }
   btn.disabled=false;
 };
 async function removeReq(r){
-  if(!confirm("Remove the request for "+(r.prescriber||"this prescriber")+"?")) return;
+  if(!confirm("Remove the request"+(r.prescriber?" for "+r.prescriber:"")+"?")) return;
   if(mode==="local"){ requests=requests.filter(x=>x.id!==r.id); saveLocalReqs(); render(); return; }
   try{ await db.doc("requests/"+r.id).delete(); }catch(e){ setNotice("That request couldn't be removed. Try again."); }
 }
