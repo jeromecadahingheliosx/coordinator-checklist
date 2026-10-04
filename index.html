@@ -16,19 +16,19 @@
   --t-any:#DFF5F1; --t-any-ink:#0B6159;
   --t-end:#FFF0DE; --t-end-ink:#8A4300;
   --tip:#FFF4C2; --tip-ink:#5C4400; --tip-line:#D4A72C;
-  --note:#EEF1F6; --note-ink:#334155; --t-req:#F1F3F6; --t-req-ink:#3B4250; --chipline:#C9D1DE;
+  --note:#EEF1F6; --note-ink:#334155; --t-req:#F1F3F6; --t-req-ink:#3B4250; --t-flag:#FDF0E7; --t-flag-ink:#8A3B12; --chipline:#C9D1DE;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --chipline:#3A4370;
+    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --t-flag:#33190D; --t-flag-ink:#FFBE98; --chipline:#3A4370;
   }
 }
 :root[data-theme="dark"]{
   --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --chipline:#3A4370;
+  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --t-flag:#33190D; --t-flag-ink:#FFBE98; --chipline:#3A4370;
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -91,9 +91,19 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 .tone-end{--tone:var(--t-end);--tone-ink:var(--t-end-ink)}
 .tone-note{--tone:var(--note);--tone-ink:var(--note-ink)}
 .tone-req{--tone:var(--t-req);--tone-ink:var(--t-req-ink)}
+.tone-flag{--tone:var(--t-flag);--tone-ink:var(--t-flag-ink)}
+.flag{display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:10px 12px;align-items:start}
+.flag + .flag{border-top:1px solid var(--line)}
+.flag .ft{font:700 12.5px "Space Grotesk",sans-serif;padding-top:1px}
+.flag .fw{margin:0;font-weight:600}
+.flag .fx{margin:2px 0 0;white-space:pre-wrap}
+.flag .fm{margin:3px 0 0;font-size:11.5px;color:var(--muted)}
+.ftag{display:inline-block;font-size:10.5px;font-weight:600;border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:1px;background:var(--tip);color:var(--tip-ink);border:1px solid var(--tip-line)}
+.flagform .f.tiny{flex:0 1 110px}
 .box2 .pad{padding:12px}
 .readfirst{font:700 10.5px "Inter",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:var(--blue);border-radius:999px;padding:2px 9px;align-self:center}
 .carry.empty .readfirst{display:none}
+.carry #carryIssues{font-size:11.5px;color:var(--t-flag-ink);font-weight:600}
 .addopen{font:600 12.5px "Inter",sans-serif;border-radius:999px;border:1.5px dashed var(--blue);background:transparent;color:var(--blue);padding:5px 14px;cursor:pointer}
 .reqfoot{padding:9px 12px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .reqfoot .toggle{padding:0}
@@ -272,6 +282,7 @@ const COMPANY_DOMAIN = "heliosx.com";
       <span class="readfirst">Read first</span>
       <h2 id="carryTitle">Handover</h2>
       <span class="cdate" id="carryDate"></span>
+      <button class="linkbtn" id="carryIssues" hidden style="margin-left:0"></button>
       <button class="linkbtn" id="carrySwap"></button>
     </div>
     <div class="cb">
@@ -291,20 +302,24 @@ const COMPANY_DOMAIN = "heliosx.com";
         <div id="timeline" style="padding:6px"></div>
       </section>
       <section class="box2 tone-note">
-        <div class="bh"><h2>Write a handover</h2><span class="when">Morning handover by 3pm; afternoon handover before you log off.</span></div>
+        <div class="bh"><h2>Write a handover</h2><span class="when">What the next shift needs to know or do. Short points are fine. Morning by 3pm, afternoon before you log off.</span></div>
         <div class="pad">
           <p class="lock" id="noteLock" hidden>Only the coordinators on the handover list can write handover notes. You can still read them here.</p>
           <div class="notes">
             <div class="note">
               <label for="note-am">Morning → afternoon shift</label>
               <div class="writer" id="writer-am"></div>
-              <textarea id="note-am" placeholder="e.g. Dr X covering side effects until 3pm only, GP letters still need clearing…"></textarea>
+              <textarea id="note-am" placeholder="Short points are fine, e.g.
+- Dr X on side effects until 3pm only
+- GP letters FIN need a prescriber after 4pm"></textarea>
               <div class="meta" id="meta-am"></div>
             </div>
             <div class="note">
               <label for="note-pm">Afternoon → next morning shift</label>
               <div class="writer" id="writer-pm"></div>
-              <textarea id="note-pm" placeholder="e.g. Special requests loaded for tomorrow, aged orders to chase first thing…"></textarea>
+              <textarea id="note-pm" placeholder="Short points are fine, e.g.
+- Rota for tomorrow done, special requests included
+- 2 aged orders to chase first thing"></textarea>
               <div class="meta" id="meta-pm"></div>
             </div>
           </div>
@@ -321,12 +336,26 @@ const COMPANY_DOMAIN = "heliosx.com";
           <div class="f" style="flex:0 1 150px"><label for="rq-type">Type</label><select id="rq-type"><option value="allocation">Allocation request</option><option value="other">Other request</option></select></div>
           <div class="f"><label for="rq-who" id="rq-who-l">Prescriber</label><input type="text" id="rq-who" placeholder="e.g. Dr Sarah Khan"></div>
           <div class="f wide"><label for="rq-what">Request</label><input type="text" id="rq-what" placeholder="e.g. Side effects only, no GP letters"></div>
-          <div class="f"><label for="rq-by">Requested by</label><input type="text" id="rq-by" placeholder="Team lead's name"></div>
+          <div class="f"><label for="rq-by">Requested by</label><input type="text" id="rq-by" placeholder="e.g. team lead or clinical manager"></div>
           <div class="f"><label for="rq-until">Until</label><input type="date" id="rq-until">
             <div class="row"><input type="checkbox" id="rq-open"><label for="rq-open" style="margin:0;font-weight:400">Until further notice</label></div></div>
           <button class="addbtn" id="rq-add">Add request</button>
           <button class="sd-cancel small" id="rq-cancel">Cancel</button>
           <p class="formerr" id="rq-err"></p>
+        </div>
+      </section>
+      <section id="flags" class="box2 tone-flag">
+        <div class="bh"><h2>Issues today</h2><span class="when">A record of anything that went wrong or needs following up: late to live chat, missed shifts, system problems. No need to repeat these in the handover.</span></div>
+        <div id="flagList"></div>
+        <div class="reqfoot"><button class="addopen" id="flagOpen" style="border-color:var(--t-flag-ink);color:var(--t-flag-ink)">+ Add an issue</button></div>
+        <div class="addreq pad flagform" id="flagForm" hidden style="margin-top:0;border-top:1px solid var(--line)">
+          <div class="f" style="flex:0 1 170px"><label for="fl-type">Type</label><select id="fl-type"><option>Late to live chat</option><option>Late to shift</option><option>Missed a check</option><option>System issue</option><option>Other</option></select></div>
+          <div class="f"><label for="fl-who">Who (optional)</label><input type="text" id="fl-who" placeholder="e.g. Dr Sarah Khan"></div>
+          <div class="f tiny"><label for="fl-time">Time</label><input type="text" id="fl-time" placeholder="14:05"></div>
+          <div class="f wide"><label for="fl-what">What happened</label><input type="text" id="fl-what" placeholder="e.g. Joined live chat 20 minutes late, no message beforehand"></div>
+          <button class="addbtn" id="fl-add">Add issue</button>
+          <button class="sd-cancel small" id="fl-cancel">Cancel</button>
+          <p class="formerr" id="fl-err"></p>
         </div>
       </section>
     </div>
@@ -435,7 +464,7 @@ const EMPTY=()=>({text:"",by:null,lastBy:null,at:null});
 const NOTE_PATH={am:"meta/am", pm:"meta/note"};           // older location, read-only fallback
 const notePath=(day,k)=>"handover/"+day+"_"+k;             // only editors can write here
 let noteSrc={am:{},pm:{},prev:{}}, notesLocked=false;
-let requests=[], showPast=false, unsubReqs=null, reqFormOpen=false;
+let requests=[], showPast=false, unsubReqs=null, reqFormOpen=false, flags=[], prevFlags=[], flagFormOpen=false;
 let notes = {am:EMPTY(), pm:EMPTY()}, prevPm = EMPTY();
 let db=null, user=null, myId=null, names={}, unsubTicks=null, unsubNotes=[], readOnly=false, mode="local";
 
@@ -446,7 +475,25 @@ function hm(ts){ return ts? new Date(ts).toLocaleTimeString("en-GB",{hour:"2-dig
 function nameOf(id){ if(!id) return mode==="local"?"you":"Someone"; if(id===myId) return "you"; return names[id] || "Someone"; }
 function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
 
+function renderFlags(){
+  const list=document.getElementById("flagList"); list.replaceChildren();
+  const fs=[...flags].sort((a,b)=>(a.time||"").localeCompare(b.time||"")||(a.at||0)-(b.at||0));
+  if(!fs.length) list.append(el("p","empty", viewDate===todayKey()? "No issues today." : "No issues were logged on this day."));
+  fs.forEach(x=>{
+    const row=el("div","flag");
+    row.append(el("div","ft",x.time||"–"));
+    const body=el("div"); const w=el("p","fw",x.who||x.type||"Flag"); if(x.who) w.append(el("span","ftag",x.type||"Other")); else if(x.type) w.firstChild.textContent=x.type;
+    body.append(w); if(x.what) body.append(el("p","fx",x.what));
+    if(x.addedBy) body.append(el("p","fm","Logged by "+nameOf(x.addedBy)+(x.at?" at "+hm(x.at):"")));
+    row.append(body);
+    if(!readOnly){ const b=el("button","rm","Remove"); b.setAttribute("aria-label","Remove this issue"); b.onclick=()=>removeFlag(x); row.append(b); } else row.append(el("span"));
+    list.append(row);
+  });
+  document.getElementById("flagForm").hidden=readOnly||!flagFormOpen;
+  document.getElementById("flagOpen").hidden=readOnly||flagFormOpen;
+}
 function renderRequests(){
+  renderFlags();
   const listEl=document.getElementById("reqList"); listEl.replaceChildren();
   const active=requests.filter(r=>!r.until||r.until>=viewDate).sort((a,b)=>(a.until||"9999").localeCompare(b.until||"9999"));
   const past=requests.filter(r=>r.until&&r.until<viewDate).sort((a,b)=>b.until.localeCompare(a.until));
@@ -576,6 +623,11 @@ function renderCarry(isToday){
   document.getElementById("carryDate").textContent = niceDate(srcDay);
   document.getElementById("carryText").textContent = n.text||"";
   document.getElementById("carryMeta").textContent = n.at? "Written by "+nameOf(n.by)+(n.lastBy&&n.lastBy!==n.by?", edited by "+nameOf(n.lastBy):"")+" at "+hm(n.at) : "";
+  const iss=document.getElementById("carryIssues");
+  const cnt = which==="am"? flags.length : prevFlags.length;
+  iss.hidden=!cnt;
+  iss.textContent = cnt? cnt+(cnt===1?" issue":" issues")+" logged "+(which==="am"? (isToday?"today":"that day") : (isToday?"yesterday":"the day before"))+" →" : "";
+  iss.onclick=()=>{ if(which!=="am") go(srcDay); setTimeout(()=>document.getElementById("flags").scrollIntoView({behavior:"smooth",block:"start"}),50); };
   const sw=document.getElementById("carrySwap");
   sw.textContent = which==="am" ? "Show last night's instead" : "Show this morning's instead";
   sw.onclick=()=>{ carryOverride = which==="am"?"prev":"am"; render(); };
@@ -614,12 +666,14 @@ function localLoad(){
   notes={am:rd("cc-am-"+viewDate)||EMPTY(), pm:rd("cc-note-"+viewDate)||EMPTY()};
   prevPm=rd("cc-note-"+shift(viewDate,-1))||EMPTY();
   if(mode==="local") requests=rd("cc-requests")||[];
+  flags = mode==="local" ? (rd("cc-flags-"+viewDate)||[]) : flags;
+  prevFlags = mode==="local" ? (rd("cc-flags-"+shift(viewDate,-1))||[]) : prevFlags;
 }
 function localSave(){ try{ localStorage.setItem("cc-ticks-"+viewDate,JSON.stringify(ticks)); localStorage.setItem("cc-am-"+viewDate,JSON.stringify(notes.am)); localStorage.setItem("cc-note-"+viewDate,JSON.stringify(notes.pm)); }catch(e){} }
 
 async function resolveNames(){
   if(!user) return;
-  const ids=[...new Set([...Object.values(ticks).map(v=>v.by), notes.am.by, notes.pm.by, prevPm.by, notes.am.lastBy, notes.pm.lastBy, prevPm.lastBy, ...requests.map(r=>r.addedBy)].filter(Boolean))].filter(id=>id!==myId && !(id in names));
+  const ids=[...new Set([...Object.values(ticks).map(v=>v.by), notes.am.by, notes.pm.by, prevPm.by, notes.am.lastBy, notes.pm.lastBy, prevPm.lastBy, ...requests.map(r=>r.addedBy), ...flags.map(x=>x.addedBy)].filter(Boolean))].filter(id=>id!==myId && !(id in names));
   if(!ids.length) return;
   try{ const ps=await user.profiles(ids); ids.forEach(id=>{ names[id]=(ps&&ps[id]&&ps[id].name)||""; }); render(); }catch(e){}
 }
@@ -627,6 +681,15 @@ async function resolveNames(){
 function subscribe(){
   if(unsubTicks) unsubTicks(); unsubNotes.forEach(u=>u()); unsubNotes=[];
   const day=viewDate;
+  unsubNotes.push(db.collection("days/"+day+"/flags").onSnapshot(snap=>{
+    if(day!==viewDate) return;
+    flags=snap.docs.map(d=>Object.assign({id:d.id}, d.data()||{}));
+    flags.forEach(x=>{ if(x.addedBy&&x.addedByName) names[x.addedBy]=x.addedByName; });
+    render(); resolveNames();
+  }, ()=>{}));
+  unsubNotes.push(db.collection("days/"+shift(day,-1)+"/flags").onSnapshot(snap=>{
+    if(day!==viewDate) return; prevFlags=snap.docs.map(d=>d.data()||{}); render();
+  }, ()=>{}));
   unsubTicks = db.collection("days/"+day+"/ticks").onSnapshot(snap=>{
     if(day!==viewDate) return;
     const next={}; snap.docs.forEach(d=>{ const v=d.data(); if(v){ next[d.id]={by:v.by||null,at:v.at||null,lab:v.lab||null}; if(v.by&&v.byName) names[v.by]=v.byName; } });
@@ -696,6 +759,31 @@ document.getElementById("rq-type").onchange=e=>{
   document.getElementById("rq-who").placeholder= other? "e.g. a prescriber, team or inbox" : "e.g. Dr Sarah Khan";
   document.getElementById("rq-what").placeholder= other? "e.g. Cover the coordinator inbox 2–3pm" : "e.g. Side effects only, no GP letters";
 };
+function nowHHMM(){ const n=new Date(); return String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0"); }
+document.getElementById("flagOpen").onclick=()=>{ flagFormOpen=true; document.getElementById("fl-time").value=nowHHMM(); renderFlags(); document.getElementById("fl-who").focus(); };
+document.getElementById("fl-cancel").onclick=()=>{ flagFormOpen=false; document.getElementById("fl-err").textContent=""; renderFlags(); };
+document.getElementById("fl-add").onclick=async()=>{
+  const g=id=>document.getElementById(id), err=g("fl-err");
+  const type=g("fl-type").value, who=g("fl-who").value.trim(), what=g("fl-what").value.trim();
+  let time=g("fl-time").value.trim(); const m=time.match(/^(\d{1,2})[:.]?(\d{2})$/);
+  if(!what){ err.textContent="Add what happened."; return; }
+  if(time && !m){ err.textContent="Use a time like 14:05, or leave it blank."; return; }
+  if(m) time=String(Math.min(23,+m[1])).padStart(2,"0")+":"+m[2];
+  err.textContent="";
+  const rec={type,who,what,time,addedBy:myId,addedByName:(typeof myName!=="undefined"?myName:(names[myId]||"")),at:Date.now()};
+  const btn=g("fl-add"); btn.disabled=true;
+  try{
+    if(mode==="local"){ rec.id="f"+rec.at; flags.push(rec); try{ localStorage.setItem("cc-flags-"+viewDate,JSON.stringify(flags)); }catch(e){} }
+    else await db.collection("days/"+viewDate+"/flags").add(rec);
+    ["fl-who","fl-what","fl-time"].forEach(id=>g(id).value=""); g("fl-type").selectedIndex=0; flagFormOpen=false; render();
+  }catch(e){ err.textContent=(e&&(e.code==="permission-denied"||e.code==="invalid_argument"))? "You don't have access to add issues." : "That issue didn't save. Try again."; }
+  btn.disabled=false;
+};
+async function removeFlag(x){
+  if(!confirm("Remove this issue?")) return;
+  if(mode==="local"){ flags=flags.filter(y=>y.id!==x.id); try{ localStorage.setItem("cc-flags-"+viewDate,JSON.stringify(flags)); }catch(e){} render(); return; }
+  try{ await db.doc("days/"+viewDate+"/flags/"+x.id).delete(); }catch(e){ setNotice("That issue couldn't be removed. Try again."); }
+}
 document.getElementById("addOpen").onclick=()=>{ reqFormOpen=true; renderRequests(); document.getElementById("rq-who").focus(); };
 document.getElementById("rq-cancel").onclick=()=>{ reqFormOpen=false; document.getElementById("rq-err").textContent=""; renderRequests(); };
 document.getElementById("pastToggle").onclick=()=>{ showPast=!showPast; renderRequests(); };
@@ -788,7 +876,7 @@ document.getElementById("schedSave").onclick=async()=>{
 function setNotice(t){ document.getElementById("notice").textContent=t; }
 function go(key){
   saveAll();
-  viewDate=key; expanded={}; carryOverride=null; lastSaved.am=lastSaved.pm=null; ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY();
+  viewDate=key; expanded={}; carryOverride=null; flags=[]; prevFlags=[]; flagFormOpen=false; lastSaved.am=lastSaved.pm=null; ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY();
   if(mode==="local") localLoad();
   render(); if(mode==="shared"&&db) subscribe();
 }
