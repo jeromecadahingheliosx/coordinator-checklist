@@ -16,19 +16,19 @@
   --t-any:#DFF5F1; --t-any-ink:#0B6159;
   --t-end:#FFF0DE; --t-end-ink:#8A4300;
   --tip:#FFF4C2; --tip-ink:#5C4400; --tip-line:#D4A72C;
-  --note:#EEF1F6; --note-ink:#334155; --t-req:#F1F3F6; --t-req-ink:#3B4250; --t-flag:#FDF0E7; --t-flag-ink:#8A3B12; --chipline:#C9D1DE;
+  --note:#EEF1F6; --note-ink:#334155; --t-req:#F1F3F6; --t-req-ink:#3B4250; --t-flag:#FDF0E7; --t-flag-ink:#8A3B12; --t-flag-line:#F0C4A8; --chipline:#C9D1DE;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --t-flag:#33190D; --t-flag-ink:#FFBE98; --chipline:#3A4370;
+    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --t-flag:#33190D; --t-flag-ink:#FFBE98; --t-flag-line:#6B3519; --chipline:#3A4370;
   }
 }
 :root[data-theme="dark"]{
   --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --t-flag:#33190D; --t-flag-ink:#FFBE98; --chipline:#3A4370;
+  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --t-flag:#33190D; --t-flag-ink:#FFBE98; --t-flag-line:#6B3519; --chipline:#3A4370;
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -98,7 +98,7 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 .flag .fw{margin:0;font-weight:600}
 .flag .fx{margin:2px 0 0;white-space:pre-wrap}
 .flag .fm{margin:3px 0 0;font-size:11.5px;color:var(--muted)}
-.ftag{display:inline-block;font-size:10.5px;font-weight:600;border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:1px;background:var(--tip);color:var(--tip-ink);border:1px solid var(--tip-line)}
+.ftag{display:inline-block;font-size:10.5px;font-weight:600;border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:1px;background:var(--t-flag);color:var(--t-flag-ink);border:1px solid var(--t-flag-line)}
 .flagform .f.tiny{flex:0 1 110px}
 .box2 .pad{padding:12px}
 .readfirst{font:700 10.5px "Inter",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:var(--blue);border-radius:999px;padding:2px 9px;align-self:center}
@@ -345,14 +345,14 @@ const COMPANY_DOMAIN = "heliosx.com";
         </div>
       </section>
       <section id="flags" class="box2 tone-flag">
-        <div class="bh"><h2>Issues today</h2><span class="when">A record of anything that went wrong or needs following up: late to live chat, missed shifts, system problems. No need to repeat these in the handover.</span></div>
+        <div class="bh"><h2>Issues today</h2><span class="when">A record of anything that went wrong or needs following up, big or small. No need to repeat these in the handover.</span></div>
         <div id="flagList"></div>
         <div class="reqfoot"><button class="addopen" id="flagOpen" style="border-color:var(--t-flag-ink);color:var(--t-flag-ink)">+ Add an issue</button></div>
         <div class="addreq pad flagform" id="flagForm" hidden style="margin-top:0;border-top:1px solid var(--line)">
-          <div class="f" style="flex:0 1 170px"><label for="fl-type">Type</label><select id="fl-type"><option>Late to live chat</option><option>Late to shift</option><option>Missed a check</option><option>System issue</option><option>Other</option></select></div>
-          <div class="f"><label for="fl-who">Who (optional)</label><input type="text" id="fl-who" placeholder="e.g. Dr Sarah Khan"></div>
+          <div class="f" style="flex:0 1 170px"><label for="fl-type">Type</label><select id="fl-type"><option>General</option><option>Prescriber</option><option>Live chat</option><option>Shift &amp; cover</option><option>Queues &amp; workflow</option><option>Orders</option><option>Systems &amp; tools</option><option>Communication</option><option>Other</option></select></div>
+          <div class="f"><label for="fl-who">Who or what (optional)</label><input type="text" id="fl-who" placeholder="e.g. Dr Sarah Khan, Titan Q, Hex report"></div>
           <div class="f tiny"><label for="fl-time">Time</label><input type="text" id="fl-time" placeholder="14:05"></div>
-          <div class="f wide"><label for="fl-what">What happened</label><input type="text" id="fl-what" placeholder="e.g. Joined live chat 20 minutes late, no message beforehand"></div>
+          <div class="f wide"><label for="fl-what">What happened</label><input type="text" id="fl-what" placeholder="e.g. Joined live chat 20 minutes late; Hex report not loading since 10am"></div>
           <button class="addbtn" id="fl-add">Add issue</button>
           <button class="sd-cancel small" id="fl-cancel">Cancel</button>
           <p class="formerr" id="fl-err"></p>
