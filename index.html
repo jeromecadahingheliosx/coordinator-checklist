@@ -16,19 +16,20 @@
   --t-any:#DFF5F1; --t-any-ink:#0B6159;
   --t-end:#FFF0DE; --t-end-ink:#8A4300;
   --tip:#FFF4C2; --tip-ink:#5C4400; --tip-line:#D4A72C;
-  --note:#EEF1F6; --note-ink:#334155; --t-req:#F1F3F6; --t-req-ink:#3B4250; --t-flag:#FDF0E7; --t-flag-ink:#8A3B12; --t-flag-line:#F0C4A8; --chipline:#C9D1DE;
+  --note:#EEF1F6; --note-ink:#334155; --t-req:#F1F3F6; --t-req-ink:#3B4250; --t-flag:#FDF0E7; --t-flag-ink:#8A3B12; --t-flag-line:#F0C4A8;
+  --boxline:#8E9BE0; --linkbg:#EEF1FD; --linkink:#3D4DB0; --linkline:#D9DFFA; --chipline:#C9D1DE;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --t-flag:#33190D; --t-flag-ink:#FFBE98; --t-flag-line:#6B3519; --chipline:#3A4370;
+    --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --t-flag:#33190D; --t-flag-ink:#FFBE98; --t-flag-line:#6B3519; --boxline:#6C79C4; --linkbg:#1A2047; --linkink:#B8C2FF; --linkline:#2F3870; --chipline:#3A4370;
   }
 }
 :root[data-theme="dark"]{
   --page:#04060F; --bg:#0B1024; --panel:#111735; --ink:#F2F4FF; --muted:#A9AFC7; --line:#262E57;
-  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --t-flag:#33190D; --t-flag-ink:#FFBE98; --t-flag-line:#6B3519; --chipline:#3A4370;
+  --blue:#8C9AFF; --done:#3FD19B; --late:#FF6B7C; --latebg:#3A1520; --chip:#1A2247; --tick:#070A1A; --nowbg:#070A1A; --t-time:#16205A; --t-time-ink:#B9C3FF; --t-mon:#3D1328; --t-mon-ink:#F9B8D4; --t-start:#2A1A4F; --t-start-ink:#D6C4FF; --t-any:#0E3632; --t-any-ink:#8FE3D6; --t-end:#3A260E; --t-end-ink:#FFC98A; --tip:#3A300A; --tip-ink:#FFE08A; --tip-line:#B8901F; --note:#1C2333; --note-ink:#CBD5E1; --t-req:#1A1F2B; --t-req-ink:#C7CDD9; --t-flag:#33190D; --t-flag-ink:#FFBE98; --t-flag-line:#6B3519; --boxline:#6C79C4; --linkbg:#1A2047; --linkink:#B8C2FF; --linkline:#2F3870; --chipline:#3A4370;
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -61,7 +62,7 @@ button{font-family:inherit}
 /* applicable handover */
 .carry{border:1.5px solid var(--line);border-radius:14px;background:var(--bg);overflow:hidden}
 .carry .ch{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding:8px 12px;background:var(--note);color:var(--note-ink)}
-.carry h2{margin:0;font:700 13.5px "Inter",sans-serif;color:var(--note-ink)}
+.carry h2{margin:0;font:700 11.5px "Inter",sans-serif;color:var(--note-ink);letter-spacing:.07em;text-transform:uppercase}
 .carry .cdate{font-size:12px;color:var(--note-ink)}
 .carry .linkbtn{margin-left:auto;font-size:11.5px;color:var(--note-ink)}
 .carry .cb{padding:10px 12px 11px;border-top:1.5px solid var(--line)}
@@ -82,7 +83,7 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 .card{background:var(--panel);border-radius:14px;padding:4px}
 .box2{border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:var(--bg)}
 .box2 > .bh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding:9px 12px;background:var(--tone);border-bottom:1.5px solid var(--line)}
-.box2 > .bh h2{margin:0;font:700 13.5px "Inter",sans-serif;color:var(--tone-ink);letter-spacing:.01em}
+.box2 > .bh h2{margin:0;font:700 11.5px "Inter",sans-serif;color:var(--tone-ink);letter-spacing:.07em;text-transform:uppercase}
 .box2 > .bh .when{font-size:12px;color:var(--tone-ink)}
 .tone-time{--tone:var(--t-time);--tone-ink:var(--t-time-ink)}
 .tone-mon{--tone:var(--t-mon);--tone-ink:var(--t-mon-ink)}
@@ -92,6 +93,8 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 .tone-note{--tone:var(--note);--tone-ink:var(--note-ink)}
 .tone-req{--tone:var(--t-req);--tone-ink:var(--t-req-ink)}
 .tone-flag{--tone:var(--t-flag);--tone-ink:var(--t-flag-ink)}
+.hcount{font:600 11px "Inter",sans-serif;color:var(--tone-ink);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-variant-numeric:tabular-nums}
+.hcount.full{color:var(--done);border-color:var(--done)}
 .flag{display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:10px 12px;align-items:start}
 .flag + .flag{border-top:1px solid var(--line)}
 .flag .ft{font:700 12.5px "Space Grotesk",sans-serif;padding-top:1px}
@@ -157,8 +160,8 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .hour{display:flex;gap:12px;align-items:flex-start;padding:7px 12px;border-radius:10px;border:2px solid transparent}
 .hour + .hour{margin-top:2px}
 .hour .lab{width:50px;flex:0 0 50px;padding-top:3px}
-.hour .lab b{display:block;font:700 12.5px "Space Grotesk",sans-serif}
-.hour .lab span{display:block;font:600 10px "Inter",sans-serif;color:var(--blue)}
+.hour .lab b{display:block;font:600 11.5px "Inter",sans-serif;font-variant-numeric:tabular-nums;color:var(--ink)}
+.hour .lab span{display:block;font:600 9.5px "Inter",sans-serif;color:var(--blue);margin-top:1px}
 .hour .body{flex:1;min-width:0}
 .hour .chips{gap:5px}
 .hour .who{font-size:11px;margin-top:4px}
@@ -167,7 +170,7 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .hour.late{background:var(--latebg)}
 .hour.late .lab span{color:var(--late)}
 .hour.collapsed{padding:4px 12px;align-items:center}
-.hour.collapsed .lab b{font-size:12.5px;color:var(--muted)}
+.hour.collapsed .lab b{font-size:11.5px;color:var(--muted)}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{font:500 11.5px "Inter",sans-serif;border-radius:999px;border:1.5px solid var(--chipline);background:var(--chip);color:var(--ink);padding:2px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;min-height:26px}
 .chip:hover:not(:disabled){border-color:var(--blue);color:var(--blue)}
@@ -180,18 +183,19 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .donebar{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--done);font-weight:500}
 
 /* tasks */
-.task{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:9px 12px}
+.task{display:grid;grid-template-columns:16px 1fr;gap:10px;padding:9px 12px}
 .task + .task{border-top:1px solid var(--line)}
-.box{width:20px;height:20px;border-radius:6px;border:2px solid var(--blue);background:transparent;cursor:pointer;display:grid;place-items:center;margin-top:1px;padding:0}
-.box svg{width:12px;height:12px;opacity:0}
+.box{width:16px;height:16px;border-radius:5px;border:1.5px solid var(--boxline);background:transparent;cursor:pointer;display:grid;place-items:center;margin-top:1px;padding:0}
+.box svg{width:10px;height:10px;opacity:0}
+.box:hover{border-color:var(--blue)}
 .task.is-done .box{background:var(--done);border-color:var(--done)}
 .task.is-done .box svg{opacity:1}
 .task.is-done .t{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
 .t{font-weight:600;margin:0}
 .d{margin:2px 0 0;color:var(--muted);font-size:12.5px}
 .links{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
-.links a{font-size:12px;font-weight:500;text-decoration:none;background:var(--chip);border:1px solid var(--line);padding:2px 9px;border-radius:999px}
-.links a:hover{border-color:var(--blue)}
+.links a{font-size:11.5px;font-weight:500;text-decoration:none;background:var(--linkbg);color:var(--linkink);border:1px solid var(--linkline);padding:2px 9px;border-radius:999px}
+.links a:hover{border-color:var(--linkink)}
 .task .done-by{font-size:11.5px;color:var(--done);margin-top:3px}
 
 /* notes */
@@ -294,7 +298,7 @@ const COMPANY_DOMAIN = "heliosx.com";
   <div class="cols">
     <div class="main">
       <section class="box2 tone-time">
-        <div class="bh"><h2>Through the day, hour by hour</h2><span class="when">Tick each check as you do it. Finished hours fold away.</span><button class="editsched" id="editSched" hidden>Edit schedule</button></div>
+        <div class="bh"><h2>Through the day, hour by hour</h2><span class="hcount" id="tlCount"></span><span class="when">Tick each check as you do it. Finished hours fold away.</span><button class="editsched" id="editSched" hidden>Edit schedule</button></div>
         <details class="key" style="margin:8px 12px 0">
           <summary>What each check means</summary>
           <dl id="keyList"></dl>
@@ -344,10 +348,10 @@ const COMPANY_DOMAIN = "heliosx.com";
           <p class="formerr" id="rq-err"></p>
         </div>
       </section>
-      <section id="flags" class="box2 tone-flag">
+      <section id="flags" class="box2 tone-req">
         <div class="bh"><h2>Issues today</h2><span class="when">A record of anything that went wrong or needs following up, big or small. No need to repeat these in the handover.</span></div>
         <div id="flagList"></div>
-        <div class="reqfoot"><button class="addopen" id="flagOpen" style="border-color:var(--t-flag-ink);color:var(--t-flag-ink)">+ Add an issue</button></div>
+        <div class="reqfoot"><button class="addopen" id="flagOpen">+ Add an issue</button></div>
         <div class="addreq pad flagform" id="flagForm" hidden style="margin-top:0;border-top:1px solid var(--line)">
           <div class="f" style="flex:0 1 170px"><label for="fl-type">Type</label><select id="fl-type"><option>General</option><option>Prescriber</option><option>Live chat</option><option>Shift &amp; cover</option><option>Queues &amp; workflow</option><option>Orders</option><option>Systems &amp; tools</option><option>Communication</option><option>Other</option></select></div>
           <div class="f"><label for="fl-who">Who or what (optional)</label><input type="text" id="fl-who" placeholder="e.g. Dr Sarah Khan, Titan Q, Hex report"></div>
@@ -578,7 +582,9 @@ function renderTimeline(isToday,nowHM){
 function renderSide(){
   const side=document.getElementById("side"); side.replaceChildren();
   sideFor(viewDate).forEach(s=>{
-    const sec=el("section","box2 tone-"+(s.tone||"start")); const head=el("div","bh"); head.append(el("h2",null,s.title)); if(s.when) head.append(el("span","when",s.when)); sec.append(head);
+    const sec=el("section","box2 tone-"+(s.tone||"start")); const head=el("div","bh"); head.append(el("h2",null,s.title));
+    { const tot=s.tasks.length, dn=s.tasks.filter(t=>isDone(t.id)).length;
+      const pill=el("span","hcount"+(dn===tot?" full":""), dn+" of "+tot+(s.log?" checked":" done")); head.append(pill); } if(s.when) head.append(el("span","when",s.when)); sec.append(head);
     const list=el("div");
     s.tasks.forEach(t=>{
       const body=el("div"); body.append(el("p","t",t.t)); if(t.d) body.append(el("p","d",t.d));
@@ -640,6 +646,8 @@ function render(){
   const jp=document.getElementById("jump"); if(document.activeElement!==jp) jp.value=viewDate;
   renderCarry(isToday);
   renderTimeline(isToday,nowHM);
+  { const tids=[]; HOURS.forEach(h=>h.items.forEach(i=>tids.push(i.id))); const dn=tids.filter(id=>ticks[id]).length;
+    const tc=document.getElementById("tlCount"); tc.textContent=dn+" of "+tids.length+" done"; tc.classList.toggle("full",dn===tids.length); }
   renderSide();
   const ALL_IDS = idsFor(viewDate);
   const done = ALL_IDS.filter(isDone).length, pct=Math.round(done/ALL_IDS.length*100);
