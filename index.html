@@ -9,7 +9,7 @@
 :root{
   --page:#F3F5FA; --bg:#FFFFFF; --panel:#EDF2FA; --ink:#0A0A0A; --muted:#555B66; --line:#DCE3EF;
   --blue:#0000FF; --done:#0A7D55; --late:#C8102E; --latebg:#FDECEE; --chip:#FFFFFF; --tick:#FFFFFF; --nowbg:#FFFFFF;
-  --grad:linear-gradient(120deg,#2A2A50 0%,#3B3B72 60%,#4A4A86 100%);
+  --grad:linear-gradient(120deg,#1F3457 0%,#2A4268 55%,#36507A 100%);
   --t-time:#E6EEFF; --t-time-ink:#0000B8;
   --t-mon:#FCE7F0; --t-mon-ink:#9D174D;
   --t-start:#F0E8FF; --t-start-ink:#5B21B6;
@@ -68,9 +68,9 @@ button{font-family:inherit}
 .carry .cb{padding:10px 12px 11px;border-top:1.5px solid var(--line)}
 .carry .txt{white-space:pre-wrap;margin:0;font-size:13.5px;line-height:1.5}
 .carry .meta{font-size:11.5px;color:var(--muted);margin-top:5px}
-.carry.empty .cb{display:none}
-.carry.empty .ch{padding:7px 12px}
-.carry.empty h2{font-weight:600}
+.carry.is-empty .cb{display:none}
+.carry.is-empty .ch{padding:7px 12px}
+.carry.is-empty h2{font-weight:600}
 .linkbtn{background:none;border:0;color:var(--blue);font:500 12px "Inter",sans-serif;cursor:pointer;padding:2px 0;text-decoration:underline}
 
 /* columns */
@@ -105,7 +105,7 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 .flagform .f.tiny{flex:0 1 110px}
 .box2 .pad{padding:12px}
 .readfirst{font:700 10.5px "Inter",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:var(--blue);border-radius:999px;padding:2px 9px;align-self:center}
-.carry.empty .readfirst{display:none}
+.carry.is-empty .readfirst{display:none}
 .carry #carryIssues{font-size:11.5px;color:var(--t-flag-ink);font-weight:600}
 .addopen{font:600 12.5px "Inter",sans-serif;border-radius:999px;border:1.5px dashed var(--blue);background:transparent;color:var(--blue);padding:5px 14px;cursor:pointer}
 .reqfoot{padding:9px 12px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -238,7 +238,7 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .formerr:empty{display:none}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 /* one shared header colour (slate lilac) */
-:root{--hdr:#F3F2FA;--hdr-ink:#33335C;--hdr-sub:#5E5E80;--page:#DFE1EA;--cardline:#D6DAE5;--boxshadow:0 1px 2px rgba(30,35,70,.06),0 2px 8px rgba(30,35,70,.05)}
+:root{--hdr:#F3F2FA;--hdr-ink:#33335C;--hdr-sub:#5E5E80;--page:#DDE3EC;--cardline:#D6DAE5;--boxshadow:0 1px 2px rgba(30,35,70,.06),0 2px 8px rgba(30,35,70,.05)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hdr:#23233A;--hdr-ink:#D9D9F2;--hdr-sub:#A9A9C8;--page:#04060F;--cardline:#262E57;--boxshadow:none}}
 :root[data-theme="dark"]{--hdr:#23233A;--hdr-ink:#D9D9F2;--hdr-sub:#A9A9C8;--page:#04060F;--cardline:#262E57;--boxshadow:none}
 .tone-time,.tone-mon,.tone-start,.tone-any,.tone-end,.tone-note,.tone-req,.tone-flag{--tone:var(--hdr);--tone-ink:var(--hdr-ink)}
@@ -272,6 +272,23 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .chip:hover:not(:disabled){color:var(--linkink);background:var(--panel)!important}
 .chip:hover:not(:disabled)::before{border-color:var(--linkink)}
 .chip.on:hover:not(:disabled)::before{border-color:var(--done)}
+
+/* section headers: lighter shade of the top banner, white text */
+:root{--hdr:#55739F;--hdr-ink:#FFFFFF;--hdr-sub:rgba(255,255,255,.88);--hdrline:#55739F;--pill-ink:#2E4870}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hdr:#2E4568;--hdr-ink:#FFFFFF;--hdr-sub:rgba(255,255,255,.78);--hdrline:#2E4568;--pill-ink:#2E4870}}
+:root[data-theme="dark"]{--hdr:#2E4568;--hdr-ink:#FFFFFF;--hdr-sub:rgba(255,255,255,.78);--hdrline:#2E4568;--pill-ink:#2E4870}
+.box2 > .bh,.carry .ch{background:var(--hdr)}
+.hcount{color:var(--pill-ink);background:#FFFFFF;border-color:transparent}
+.hcount.full{color:#FFFFFF;background:var(--done);border-color:var(--done)}
+.editsched{color:var(--pill-ink);background:#FFFFFF;border-color:#FFFFFF}
+.editsched:hover{background:#E8EEF7}
+.readfirst{background:#FFFFFF;color:var(--pill-ink)}
+.carry #carryIssues{color:#FFD9C7}
+.carry .linkbtn{color:#FFFFFF}
+
+/* Anytime "+ Mark as done" button: readable on white */
+.logbtn{border-color:var(--linkink)!important;color:var(--linkink)!important;background:var(--bg)!important}
+.logbtn:hover{background:var(--linkbg)!important}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -658,7 +675,7 @@ function renderCarry(isToday){
   const name = which==="am"
     ? (isToday? "this morning" : "the morning shift")
     : (isToday? "yesterday afternoon" : "the afternoon before");
-  const box=document.getElementById("carry"); box.classList.toggle("empty",!n.text);
+  const box=document.getElementById("carry"); box.classList.toggle("is-empty",!n.text);
   document.getElementById("carryTitle").textContent = n.text? "Handover from "+name : "No handover from "+name+" yet";
   document.getElementById("carryDate").textContent = niceDate(srcDay);
   document.getElementById("carryText").textContent = n.text||"";
