@@ -237,6 +237,22 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .formerr{color:var(--late);font-size:12.5px;margin:4px 2px 0;flex-basis:100%}
 .formerr:empty{display:none}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+/* one shared header colour (slate lilac) */
+:root{--hdr:#E8E8F1;--hdr-ink:#36365F;--hdr-sub:#5A5A7A;--page:#E2E4EC;--cardline:#D6DAE5;--boxshadow:0 1px 2px rgba(30,35,70,.06),0 2px 8px rgba(30,35,70,.05)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hdr:#23233A;--hdr-ink:#D9D9F2;--hdr-sub:#A9A9C8;--page:#04060F;--cardline:#262E57;--boxshadow:none}}
+:root[data-theme="dark"]{--hdr:#23233A;--hdr-ink:#D9D9F2;--hdr-sub:#A9A9C8;--page:#04060F;--cardline:#262E57;--boxshadow:none}
+.tone-time,.tone-mon,.tone-start,.tone-any,.tone-end,.tone-note,.tone-req,.tone-flag{--tone:var(--hdr);--tone-ink:var(--hdr-ink)}
+.box2,.carry{border:1px solid var(--cardline);box-shadow:var(--boxshadow)}
+.box2 > .bh{border-bottom:1px solid var(--cardline)}
+.carry .cb{border-top:1px solid var(--cardline)}
+.box2 > .bh h2,.carry h2{font-weight:800;font-size:12px}
+.box2 > .bh .when,.carry .cdate{color:var(--hdr-sub)}
+.carry .ch{background:var(--hdr)} .carry h2,.carry .linkbtn{color:var(--hdr-ink)}
+/* calmer timeline */
+.hour.late{background:transparent}
+.chip.on{background:var(--panel);border-color:var(--panel);color:var(--muted)}
+.chip.on::before{content:"✓";color:var(--done);font-weight:700}
+
 @media (max-width:560px){.hour{gap:10px}.hour .lab{width:46px;flex-basis:46px}}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
