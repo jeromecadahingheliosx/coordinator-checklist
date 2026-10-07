@@ -292,6 +292,23 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 
 .mxlogo{width:38px;height:38px;flex:0 0 38px;display:block}
 .hero .ttl{flex:1 1 220px}
+
+/* header colour picker */
+.hpick{position:relative;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+.hpick:focus-within{outline:3px solid #00A3C4;outline-offset:2px}
+.hpick .bdot{width:10px;height:10px;border-radius:50%;border:1px solid rgba(255,255,255,.7);background:var(--hdr)}
+.nav.quiet{height:auto;min-width:0;padding:4px 6px;border:0;background:transparent;font:400 11.5px "Inter",sans-serif;color:rgba(255,255,255,.88);border-radius:6px;gap:5px}
+.nav.quiet:hover{background:transparent;color:#fff;text-decoration:underline;text-underline-offset:2px}
+.pagefoot{display:flex;justify-content:flex-end;align-items:center;gap:4px;margin-top:8px}
+.pagefoot .nav.quiet{color:var(--muted)}
+.pagefoot .nav.quiet:hover{color:var(--ink)}
+.pagefoot .hpick .bdot{border-color:var(--line)}
+.hpick input{left:0;bottom:0}
+/* main banner: sage blue */
+:root{--grad:linear-gradient(120deg,#4C6B78 0%,#53748A 55%,#567786 100%)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--grad:linear-gradient(120deg,#2E4650 0%,#35515E 55%,#3B5966 100%)}}
+:root[data-theme="dark"]{--grad:linear-gradient(120deg,#2E4650 0%,#35515E 55%,#3B5966 100%)}
+.carry #carryIssues{color:var(--hdr-issue,#FFE2D4)}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -420,6 +437,10 @@ const COMPANY_DOMAIN = "heliosx.com";
     </div>
     <aside class="side" id="side" aria-label="One-off tasks"></aside>
   </div>
+  <footer class="pagefoot">
+    <label class="nav quiet hpick" title="Change the colour of the section headers"><span class="bdot" aria-hidden="true"></span>Header colour<input type="color" id="hdrColor" class="vh"></label>
+    <button class="nav quiet" id="hdrReset" hidden>Reset</button>
+  </footer>
 
 </div>
 
@@ -1000,6 +1021,39 @@ let myName="";
     ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
     render(); subscribe(); subscribeRequests(); subscribeSchedule();
   });
+})();
+</script>
+<script>
+/* Section header colour: any colour from the picker, saved in this browser only.
+   Header text switches between white and dark automatically so it stays readable. */
+(function(){
+  const root=document.documentElement, inp=document.getElementById("hdrColor"), reset=document.getElementById("hdrReset");
+  const mq=window.matchMedia?matchMedia("(prefers-color-scheme: dark)"):null;
+  const isDark=()=>root.dataset.theme==="dark"||(root.dataset.theme!=="light"&&!!(mq&&mq.matches));
+  const VARS=["--hdr","--hdrline","--pill-ink","--hdr-ink","--hdr-sub","--hdr-issue"];
+  const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+  const hex=c=>"#"+c.map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,"0")).join("");
+  const lum=c=>{ const l=c.map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);}); return .2126*l[0]+.7152*l[1]+.0722*l[2]; };
+  const vsWhite=c=>1.05/(lum(c)+.05);
+  let custom=null;
+  try{ custom=localStorage.getItem("cc-header-color"); if(!/^#[0-9a-f]{6}$/i.test(custom||"")) custom=null; localStorage.removeItem("cc-header"); localStorage.removeItem("cc-border"); }catch(e){}
+  function apply(){
+    reset.hidden=!custom;
+    if(!custom){ VARS.forEach(v=>root.style.removeProperty(v)); inp.value=isDark()?"#2c3a86":"#5068d0"; return; }
+    const c=rgb(custom); inp.value=custom.toLowerCase();
+    const light=vsWhite(c)<4.5;   // too pale for white text
+    let p=c.slice(); while(vsWhite(p)<7 && (p[0]+p[1]+p[2])>0) p=p.map(v=>v*0.9);   // darker shade for text on the white pills
+    root.style.setProperty("--hdr",custom); root.style.setProperty("--hdrline",custom);
+    root.style.setProperty("--pill-ink",hex(p));
+    root.style.setProperty("--hdr-ink",light?"#14161C":"#FFFFFF");
+    root.style.setProperty("--hdr-sub",light?"rgba(20,22,28,.78)":"rgba(255,255,255,.9)");
+    root.style.setProperty("--hdr-issue",light?hex(p):"#FFE2D4");
+  }
+  inp.addEventListener("input",e=>{ custom=e.target.value; apply(); });
+  inp.addEventListener("change",e=>{ custom=e.target.value; try{ localStorage.setItem("cc-header-color",custom); }catch(err){} apply(); });
+  reset.onclick=()=>{ custom=null; try{ localStorage.removeItem("cc-header-color"); }catch(e){} apply(); };
+  if(mq){ (mq.addEventListener?mq.addEventListener("change",apply):mq.addListener(apply)); }
+  apply();
 })();
 </script>
 </body>
