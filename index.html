@@ -439,6 +439,7 @@ const COMPANY_DOMAIN = "heliosx.com";
   </div>
   <footer class="pagefoot">
     <label class="nav quiet hpick" title="Change the colour of the section headers"><span class="bdot" aria-hidden="true"></span>Header colour<input type="color" id="hdrColor" class="vh"></label>
+    <button class="nav quiet" id="hdrMatch" title="Use the same colour as the top banner">Match top banner</button>
     <button class="nav quiet" id="hdrReset" hidden>Reset</button>
   </footer>
 
@@ -1027,7 +1028,8 @@ let myName="";
 /* Section header colour: any colour from the picker, saved in this browser only.
    Header text switches between white and dark automatically so it stays readable. */
 (function(){
-  const root=document.documentElement, inp=document.getElementById("hdrColor"), reset=document.getElementById("hdrReset");
+  const root=document.documentElement, inp=document.getElementById("hdrColor"), reset=document.getElementById("hdrReset"), match=document.getElementById("hdrMatch");
+  const BANNER={l:"#53748A",d:"#35515E"};   // middle shade of the top banner
   const mq=window.matchMedia?matchMedia("(prefers-color-scheme: dark)"):null;
   const isDark=()=>root.dataset.theme==="dark"||(root.dataset.theme!=="light"&&!!(mq&&mq.matches));
   const VARS=["--hdr","--hdrline","--pill-ink","--hdr-ink","--hdr-sub","--hdr-issue"];
@@ -1036,14 +1038,16 @@ let myName="";
   const lum=c=>{ const l=c.map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);}); return .2126*l[0]+.7152*l[1]+.0722*l[2]; };
   const vsWhite=c=>1.05/(lum(c)+.05);
   let custom=null;
-  try{ custom=localStorage.getItem("cc-header-color"); if(!/^#[0-9a-f]{6}$/i.test(custom||"")) custom=null; localStorage.removeItem("cc-header"); localStorage.removeItem("cc-border"); }catch(e){}
+  try{ custom=localStorage.getItem("cc-header-color"); if(custom!=="banner" && !/^#[0-9a-f]{6}$/i.test(custom||"")) custom=null; localStorage.removeItem("cc-header"); localStorage.removeItem("cc-border"); }catch(e){}
   function apply(){
     reset.hidden=!custom;
-    if(!custom){ VARS.forEach(v=>root.style.removeProperty(v)); inp.value=isDark()?"#2c3a86":"#5068d0"; return; }
-    const c=rgb(custom); inp.value=custom.toLowerCase();
+    if(!custom){ match.hidden=false; VARS.forEach(v=>root.style.removeProperty(v)); inp.value=isDark()?"#2c3a86":"#5068d0"; return; }
+    const col=custom==="banner"? (isDark()?BANNER.d:BANNER.l) : custom;
+    match.hidden=custom==="banner";
+    const c=rgb(col); inp.value=col.toLowerCase();
     const light=vsWhite(c)<4.5;   // too pale for white text
     let p=c.slice(); while(vsWhite(p)<7 && (p[0]+p[1]+p[2])>0) p=p.map(v=>v*0.9);   // darker shade for text on the white pills
-    root.style.setProperty("--hdr",custom); root.style.setProperty("--hdrline",custom);
+    root.style.setProperty("--hdr",col); root.style.setProperty("--hdrline",col);
     root.style.setProperty("--pill-ink",hex(p));
     root.style.setProperty("--hdr-ink",light?"#14161C":"#FFFFFF");
     root.style.setProperty("--hdr-sub",light?"rgba(20,22,28,.78)":"rgba(255,255,255,.9)");
@@ -1051,6 +1055,7 @@ let myName="";
   }
   inp.addEventListener("input",e=>{ custom=e.target.value; apply(); });
   inp.addEventListener("change",e=>{ custom=e.target.value; try{ localStorage.setItem("cc-header-color",custom); }catch(err){} apply(); });
+  match.onclick=()=>{ custom="banner"; try{ localStorage.setItem("cc-header-color","banner"); }catch(e){} apply(); };
   reset.onclick=()=>{ custom=null; try{ localStorage.removeItem("cc-header-color"); }catch(e){} apply(); };
   if(mq){ (mq.addEventListener?mq.addEventListener("change",apply):mq.addListener(apply)); }
   apply();
