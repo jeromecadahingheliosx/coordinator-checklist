@@ -118,8 +118,8 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 .logbtn:hover{background:var(--tone,var(--panel))}
 .editsched{margin-left:auto;font:600 12px "Inter",sans-serif;border-radius:999px;border:1.5px solid var(--tone-ink);background:var(--bg);color:var(--tone-ink);padding:3px 12px;cursor:pointer}
 .editsched:hover{background:var(--panel)}
-dialog#schedDlg{width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 40px);border:0;border-radius:16px;padding:0;background:var(--page);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
-dialog#schedDlg::backdrop{background:rgba(10,12,30,.45)}
+dialog#schedDlg,dialog#sideDlg{width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 40px);border:0;border-radius:16px;padding:0;background:var(--page);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog#schedDlg::backdrop,dialog#sideDlg::backdrop{background:rgba(10,12,30,.45)}
 .sd-head{padding:16px 18px 8px}
 .sd-head h2{margin:0;font:700 17px "Space Grotesk",sans-serif}
 .sd-head p{margin:4px 0 0;font-size:12.5px;color:var(--muted)}
@@ -134,7 +134,9 @@ dialog#schedDlg::backdrop{background:rgba(10,12,30,.45)}
 .sd-card .row .del{color:var(--late)}
 .sd-add{margin:8px 18px 0;font:600 12.5px "Inter",sans-serif;border-radius:999px;border:1.5px dashed var(--blue);background:transparent;color:var(--blue);padding:6px 14px;cursor:pointer}
 .sd-foot{position:sticky;bottom:0;display:flex;gap:8px;align-items:center;padding:12px 18px;background:var(--page);border-top:1px solid var(--line);margin-top:10px}
-#schedErr{margin:6px 18px 0}
+#schedErr,#sideErr{margin:6px 18px 0}
+.sd-sub{padding:0 18px 4px}.sd-sub label{display:block;font-size:11.5px;font-weight:600;margin:0 0 3px}.sd-sub input{width:100%;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:6px 9px;font:400 13px "Inter",sans-serif}
+.sd-hint{font-size:11px;color:var(--muted);margin:3px 0 0}
 .orphans{margin:4px 12px 8px;font-size:11.5px;color:var(--muted)}
 @media (max-width:560px){.sd-card{grid-template-columns:1fr}}
 .plainbox{background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}
@@ -461,6 +463,23 @@ const COMPANY_DOMAIN = "heliosx.com";
   </div>
 </dialog>
 
+<dialog id="sideDlg" aria-labelledby="sideTitle">
+  <div class="sd-head">
+    <h2 id="sideTitle">Edit tasks</h2>
+    <p>Changes apply to everyone straight away. Ticks already made today stay on tasks you keep.</p>
+  </div>
+  <div class="sd-sub"><label for="sideWhen">Subtitle (when to do these)</label><input id="sideWhen" type="text"></div>
+  <div id="sideList" class="sd-list"></div>
+  <button class="sd-add" id="sideAdd">+ Add a task</button>
+  <p class="formerr" id="sideErr"></p>
+  <div class="sd-foot">
+    <button class="sd-reset" id="sideReset">Reset to original tasks</button>
+    <span style="flex:1"></span>
+    <button class="sd-cancel" id="sideCancel">Cancel</button>
+    <button class="addbtn" id="sideSave">Save tasks</button>
+  </div>
+</dialog>
+
 <script>
 const CHECK = '<svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';
 const L = {
@@ -507,7 +526,7 @@ function buildHours(checks){
 }
 let CHECKS = DEFAULT_CHECKS, HOURS = buildHours(CHECKS);
 try{ const ls=JSON.parse(localStorage.getItem("cc-schedule")||"null"); if(validChecks(ls)){ CHECKS=ls; HOURS=buildHours(ls); } }catch(e){}
-const SIDE = [
+const DEFAULT_SIDE = [
   {title:"Monday: plan the week", when:"Mondays only", tone:"mon", mondayOnly:true, tasks:[
     {id:"ap-week", t:"AP: confirm coverage for the whole week", d:"GP leads clear 9–5; GP prescribers cover the hours they work.", links:[L.ap]},
     {id:"calendly-week", t:"Calendly schedules set for the whole week", d:"Check every Calendly schedule is set up and correct for Monday to Sunday."}
@@ -531,6 +550,17 @@ const SIDE = [
     {id:"handover-pm", t:"Afternoon handover written", d:"Use the box at the bottom of the page."}
   ]}
 ];
+// Start of shift, Anytime, End of day (and Monday) can be edited from the page via each box's "Edit" button.
+// Saved edits replace the tasks and subtitle of that box; the defaults above are the original lists.
+const sideKey=s=>s.tone;
+function validSideTasks(t){ return Array.isArray(t) && t.length>0 && t.every(x=>x&&typeof x.id==="string"&&typeof x.t==="string"&&(!x.links||(Array.isArray(x.links)&&x.links.every(l=>l&&typeof l.url==="string")))); }
+function mergeSide(over){
+  return DEFAULT_SIDE.map(s=>{ const o=over&&over[sideKey(s)];
+    if(!o||!validSideTasks(o.tasks)) return s;
+    return {...s, when: typeof o.when==="string"? o.when : s.when, tasks:o.tasks}; });
+}
+let SIDE_OVER = null, SIDE = DEFAULT_SIDE;
+try{ const ls=JSON.parse(localStorage.getItem("cc-side")||"null"); if(ls&&typeof ls==="object"){ SIDE_OVER=ls; SIDE=mergeSide(ls); } }catch(e){}
 const AFTERNOON_FROM = 15; // from 3pm the afternoon shift sees this morning's handover at the top
 function isMonday(key){ const [y,m,d]=key.split("-").map(Number); return new Date(y,m-1,d).getDay()===1; }
 function sideFor(key){ return SIDE.filter(s=>!s.mondayOnly||isMonday(key)); }
@@ -661,7 +691,9 @@ function renderSide(){
   sideFor(viewDate).forEach(s=>{
     const sec=el("section","box2 tone-"+(s.tone||"start")); const head=el("div","bh"); head.append(el("h2",null,s.title));
     { const tot=s.tasks.length, dn=s.tasks.filter(t=>isDone(t.id)).length;
-      const pill=el("span","hcount"+(dn===tot?" full":""), dn+" of "+tot+(s.log?" checked":" done")); head.append(pill); } if(s.when) head.append(el("span","when",s.when)); sec.append(head);
+      const pill=el("span","hcount"+(dn===tot?" full":""), dn+" of "+tot+(s.log?" checked":" done")); head.append(pill); } if(s.when) head.append(el("span","when",s.when));
+    if(canEditSchedule()){ const eb=el("button","editsched","Edit"); eb.setAttribute("aria-label","Edit "+s.title+" tasks"); eb.onclick=()=>openSide(sideKey(s)); head.append(eb); }
+    sec.append(head);
     const list=el("div");
     s.tasks.forEach(t=>{
       const body=el("div"); body.append(el("p","t",t.t)); if(t.d) body.append(el("p","d",t.d));
@@ -958,6 +990,74 @@ document.getElementById("schedSave").onclick=async()=>{
   btn.disabled=false;
 };
 
+let unsubSide=null;
+function applySide(over){ SIDE_OVER=over||null; SIDE=mergeSide(SIDE_OVER); render(); }
+function subscribeSide(){
+  if(unsubSide){ unsubSide(); unsubSide=null; }
+  unsubSide=db.doc("config/side").onSnapshot(sn=>{ const v=sn.exists? sn.data() : null; applySide(v&&v.sections); }, ()=>{});
+}
+let sideDraft=[], sideEditing=null;
+const linksText=ls=>(ls||[]).map(l=>(l.label? l.label+" | " : "")+l.url).join("\n");
+const toDraft=tasks=>JSON.parse(JSON.stringify(tasks)).map(t=>({...t, linksText:linksText(t.links)}));
+function openSide(key){
+  const s=SIDE.find(x=>sideKey(x)===key); if(!s) return;
+  sideEditing=key; sideDraft=toDraft(s.tasks);
+  document.getElementById("sideTitle").textContent="Edit "+s.title+" tasks";
+  document.getElementById("sideWhen").value=s.when||"";
+  document.getElementById("sideErr").textContent="";
+  drawSide(); document.getElementById("sideDlg").showModal();
+}
+function drawSide(){
+  const list=document.getElementById("sideList"); list.replaceChildren();
+  sideDraft.forEach((t,i)=>{
+    const card=el("div","sd-card");
+    const f=(lab,node,hint)=>{ const w=el("div","full"); const l=el("label",null,lab); const idf="sde-"+i+"-"+lab.replace(/\W+/g,""); l.htmlFor=idf; node.id=idf; w.append(l,node); if(hint) w.append(el("p","sd-hint",hint)); card.append(w); };
+    const name=el("input"); name.value=t.t||""; name.oninput=e=>t.t=e.target.value; f("Task",name);
+    const d=el("textarea"); d.value=t.d||""; d.oninput=e=>t.d=e.target.value; f("Details (optional)",d);
+    const lk=el("textarea"); lk.value=t.linksText||""; lk.placeholder="Side effect rota | https://docs.google.com/..."; lk.oninput=e=>t.linksText=e.target.value;
+    f("Links (optional)",lk,"One per line, as: Link name | https://web address");
+    const row=el("div","row");
+    const up=el("button",null,"↑ Move up"); up.disabled=i===0; up.onclick=()=>{ [sideDraft[i-1],sideDraft[i]]=[sideDraft[i],sideDraft[i-1]]; drawSide(); };
+    const dn=el("button",null,"↓ Move down"); dn.disabled=i===sideDraft.length-1; dn.onclick=()=>{ [sideDraft[i+1],sideDraft[i]]=[sideDraft[i],sideDraft[i+1]]; drawSide(); };
+    const del=el("button","del","Remove"); del.onclick=()=>{ if(confirm("Remove \""+(t.t||"this task")+"\"?")){ sideDraft.splice(i,1); drawSide(); } };
+    row.append(up,dn,del); card.append(row); list.append(card);
+  });
+}
+function parseLinks(txt){
+  const out=[]; for(const line of (txt||"").split("\n").map(x=>x.trim()).filter(Boolean)){
+    const bar=line.lastIndexOf("|"); const label=bar>=0? line.slice(0,bar).trim() : ""; const url=(bar>=0? line.slice(bar+1) : line).trim();
+    if(!/^https?:\/\/\S+$/i.test(url)) return null;
+    out.push({label:label||"Link", url});
+  } return out;
+}
+document.getElementById("sideCancel").onclick=()=>document.getElementById("sideDlg").close();
+document.getElementById("sideAdd").onclick=()=>{ sideDraft.push({id:"",t:"",d:"",linksText:""}); drawSide(); const ins=document.querySelectorAll("#sideList input"); if(ins.length) ins[ins.length-1].focus(); };
+document.getElementById("sideReset").onclick=()=>{
+  const s=DEFAULT_SIDE.find(x=>sideKey(x)===sideEditing); if(!s) return;
+  if(confirm("Put this box back to its original tasks?")){ sideDraft=toDraft(s.tasks); document.getElementById("sideWhen").value=s.when||""; drawSide(); }
+};
+document.getElementById("sideSave").onclick=async()=>{
+  const err=document.getElementById("sideErr"); err.textContent="";
+  const used=new Set(), out=[];
+  for(const t of sideDraft){
+    const txt=(t.t||"").trim(); if(!txt){ err.textContent="Every task needs a name."; return; }
+    const links=parseLinks(t.linksText); if(!links){ err.textContent="Check the links for \""+txt+"\". Put one per line, as: Link name | https://web address"; return; }
+    let id=t.id||(slug(txt)+"-"+Math.random().toString(36).slice(2,6)); while(used.has(id)) id+="b"; used.add(id);
+    const o={id,t:txt}; const d=(t.d||"").trim(); if(d) o.d=d; if(links.length) o.links=links;
+    out.push(o);
+  }
+  if(!out.length){ err.textContent="Keep at least one task in this box."; return; }
+  const when=document.getElementById("sideWhen").value.trim();
+  const entry={when,tasks:out};
+  const btn=document.getElementById("sideSave"); btn.disabled=true;
+  try{
+    if(mode==="local"){ const nx={...(SIDE_OVER||{}),[sideEditing]:entry}; try{ localStorage.setItem("cc-side",JSON.stringify(nx)); }catch(e){} applySide(nx); }
+    else await db.doc("config/side").set({sections:{[sideEditing]:entry}, by:myId, at:Date.now()},{merge:true});
+    document.getElementById("sideDlg").close();
+  }catch(e){ err.textContent=(e&&(e.code==="permission-denied"||e.code==="invalid_argument"))? "You don't have permission to change these tasks." : "The tasks didn't save. Try again."; }
+  btn.disabled=false;
+};
+
 function setNotice(t){ document.getElementById("notice").textContent=t; }
 function go(key){
   saveAll();
@@ -1002,7 +1102,7 @@ let myName="";
   });
   auth.getRedirectResult().catch(explain);
   auth.onAuthStateChanged(u=>{
-    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubSched){unsubSched();unsubSched=null;}
+    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubSched){unsubSched();unsubSched=null;} if(unsubSide){unsubSide();unsubSide=null;}
     if(!u){
       mode="shared"; db=null; ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
       readOnly=true; gate.hidden=false; content.forEach(e=>e.hidden=true); setNotice(""); return;
@@ -1020,7 +1120,7 @@ let myName="";
     const n=document.getElementById("notice"); n.textContent="Shared live. Signed in as "+myName+".";
     const so=el("button","signout","Sign out"); so.onclick=()=>auth.signOut(); n.append(so);
     ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
-    render(); subscribe(); subscribeRequests(); subscribeSchedule();
+    render(); subscribe(); subscribeRequests(); subscribeSchedule(); subscribeSide();
   });
 })();
 </script>
