@@ -118,8 +118,8 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 .logbtn:hover{background:var(--tone,var(--panel))}
 .editsched{margin-left:auto;font:600 12px "Inter",sans-serif;border-radius:999px;border:1.5px solid var(--tone-ink);background:var(--bg);color:var(--tone-ink);padding:3px 12px;cursor:pointer}
 .editsched:hover{background:var(--panel)}
-dialog#schedDlg,dialog#sideDlg{width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 40px);border:0;border-radius:16px;padding:0;background:var(--page);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
-dialog#schedDlg::backdrop,dialog#sideDlg::backdrop{background:rgba(10,12,30,.45)}
+dialog#schedDlg,dialog#sideDlg,dialog#textDlg{width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 40px);border:0;border-radius:16px;padding:0;background:var(--page);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog#schedDlg::backdrop,dialog#sideDlg::backdrop,dialog#textDlg::backdrop{background:rgba(10,12,30,.45)}
 .sd-head{padding:16px 18px 8px}
 .sd-head h2{margin:0;font:700 17px "Space Grotesk",sans-serif}
 .sd-head p{margin:4px 0 0;font-size:12.5px;color:var(--muted)}
@@ -134,7 +134,7 @@ dialog#schedDlg::backdrop,dialog#sideDlg::backdrop{background:rgba(10,12,30,.45)
 .sd-card .row .del{color:var(--late)}
 .sd-add{margin:8px 18px 0;font:600 12.5px "Inter",sans-serif;border-radius:999px;border:1.5px dashed var(--blue);background:transparent;color:var(--blue);padding:6px 14px;cursor:pointer}
 .sd-foot{position:sticky;bottom:0;display:flex;gap:8px;align-items:center;padding:12px 18px;background:var(--page);border-top:1px solid var(--line);margin-top:10px}
-#schedErr,#sideErr{margin:6px 18px 0}
+#schedErr,#sideErr,#textErr{margin:6px 18px 0}
 .sd-sub{padding:0 18px 4px}.sd-sub label{display:block;font-size:11.5px;font-weight:600;margin:0 0 3px}.sd-sub input{width:100%;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:6px 9px;font:400 13px "Inter",sans-serif}
 .sd-hint{font-size:11px;color:var(--muted);margin:3px 0 0}
 .orphans{margin:4px 12px 8px;font-size:11.5px;color:var(--muted)}
@@ -327,6 +327,9 @@ const FIREBASE_CONFIG = {
 };
 /* Who can write handover notes is set only in the Firestore rules, not here. */
 const COMPANY_DOMAIN = "heliosx.com";
+/* Only these people see the Edit button on Write a handover, Special allocation & other requests,
+   and Issues today. Keep this in step with managers() in the Firestore rules, which is what actually enforces it. */
+const MANAGER_EMAILS = ["angel.jones@heliosx.com", "titilayomi.adesanya@heliosx.com"];
 </script>
 </head>
 <body>
@@ -380,7 +383,7 @@ const COMPANY_DOMAIN = "heliosx.com";
         <div id="timeline" style="padding:6px"></div>
       </section>
       <section class="box2 tone-note">
-        <div class="bh"><h2>Write a handover</h2><span class="when">What the next shift needs to know or do. Short points are fine. Morning by 3pm, afternoon before you log off.</span></div>
+        <div class="bh"><h2 id="hoTitle">Write a handover</h2><span class="when" id="hoWhen">What the next shift needs to know or do. Short points are fine. Morning by 3pm, afternoon before you log off.</span><button class="editsched edittext" data-sec="handover" hidden aria-label="Edit the handover wording">Edit</button></div>
         <div class="pad">
           <p class="lock" id="noteLock" hidden>Only the coordinators on the handover list can write handover notes. You can still read them here.</p>
           <div class="notes">
@@ -404,7 +407,7 @@ const COMPANY_DOMAIN = "heliosx.com";
         </div>
       </section>
       <section id="reqs" class="box2 tone-req">
-        <div class="bh"><h2>Special allocation &amp; other requests</h2><span class="when">Each stays until its end date.</span></div>
+        <div class="bh"><h2 id="rqTitle">Special allocation &amp; other requests</h2><span class="when" id="rqWhen">Each stays until its end date.</span><button class="editsched edittext" data-sec="reqs" hidden aria-label="Edit the requests wording">Edit</button></div>
         <div id="reqList"></div>
         <div class="reqfoot">
           <button class="addopen" id="addOpen">+ Add a request</button>
@@ -423,7 +426,7 @@ const COMPANY_DOMAIN = "heliosx.com";
         </div>
       </section>
       <section id="flags" class="box2 tone-req">
-        <div class="bh"><h2>Issues today</h2><span class="when">A record of anything that went wrong or needs following up, big or small. No need to repeat these in the handover.</span></div>
+        <div class="bh"><h2 id="flTitle">Issues today</h2><span class="when" id="flWhen">A record of anything that went wrong or needs following up, big or small. No need to repeat these in the handover.</span><button class="editsched edittext" data-sec="flags" hidden aria-label="Edit the issues wording">Edit</button></div>
         <div id="flagList"></div>
         <div class="reqfoot"><button class="addopen" id="flagOpen">+ Add an issue</button></div>
         <div class="addreq pad flagform" id="flagForm" hidden style="margin-top:0;border-top:1px solid var(--line)">
@@ -477,6 +480,21 @@ const COMPANY_DOMAIN = "heliosx.com";
     <span style="flex:1"></span>
     <button class="sd-cancel" id="sideCancel">Cancel</button>
     <button class="addbtn" id="sideSave">Save tasks</button>
+  </div>
+</dialog>
+
+<dialog id="textDlg" aria-labelledby="textTitle">
+  <div class="sd-head">
+    <h2 id="textTitle">Edit wording</h2>
+    <p>Changes apply to everyone straight away. Notes, requests and issues already written are not affected.</p>
+  </div>
+  <div id="textList" class="sd-list"></div>
+  <p class="formerr" id="textErr"></p>
+  <div class="sd-foot">
+    <button class="sd-reset" id="textReset">Reset to original wording</button>
+    <span style="flex:1"></span>
+    <button class="sd-cancel" id="textCancel">Cancel</button>
+    <button class="addbtn" id="textSave">Save wording</button>
   </div>
 </dialog>
 
@@ -634,6 +652,8 @@ function labelFor(id){
   for(const s of SIDE) for(const t of s.tasks) if(t.id===id) return t.t;
   return id;
 }
+let myEmail="";
+function canEditWording(){ return mode==="local" || (canEditSchedule() && MANAGER_EMAILS.includes(myEmail)); }
 function canEditSchedule(){ return mode==="local" || (!!db && !readOnly && !notesLocked); }
 function hhmm(){ const n=new Date(); return String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0"); }
 function whoLine(id){ const t=ticks[id]; return t? nameOf(t.by)+" at "+hm(t.at) : ""; }
@@ -685,6 +705,7 @@ function renderTimeline(isToday,nowHM){
     kl.append(dd);
   });
   document.getElementById("editSched").hidden=!canEditSchedule();
+  document.querySelectorAll(".edittext").forEach(b=>b.hidden=!canEditWording());
 }
 function renderSide(){
   const side=document.getElementById("side"); side.replaceChildren();
@@ -1058,6 +1079,78 @@ document.getElementById("sideSave").onclick=async()=>{
   btn.disabled=false;
 };
 
+/* Editable wording for Write a handover, Special allocation & other requests, and Issues today.
+   Saved to config/sections; the text in the page above is the original default. */
+const TEXT_SECS={
+  handover:{name:"Write a handover", fields:[
+    {k:"title",lab:"Heading",sel:"#hoTitle"},
+    {k:"when",lab:"Subtitle",sel:"#hoWhen",big:true},
+    {k:"amLabel",lab:"Morning box label",sel:"label[for=note-am]"},
+    {k:"amPh",lab:"Morning box example text (shown until someone writes)",sel:"#note-am",kind:"ph",big:true},
+    {k:"pmLabel",lab:"Afternoon box label",sel:"label[for=note-pm]"},
+    {k:"pmPh",lab:"Afternoon box example text (shown until someone writes)",sel:"#note-pm",kind:"ph",big:true}]},
+  reqs:{name:"Special allocation & other requests", fields:[
+    {k:"title",lab:"Heading",sel:"#rqTitle"},
+    {k:"when",lab:"Subtitle",sel:"#rqWhen",big:true}]},
+  flags:{name:"Issues today", fields:[
+    {k:"title",lab:"Heading",sel:"#flTitle"},
+    {k:"when",lab:"Subtitle",sel:"#flWhen",big:true},
+    {k:"types",lab:"Issue types",sel:"#fl-type",kind:"options",big:true,hint:"One per line. These are the choices in the Type menu when adding an issue."}]}
+};
+function txtGet(f){ const n=document.querySelector(f.sel); if(!n) return "";
+  return f.kind==="ph"? n.placeholder : f.kind==="options"? [...n.options].map(o=>o.textContent).join("\n") : n.textContent; }
+function txtSet(f,v){ const n=document.querySelector(f.sel); if(!n) return;
+  if(f.kind==="ph") n.placeholder=v;
+  else if(f.kind==="options"){ const cur=n.value; n.replaceChildren(...v.split("\n").map(x=>x.trim()).filter(Boolean).map(x=>{ const o=document.createElement("option"); o.textContent=x; return o; })); if([...n.options].some(o=>o.value===cur)) n.value=cur; }
+  else n.textContent=v; }
+const TEXT_DEFAULTS={}; for(const k in TEXT_SECS){ TEXT_DEFAULTS[k]={}; TEXT_SECS[k].fields.forEach(f=>TEXT_DEFAULTS[k][f.k]=txtGet(f)); }
+let TEXT_OVER=null;
+function applyTexts(over){
+  TEXT_OVER=over&&typeof over==="object"? over : null;
+  for(const k in TEXT_SECS) TEXT_SECS[k].fields.forEach(f=>{ const o=TEXT_OVER&&TEXT_OVER[k]&&TEXT_OVER[k][f.k];
+    txtSet(f, typeof o==="string"&&o.trim()? o : TEXT_DEFAULTS[k][f.k]); });
+}
+try{ const ls=JSON.parse(localStorage.getItem("cc-sections")||"null"); if(ls) applyTexts(ls); }catch(e){}
+let unsubTexts=null, textEditing=null;
+function subscribeTexts(){
+  if(unsubTexts){ unsubTexts(); unsubTexts=null; }
+  unsubTexts=db.doc("config/sections").onSnapshot(sn=>{ const v=sn.exists? sn.data() : null; applyTexts(v&&v.sections); }, ()=>{});
+}
+function fillText(vals){
+  const list=document.getElementById("textList"); list.replaceChildren();
+  const card=el("div","sd-card");
+  TEXT_SECS[textEditing].fields.forEach((f,i)=>{
+    const w=el("div","full"); const l=el("label",null,f.lab); const node=el(f.big?"textarea":"input");
+    node.id="tx-"+f.k; l.htmlFor=node.id; node.value=vals[f.k]||""; node.dataset.k=f.k;
+    w.append(l,node); if(f.hint) w.append(el("p","sd-hint",f.hint)); card.append(w);
+  });
+  list.append(card);
+}
+function openText(key){
+  if(!TEXT_SECS[key]) return; textEditing=key;
+  document.getElementById("textTitle").textContent="Edit the "+TEXT_SECS[key].name+" wording";
+  document.getElementById("textErr").textContent="";
+  const vals={}; TEXT_SECS[key].fields.forEach(f=>vals[f.k]=txtGet(f));
+  fillText(vals); document.getElementById("textDlg").showModal();
+}
+document.querySelectorAll(".edittext").forEach(b=>b.onclick=()=>openText(b.dataset.sec));
+document.getElementById("textCancel").onclick=()=>document.getElementById("textDlg").close();
+document.getElementById("textReset").onclick=()=>{ if(confirm("Put this box back to its original wording?")) fillText(TEXT_DEFAULTS[textEditing]); };
+document.getElementById("textSave").onclick=async()=>{
+  const err=document.getElementById("textErr"); err.textContent="";
+  const entry={};
+  document.querySelectorAll("#textList [data-k]").forEach(n=>entry[n.dataset.k]=n.value.trim());
+  if(!entry.title){ err.textContent="The heading can't be empty."; return; }
+  if("types" in entry){ entry.types=entry.types.split("\n").map(x=>x.trim()).filter(Boolean).join("\n"); if(!entry.types){ err.textContent="Keep at least one issue type."; return; } }
+  const btn=document.getElementById("textSave"); btn.disabled=true;
+  try{
+    if(mode==="local"){ const nx={...(TEXT_OVER||{}),[textEditing]:entry}; try{ localStorage.setItem("cc-sections",JSON.stringify(nx)); }catch(e){} applyTexts(nx); }
+    else await db.doc("config/sections").set({sections:{[textEditing]:entry}, by:myId, at:Date.now()},{merge:true});
+    document.getElementById("textDlg").close();
+  }catch(e){ err.textContent=(e&&(e.code==="permission-denied"||e.code==="invalid_argument"))? "You don't have permission to change this wording." : "The wording didn't save. Try again."; }
+  btn.disabled=false;
+};
+
 function setNotice(t){ document.getElementById("notice").textContent=t; }
 function go(key){
   saveAll();
@@ -1102,8 +1195,9 @@ let myName="";
   });
   auth.getRedirectResult().catch(explain);
   auth.onAuthStateChanged(u=>{
-    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubSched){unsubSched();unsubSched=null;} if(unsubSide){unsubSide();unsubSide=null;}
+    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubSched){unsubSched();unsubSched=null;} if(unsubSide){unsubSide();unsubSide=null;} if(unsubTexts){unsubTexts();unsubTexts=null;}
     if(!u){
+      myEmail="";
       mode="shared"; db=null; ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
       readOnly=true; gate.hidden=false; content.forEach(e=>e.hidden=true); setNotice(""); return;
     }
@@ -1113,14 +1207,14 @@ let myName="";
     }
     gate.hidden=true; content.forEach(e=>e.hidden=false);
     db=firebase.firestore(); mode="shared"; readOnly=false;
-    myId=u.uid; myName=u.displayName||email; names[myId]=myName;
+    myId=u.uid; myEmail=email; myName=u.displayName||email; names[myId]=myName;
     notesLocked=false;
     db.doc("canwrite/handover").get().then(()=>{ notesLocked=false; render(); })
       .catch(e=>{ if(e&&e.code==="permission-denied"){ notesLocked=true; render(); } });
     const n=document.getElementById("notice"); n.textContent="Shared live. Signed in as "+myName+".";
     const so=el("button","signout","Sign out"); so.onclick=()=>auth.signOut(); n.append(so);
     ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
-    render(); subscribe(); subscribeRequests(); subscribeSchedule(); subscribeSide();
+    render(); subscribe(); subscribeRequests(); subscribeSchedule(); subscribeSide(); subscribeTexts();
   });
 })();
 </script>
