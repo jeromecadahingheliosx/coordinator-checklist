@@ -325,6 +325,34 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .person.away .st{font-weight:400;color:rgba(255,255,255,.85)}
 .person.more{padding:2px 10px}
 .online .oerr{color:rgba(255,255,255,.85);font-weight:400}
+/* ---- softer accents: match the "+ Mark as done" indigo instead of pure blue ---- */
+.addopen,.sd-add{border:1.5px solid var(--linkink);color:var(--linkink);background:var(--bg)}
+.addopen:hover,.sd-add:hover{background:var(--linkbg)}
+.addbtn{background:var(--linkink);color:var(--bg)}
+.toggle,.linkbtn{color:var(--linkink)}
+.hour.now{background:var(--linkbg);border-color:var(--linkline)}
+.hour.now .lab b,.hour.now .lab span{color:var(--linkink)}
+
+/* ---- logged entries stand out gently: tinted card with an indigo edge ---- */
+.req,.flag{background:var(--linkbg);border-left:3px solid var(--linkink);border-radius:8px;margin:8px 12px}
+.req + .req,.flag + .flag{border-top:0}
+.req .p,.flag .fw{color:var(--linkink)}
+.req.past{background:transparent;border-left-color:var(--line)}
+.req.past .p{color:var(--ink)}
+.note textarea:not(:placeholder-shown){background:var(--linkbg);border-color:var(--linkline);border-left:3px solid var(--linkink)}
+/* ---- handover bar at the top ---- */
+/* No handover yet: a calm status strip, clearly different from the section headers */
+.carry.is-empty{border-left:3px solid var(--linkink)}
+.carry.is-empty .ch{background:var(--linkbg)}
+.carry.is-empty h2{color:var(--linkink)}
+.carry.is-empty .cdate{color:var(--muted)}
+.carry.is-empty .linkbtn{color:var(--linkink)}
+/* Handover written: the note itself gets the same tint + edge as logged entries */
+.carry:not(.is-empty) .cb{background:var(--linkbg);border-left:3px solid var(--linkink)}
+.carry:not(.is-empty) .txt{font-weight:500}
+/* "1 issue logged today" is a pill you can tap, not an underlined link */
+.carry #carryIssues{text-decoration:none;background:var(--bg);color:var(--linkink);border:1px solid var(--linkline);border-radius:999px;padding:2px 10px;font:600 11.5px "Inter",sans-serif}
+.carry #carryIssues:hover{border-color:var(--linkink)}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -780,7 +808,8 @@ function renderCarry(isToday){
   const iss=document.getElementById("carryIssues");
   const cnt = which==="am"? flags.length : prevFlags.length;
   iss.hidden=!cnt;
-  iss.textContent = cnt? cnt+(cnt===1?" issue":" issues")+" logged "+(which==="am"? (isToday?"today":"that day") : (isToday?"yesterday":"the day before"))+" →" : "";
+  iss.textContent = cnt? cnt+(cnt===1?" issue":" issues")+" logged "+(which==="am"? (isToday?"today":"that day") : (isToday?"yesterday":"the day before"))+(which==="am"?" ↓":" →") : "";
+  iss.title = which==="am" ? "Jump to Issues today" : "Open that day's issues";
   iss.onclick=()=>{ if(which!=="am") go(srcDay); setTimeout(()=>document.getElementById("flags").scrollIntoView({behavior:"smooth",block:"start"}),50); };
   const sw=document.getElementById("carrySwap");
   sw.textContent = which==="am" ? "Show last night's instead" : "Show this morning's instead";
