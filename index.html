@@ -374,7 +374,17 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .tab.on{background:var(--linkbg);color:var(--linkink)}
 .tcount{font:700 10.5px "Inter",sans-serif;background:var(--linkink);color:var(--bg);border-radius:999px;padding:1px 7px}
 .tcount:empty{display:none}
-.infoview{max-width:760px}
+.infoview{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.infomain{flex:1.4 1 480px;min-width:0}
+.infoside{flex:1 1 320px;min-width:0;position:sticky;top:12px}
+#myText{width:100%;min-height:260px;resize:vertical;border-radius:10px;border:1px solid var(--line);background:#FFFDF6;color:var(--ink);padding:10px 12px;font:400 13px/1.55 "Inter",sans-serif}
+#myText:focus{outline:2px solid var(--linkline);border-color:var(--linkink)}
+.mnfoot{display:flex;align-items:center;gap:8px;margin-top:8px}
+.mnstatus{font-size:11.5px;color:var(--muted)}
+.mnfoot .addopen.sm{margin-left:auto;padding:3px 12px;font-size:12px}
+.mnhint{margin:8px 2px 0;font-size:11px;color:var(--muted)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #myText{background:var(--bg)}}
+:root[data-theme="dark"] #myText{background:var(--bg)}
 .infoview .box2{margin:0}
 #todayView[hidden],#infoView[hidden]{display:none!important}
 /* ---- team notes ---- */
@@ -558,6 +568,7 @@ const MANAGER_EMAILS = ["emmanuelle.cadahing@heliosx.com", "angel.jones@heliosx.
     <aside class="side" id="side" aria-label="One-off tasks"></aside>
   </div>
   <div class="infoview" id="infoView" hidden>
+    <div class="infomain">
       <section id="tnotes" class="box2 tone-req">
         <div class="bh"><h2>Team board</h2><span class="when">Things worth knowing and reminders for later. When a reminder's date comes, it moves to the Today page until someone ticks it off.</span></div>
         <div id="tnList"></div>
@@ -575,6 +586,22 @@ const MANAGER_EMAILS = ["emmanuelle.cadahing@heliosx.com", "angel.jones@heliosx.
           <p class="formerr" id="tn-err"></p>
         </div>
       </section>
+    </div>
+    <aside class="infoside">
+      <section id="mynotes" class="box2 tone-req">
+        <div class="bh"><h2>My notes</h2><span class="when">Only you can see these in the app. Saves as you type.</span></div>
+        <div class="pad">
+          <textarea id="myText" placeholder="Your own to-dos and reminders, e.g.
+- Chase Dr X about Tuesday cover
+- Ask Angel about leave dates"></textarea>
+          <div class="mnfoot">
+            <span class="mnstatus" id="myStatus"></span>
+            <button class="addopen sm" id="myShare" title="Copies the highlighted text (or all of it) into a new Team board note">Share to Team board</button>
+          </div>
+          <p class="mnhint">Not for anything confidential: the Firebase project owner can still see it.</p>
+        </div>
+      </section>
+    </aside>
   </div>
   <footer class="pagefoot">
     <label class="nav quiet hpick" title="Change the colour of the section headers"><span class="bdot" aria-hidden="true"></span>Header colour<input type="color" id="hdrColor" class="vh"></label>
@@ -811,6 +838,36 @@ function renderTeamNotes(){
   document.querySelector("#tnotes .reqfoot").style.display=(readOnly||tnFormOpen)?"none":"";
   document.querySelector("#tnForm .tnrem").hidden=document.getElementById("tn-kind").value!=="reminder";
 }
+/* ===== My notes: one private box per person, autosaves ===== */
+let myNoteTimer=null, myNoteDirty=false, unsubMy=null;
+function myStatus(t){ document.getElementById("myStatus").textContent=t; }
+function loadMyNotes(){
+  const ta=document.getElementById("myText");
+  if(unsubMy){ unsubMy(); unsubMy=null; }
+  if(mode==="local"||!db||!myId){ try{ ta.value=localStorage.getItem("cc-mynotes")||""; }catch(e){} return; }
+  unsubMy=db.doc("mynotes/"+myId).onSnapshot(d=>{
+    const x=d.exists? d.data() : {};
+    if(!myNoteDirty && document.activeElement!==ta) ta.value=x.text||"";
+    if(x.at && !myNoteDirty) myStatus("Saved "+hm(x.at));
+  }, e=>myStatus(e&&e.code==="permission-denied"? "My notes need the mynotes rule adding in Firestore." : "Couldn't load your notes."));
+}
+function stopMyNotes(){ if(unsubMy){ unsubMy(); unsubMy=null; } const ta=document.getElementById("myText"); if(ta) ta.value=""; myStatus(""); }
+async function saveMyNotes(){
+  const text=document.getElementById("myText").value;
+  if(mode==="local"||!db||!myId){ try{ localStorage.setItem("cc-mynotes",text); }catch(e){} myNoteDirty=false; myStatus("Saved "+hm(Date.now())); return; }
+  try{ const at=Date.now(); await db.doc("mynotes/"+myId).set({text,at}); myNoteDirty=false; myStatus("Saved "+hm(at)); }
+  catch(e){ myStatus(e&&e.code==="permission-denied"? "Not saved: the mynotes rule is missing in Firestore." : "Not saved. Check your connection."); }
+}
+document.getElementById("myText").addEventListener("input",()=>{ myNoteDirty=true; myStatus("Saving…"); clearTimeout(myNoteTimer); myNoteTimer=setTimeout(saveMyNotes,800); });
+document.getElementById("myText").addEventListener("blur",()=>{ if(myNoteDirty){ clearTimeout(myNoteTimer); saveMyNotes(); } });
+document.getElementById("myShare").onclick=()=>{
+  const ta=document.getElementById("myText");
+  const sel=ta.value.slice(ta.selectionStart,ta.selectionEnd).trim(), txt=sel||ta.value.trim();
+  if(!txt){ myStatus("Write something first."); return; }
+  tnFormOpen=true; document.getElementById("tn-kind").value="pin"; renderTeamNotes();
+  const t=document.getElementById("tn-text"); t.value=txt; t.focus();
+  document.getElementById("tnForm").scrollIntoView({behavior:"smooth",block:"center"});
+};
 function showTab(which){
   const info=which==="info";
   document.getElementById("todayView").hidden=info; document.getElementById("infoView").hidden=!info;
@@ -820,6 +877,7 @@ function showTab(which){
 document.getElementById("tabToday").onclick=()=>showTab("today");
 document.getElementById("tabInfo").onclick=()=>showTab("info");
 if(location.hash==="#board"||location.hash==="#info") showTab("info");
+loadMyNotes();
 function renderFlags(){
   renderTeamNotes();
   const list=document.getElementById("flagList"); list.replaceChildren();
@@ -1560,7 +1618,7 @@ let myName="";
   });
   auth.getRedirectResult().catch(explain);
   auth.onAuthStateChanged(u=>{
-    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubOpen){unsubOpen();unsubOpen=null;} openIssues=[]; if(unsubTN){unsubTN();unsubTN=null;} teamNotes=[]; if(unsubSched){unsubSched();unsubSched=null;} if(unsubSide){unsubSide();unsubSide=null;} if(unsubTexts){unsubTexts();unsubTexts=null;} stopPresence();
+    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubOpen){unsubOpen();unsubOpen=null;} openIssues=[]; if(unsubTN){unsubTN();unsubTN=null;} teamNotes=[]; if(unsubSched){unsubSched();unsubSched=null;} if(unsubSide){unsubSide();unsubSide=null;} if(unsubTexts){unsubTexts();unsubTexts=null;} stopPresence(); stopMyNotes();
     if(!u){
       myEmail="";
       mode="shared"; db=null; ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
@@ -1579,7 +1637,7 @@ let myName="";
     const n=document.getElementById("notice"); n.textContent="Shared live. Signed in as "+myName+".";
     const so=el("button","signout","Sign out"); so.onclick=async()=>{ if(presenceRef) await presenceRef.set({state:"offline"},{merge:true}).catch(()=>{}); auth.signOut(); }; n.append(so);
     ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
-    render(); subscribe(); subscribeRequests(); subscribeSchedule(); subscribeSide(); subscribeTexts(); startPresence(u);
+    render(); subscribe(); subscribeRequests(); subscribeSchedule(); subscribeSide(); subscribeTexts(); startPresence(u); loadMyNotes();
   });
 })();
 </script>
