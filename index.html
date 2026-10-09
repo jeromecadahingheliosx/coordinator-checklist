@@ -353,6 +353,48 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 /* "1 issue logged today" is a pill you can tap, not an underlined link */
 .carry #carryIssues{text-decoration:none;background:var(--bg);color:var(--linkink);border:1px solid var(--linkline);border-radius:999px;padding:2px 10px;font:600 11.5px "Inter",sans-serif}
 .carry #carryIssues:hover{border-color:var(--linkink)}
+/* ---- On the radar: requests + issues in one box ---- */
+#radar .part + .part{border-top:1px solid var(--cardline)}
+#radar .part{padding-bottom:4px}
+#radar .subh{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;padding:12px 12px 2px}
+#radar .subh h3{margin:0;font:700 13px "Inter",sans-serif;color:var(--ink)}
+#radar .subh .when{flex-basis:100%;order:5;font-size:12px;color:var(--muted);margin:0}
+#radar .subh .addopen.sm{margin-left:auto;padding:3px 12px;font-size:12px}
+#radar .subh .editsched{margin-left:0;border:1px solid var(--line);color:var(--linkink);background:var(--bg);padding:2px 10px;font-size:11.5px}
+.pcount{font:700 10.5px "Inter",sans-serif;background:var(--linkink);color:var(--bg);border-radius:999px;padding:1px 7px}
+.pcount:empty{display:none}
+#radar .empty{padding:6px 12px 12px}
+#radar .reqfoot{border-top:0;padding:0 12px 10px}
+#radar .reqfoot[hidden]{display:none}
+#radar .fgroup{margin-top:8px}
+/* ---- tabs ---- */
+.tabs{display:inline-flex;gap:4px;padding:4px;margin:2px 0 -2px;background:var(--bg);border:1px solid var(--cardline);border-radius:999px;box-shadow:var(--boxshadow);align-self:flex-start}
+.tab{border:0;background:transparent;color:var(--muted);font:600 13px "Inter",sans-serif;padding:7px 18px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.tab:hover{color:var(--ink)}
+.tab.on{background:var(--linkbg);color:var(--linkink)}
+.tcount{font:700 10.5px "Inter",sans-serif;background:var(--linkink);color:var(--bg);border-radius:999px;padding:1px 7px}
+.tcount:empty{display:none}
+.infoview{max-width:760px}
+.infoview .box2{margin:0}
+#todayView[hidden],#infoView[hidden]{display:none!important}
+/* ---- team notes ---- */
+#tnForm .tnfull{flex:1 1 100%}
+#tnForm textarea{width:100%;min-height:96px;resize:vertical;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:8px 10px;font:400 13px/1.45 "Inter",sans-serif}
+.tn .tnt{white-space:pre-wrap}
+.tn{display:grid;grid-template-columns:1fr auto;gap:10px;padding:10px 12px;margin:8px 12px;border-radius:8px;background:var(--linkbg);border-left:3px solid var(--linkink);align-items:start}
+.tn .tnt{margin:0;font-weight:600;color:var(--ink)}
+.tn .tnl{margin:5px 0 0}
+.tn .fm{margin:4px 0 0;font-size:11.5px;color:var(--muted)}
+.tn > div > p:last-child{margin-bottom:0}
+.tnlink{font-size:11.5px;font-weight:500;text-decoration:none;background:var(--bg);color:var(--linkink);border:1px solid var(--linkline);padding:2px 9px;border-radius:999px}
+.tnlink:hover{border-color:var(--linkink)}
+.tn.due .otag{color:var(--linkink)}
+.tn.later{background:transparent;border-left-color:var(--linkline)}
+.tn.later .tnt{font-weight:500}
+.tn.pin{background:var(--bg);border:1px solid var(--line);border-left:3px solid var(--chipline)}
+.tn.done{background:transparent;border-left-color:var(--line);opacity:.7}
+.tn.done .otag{color:var(--done);border-color:var(--line)}
+.carry #carryRem{text-decoration:none;background:var(--bg);color:var(--linkink);border:1px solid var(--linkline);border-radius:999px;padding:2px 10px;font:600 11.5px "Inter",sans-serif}
 /* ---- ongoing issues ---- */
 .fgroup{margin:12px 14px 0;font:700 10.5px "Inter",sans-serif;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
 .fact{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
@@ -425,6 +467,7 @@ const MANAGER_EMAILS = ["emmanuelle.cadahing@heliosx.com", "angel.jones@heliosx.
       <h2 id="carryTitle">Handover</h2>
       <span class="cdate" id="carryDate"></span>
       <button class="linkbtn" id="carryIssues" hidden style="margin-left:0"></button>
+      <button class="linkbtn" id="carryRem" hidden style="margin-left:0"></button>
       <button class="linkbtn" id="carrySwap"></button>
     </div>
     <div class="cb">
@@ -433,8 +476,17 @@ const MANAGER_EMAILS = ["emmanuelle.cadahing@heliosx.com", "angel.jones@heliosx.
     </div>
   </section>
 
-  <div class="cols">
+  <nav class="tabs" role="tablist" aria-label="Pages">
+    <button class="tab on" role="tab" id="tabToday" aria-selected="true">Today</button>
+    <button class="tab" role="tab" id="tabInfo" aria-selected="false">Team board <span class="tcount" id="infoCount"></span></button>
+  </nav>
+
+  <div class="cols" id="todayView">
     <div class="main">
+      <section id="todayRem" class="box2 tone-req" hidden>
+        <div class="bh"><h2>Reminders</h2><span class="when">Tick off when it's dealt with.</span></div>
+        <div id="remList"></div>
+      </section>
       <section class="box2 tone-time">
         <div class="bh"><h2>Through the day, hour by hour</h2><span class="hcount" id="tlCount"></span><span class="when">Tick each check as you do it. Finished hours fold away.</span><button class="editsched" id="editSched" hidden>Edit schedule</button></div>
         <details class="key" style="margin:8px 12px 0">
@@ -467,11 +519,12 @@ const MANAGER_EMAILS = ["emmanuelle.cadahing@heliosx.com", "angel.jones@heliosx.
           </div>
         </div>
       </section>
-      <section id="reqs" class="box2 tone-req">
-        <div class="bh"><h2 id="rqTitle">Special allocation &amp; other requests</h2><span class="when" id="rqWhen">Each stays until its end date.</span><button class="editsched edittext" data-sec="reqs" hidden aria-label="Edit the requests wording">Edit</button></div>
+      <section id="radar" class="box2 tone-req">
+        <div class="bh"><h2>Requests &amp; issues</h2></div>
+      <div id="reqs" class="part">
+        <div class="subh"><h3 id="rqTitle">Special allocation &amp; other requests</h3><span class="pcount" id="rqCount"></span><span class="when" id="rqWhen">Each stays until its end date.</span><button class="editsched edittext" data-sec="reqs" hidden aria-label="Edit the requests wording">Edit</button><button class="addopen sm" id="addOpen">+ Add a request</button></div>
         <div id="reqList"></div>
-        <div class="reqfoot">
-          <button class="addopen" id="addOpen">+ Add a request</button>
+        <div class="reqfoot" id="rqFoot">
           <button class="toggle" id="pastToggle" hidden></button>
         </div>
         <div class="addreq pad" id="addReq" hidden style="margin-top:0;border-top:1px solid var(--line)">
@@ -485,11 +538,10 @@ const MANAGER_EMAILS = ["emmanuelle.cadahing@heliosx.com", "angel.jones@heliosx.
           <button class="sd-cancel small" id="rq-cancel">Cancel</button>
           <p class="formerr" id="rq-err"></p>
         </div>
-      </section>
-      <section id="flags" class="box2 tone-req">
-        <div class="bh"><h2 id="flTitle">Issues today</h2><span class="when" id="flWhen">A record of anything that went wrong or needs following up, big or small. No need to repeat these in the handover.</span><button class="editsched edittext" data-sec="flags" hidden aria-label="Edit the issues wording">Edit</button></div>
+      </div>
+      <div id="flags" class="part">
+        <div class="subh"><h3 id="flTitle">Issues today</h3><span class="pcount" id="flCount"></span><span class="when" id="flWhen">A record of anything that went wrong or needs following up, big or small. No need to repeat these in the handover.</span><button class="editsched edittext" data-sec="flags" hidden aria-label="Edit the issues wording">Edit</button><button class="addopen sm" id="flagOpen">+ Add an issue</button></div>
         <div id="flagList"></div>
-        <div class="reqfoot"><button class="addopen" id="flagOpen">+ Add an issue</button></div>
         <div class="addreq pad flagform" id="flagForm" hidden style="margin-top:0;border-top:1px solid var(--line)">
           <div class="f" style="flex:0 1 170px"><label for="fl-type">Type</label><select id="fl-type"><option>General</option><option>Prescriber</option><option>Live chat</option><option>Shift &amp; cover</option><option>Queues &amp; workflow</option><option>Orders</option><option>Systems &amp; tools</option><option>Communication</option><option>Other</option></select></div>
           <div class="f"><label for="fl-who">Who or what (optional)</label><input type="text" id="fl-who" placeholder="e.g. Dr Sarah Khan, Titan Q, Hex report"></div>
@@ -500,9 +552,29 @@ const MANAGER_EMAILS = ["emmanuelle.cadahing@heliosx.com", "angel.jones@heliosx.
           <button class="sd-cancel small" id="fl-cancel">Cancel</button>
           <p class="formerr" id="fl-err"></p>
         </div>
+      </div>
       </section>
     </div>
     <aside class="side" id="side" aria-label="One-off tasks"></aside>
+  </div>
+  <div class="infoview" id="infoView" hidden>
+      <section id="tnotes" class="box2 tone-req">
+        <div class="bh"><h2>Team board</h2><span class="when">Things worth knowing and reminders for later. When a reminder's date comes, it moves to the Today page until someone ticks it off.</span></div>
+        <div id="tnList"></div>
+        <div class="reqfoot">
+          <button class="addopen" id="tnOpen">+ Add something</button>
+          <button class="toggle" id="tnPinToggle" hidden style="display:none"></button>
+        </div>
+        <div class="addreq pad" id="tnForm" hidden style="margin-top:0;border-top:1px solid var(--line)">
+          <div class="f" style="flex:0 1 150px"><label for="tn-kind">Type</label><select id="tn-kind"><option value="pin">Good to know</option><option value="reminder">Reminder for a date</option></select></div>
+          <div class="f tnfull"><label for="tn-text">Note</label><textarea id="tn-text" rows="4" placeholder="e.g. Onboarding guide for new coordinators"></textarea></div>
+          <div class="f"><label for="tn-link">Link (optional)</label><input type="text" id="tn-link" placeholder="https://docs.google.com/..."></div>
+          <div class="f tnrem" style="flex:0 1 150px"><label for="tn-from">Show from</label><input type="date" id="tn-from"></div>
+          <button class="addbtn" id="tn-add">Add</button>
+          <button class="sd-cancel small" id="tn-cancel">Cancel</button>
+          <p class="formerr" id="tn-err"></p>
+        </div>
+      </section>
   </div>
   <footer class="pagefoot">
     <label class="nav quiet hpick" title="Change the colour of the section headers"><span class="bdot" aria-hidden="true"></span>Header colour<input type="color" id="hdrColor" class="vh"></label>
@@ -655,7 +727,7 @@ const EMPTY=()=>({text:"",by:null,lastBy:null,at:null});
 const NOTE_PATH={am:"meta/am", pm:"meta/note"};           // older location, read-only fallback
 const notePath=(day,k)=>"handover/"+day+"_"+k;             // only editors can write here
 let noteSrc={am:{},pm:{},prev:{}}, notesLocked=false;
-let requests=[], showPast=false, unsubReqs=null, reqFormOpen=false, flags=[], prevFlags=[], flagFormOpen=false, openIssues=[], unsubOpen=null;
+let requests=[], showPast=false, unsubReqs=null, reqFormOpen=false, flags=[], prevFlags=[], flagFormOpen=false, openIssues=[], unsubOpen=null, teamNotes=[], unsubTN=null, tnFormOpen=false, tnShowPins=false;
 let notes = {am:EMPTY(), pm:EMPTY()}, prevPm = EMPTY();
 let db=null, user=null, myId=null, names={}, unsubTicks=null, unsubNotes=[], readOnly=false, mode="local";
 
@@ -700,9 +772,59 @@ function renderOngoing(list){
   });
   return items.length;
 }
+function dueReminders(day){ return teamNotes.filter(n=>n.kind==="reminder" && !n.done && (n.from||"")<=day); }
+function linkPill(n){ if(!n.link) return null; const a=el("a","tnlink",(()=>{ try{ return new URL(n.link).hostname.replace(/^www\./,""); }catch(e){ return "Open link"; } })()+" ↗"); a.href=n.link; a.target="_blank"; a.rel="noopener"; return a; }
+function tnRow(n,cls,tag,day){
+  const r=el("div","tn "+cls); const b=el("div");
+  const t=el("p","tnt",n.text||""); if(tag) t.append(el("span","otag",tag)); b.append(t);
+  const lp=linkPill(n); if(lp){ const w=el("p","tnl"); w.append(lp); b.append(w); }
+  let meta="Added by "+(n.addedBy===myId?"you":(n.addedByName||nameOf(n.addedBy)));
+  if(n.done) meta+=" · Done by "+(n.doneBy===myId?"you":(n.doneByName||nameOf(n.doneBy)))+(n.doneAt?" at "+hm(n.doneAt):"");
+  b.append(el("p","fm",meta)); r.append(b);
+  const act=el("div","fact");
+  if(!readOnly){
+    if(n.kind==="reminder" && !n.done && (n.from||"")<=day){ const d=el("button","rm clr","Done"); d.onclick=()=>tnUpdate(n,{done:true,doneDay:day,doneAt:Date.now(),doneBy:myId,doneByName:(typeof myName!=="undefined"?myName:"")}); act.append(d); }
+    if(n.done && n.doneDay===day){ const u=el("button","rm","Undo"); u.onclick=()=>tnUpdate(n,{done:false,doneDay:null,doneAt:null,doneBy:null,doneByName:null}); act.append(u); }
+    const x=el("button","rm","Remove"); x.onclick=()=>tnRemove(n); act.append(x);
+  }
+  r.append(act); return r;
+}
+function renderTeamNotes(){
+  const list=document.getElementById("tnList"), rl=document.getElementById("remList"); if(!list||!rl) return;
+  list.replaceChildren(); rl.replaceChildren();
+  const day=viewDate;
+  const due=teamNotes.filter(n=>n.kind==="reminder" && (n.done? n.doneDay===day : (n.from||"")<=day))
+    .sort((a,b)=>(a.done?1:0)-(b.done?1:0)||(a.from||"").localeCompare(b.from||""));
+  const later=teamNotes.filter(n=>n.kind==="reminder" && !n.done && (n.from||"")>day).sort((a,b)=>(a.from||"").localeCompare(b.from||""));
+  const pins=teamNotes.filter(n=>n.kind==="pin").sort((a,b)=>(a.at||0)-(b.at||0));
+  due.forEach(n=>rl.append(tnRow(n, n.done?"done":"due", n.done?"Done":((n.from||day)===day?"Today":"Since "+shortDate(n.from)), day)));
+  document.getElementById("todayRem").hidden=!due.length;
+  list.append(el("p","fgroup","Good to know"));
+  if(pins.length) pins.forEach(n=>list.append(tnRow(n,"pin",null,day)));
+  else list.append(el("p","empty","Nothing pinned yet. Add guides, links and rules the team should always have to hand."));
+  list.append(el("p","fgroup","Coming up"));
+  if(later.length) later.forEach(n=>list.append(tnRow(n,"later","From "+shortDate(n.from),day)));
+  else list.append(el("p","empty","No reminders set for later."));
+  document.getElementById("infoCount").textContent=pins.length+later.length? String(pins.length+later.length) : "";
+  document.getElementById("tnForm").hidden=readOnly||!tnFormOpen;
+  document.getElementById("tnOpen").hidden=readOnly||tnFormOpen;
+  document.querySelector("#tnotes .reqfoot").style.display=(readOnly||tnFormOpen)?"none":"";
+  document.querySelector("#tnForm .tnrem").hidden=document.getElementById("tn-kind").value!=="reminder";
+}
+function showTab(which){
+  const info=which==="info";
+  document.getElementById("todayView").hidden=info; document.getElementById("infoView").hidden=!info;
+  [["tabToday",!info],["tabInfo",info]].forEach(([id,on])=>{ const t=document.getElementById(id); t.classList.toggle("on",on); t.setAttribute("aria-selected",on); });
+  if(location.hash!==(info?"#board":"")) history.replaceState(null,"",info?"#board":location.pathname+location.search);
+}
+document.getElementById("tabToday").onclick=()=>showTab("today");
+document.getElementById("tabInfo").onclick=()=>showTab("info");
+if(location.hash==="#board"||location.hash==="#info") showTab("info");
 function renderFlags(){
+  renderTeamNotes();
   const list=document.getElementById("flagList"); list.replaceChildren();
   const ongoingN=renderOngoing(list);
+  document.getElementById("flCount").textContent=(flags.length+stillOpenCount(viewDate))||"";
   const fs=[...flags].sort((a,b)=>(a.time||"").localeCompare(b.time||"")||(a.at||0)-(b.at||0));
   if(ongoingN) list.append(el("p","fgroup", viewDate===todayKey()? "Logged today" : "Logged this day"));
   if(!fs.length) list.append(el("p","empty", viewDate===todayKey()? (ongoingN?"Nothing else logged today.":"No issues today.") : (ongoingN?"Nothing else logged on this day.":"No issues were logged on this day.")));
@@ -729,7 +851,8 @@ function renderRequests(){
   const active=requests.filter(r=>!r.until||r.until>=viewDate).sort((a,b)=>(a.until||"9999").localeCompare(b.until||"9999"));
   const past=requests.filter(r=>r.until&&r.until<viewDate).sort((a,b)=>b.until.localeCompare(a.until));
   const shown=showPast? active.concat(past) : active;
-  if(!shown.length) listEl.append(el("p","empty","No special requests right now. Add one below when a team lead asks."));
+  if(!shown.length) listEl.append(el("p","empty","No requests right now."));
+  document.getElementById("rqCount").textContent=active.length||"";
   shown.forEach(r=>{
     const isPast=r.until&&r.until<viewDate;
     const row=el("div","req"+(isPast?" past":"")), body=el("div");
@@ -746,6 +869,7 @@ function renderRequests(){
   });
   const pt=document.getElementById("pastToggle");
   pt.hidden=!past.length; pt.textContent=showPast? "Hide past requests" : "Show past requests ("+past.length+")";
+  document.getElementById("rqFoot").hidden=!past.length;
   document.getElementById("addReq").hidden=readOnly||!reqFormOpen; document.getElementById("addOpen").hidden=readOnly||reqFormOpen;
 }
 
@@ -869,7 +993,11 @@ function renderCarry(isToday){
   if(ong) parts.push(ong+" ongoing");
   iss.textContent = parts.length? parts.join(" · ")+(which==="am"?" ↓":" →") : "";
   iss.title = which==="am" ? "Jump to Issues today" : "Open that day's issues";
-  iss.onclick=()=>{ if(which!=="am") go(srcDay); setTimeout(()=>document.getElementById("flags").scrollIntoView({behavior:"smooth",block:"start"}),50); };
+  const rp=document.getElementById("carryRem"), rn=isToday? dueReminders(viewDate).length : 0;
+  rp.hidden=!rn; rp.textContent= rn? (rn===1? "1 reminder ↓" : rn+" reminders ↓") : "";
+  rp.title = rn? dueReminders(viewDate).map(n=>"• "+n.text).join("\n") : "";
+  rp.onclick=()=>{ showTab("today"); document.getElementById("todayRem").scrollIntoView({behavior:"smooth",block:"start"}); };
+  iss.onclick=()=>{ showTab("today"); if(which!=="am") go(srcDay); setTimeout(()=>document.getElementById("flags").scrollIntoView({behavior:"smooth",block:"start"}),50); };
   const sw=document.getElementById("carrySwap");
   sw.textContent = which==="am" ? "Show last night's instead" : "Show this morning's instead";
   sw.onclick=()=>{ carryOverride = which==="am"?"prev":"am"; render(); };
@@ -911,6 +1039,7 @@ function localLoad(){
   prevPm=rd("cc-note-"+shift(viewDate,-1))||EMPTY();
   if(mode==="local") requests=rd("cc-requests")||[];
   if(mode==="local") openIssues=rd("cc-open-issues")||[];
+  if(mode==="local") teamNotes=rd("cc-team-notes")||[];
   flags = mode==="local" ? (rd("cc-flags-"+viewDate)||[]) : flags;
   prevFlags = mode==="local" ? (rd("cc-flags-"+shift(viewDate,-1))||[]) : prevFlags;
 }
@@ -997,8 +1126,14 @@ function subscribeOpen(){
     openIssues=snap.docs.map(d=>Object.assign({id:d.id}, d.data()||{})); openIssues.forEach(x=>{ if(x.addedBy&&x.addedByName) names[x.addedBy]=x.addedByName; }); render();
   }, e=>setNotice(e&&e.code==="permission-denied"? "Ongoing issues need the openIssues rule adding in Firestore." : "Couldn't load ongoing issues. Refresh the page to try again."));
 }
+function subscribeTN(){
+  if(unsubTN) return;
+  unsubTN=db.collection("teamNotes").onSnapshot(snap=>{
+    teamNotes=snap.docs.map(d=>Object.assign({id:d.id}, d.data()||{})); render();
+  }, e=>setNotice(e&&e.code==="permission-denied"? "The Team board needs the teamNotes rule adding in Firestore." : "Couldn't load the Team board. Refresh the page to try again."));
+}
 function subscribeRequests(){
-  subscribeOpen();
+  subscribeOpen(); subscribeTN();
   if(unsubReqs) return;
   unsubReqs=db.collection("requests").onSnapshot(snap=>{
     requests=snap.docs.map(d=>Object.assign({id:d.id}, d.data()||{})); requests.forEach(r=>{ if(r.addedBy&&r.addedByName) names[r.addedBy]=r.addedByName; }); render();
@@ -1059,6 +1194,36 @@ async function keepOpen(x){
     else await db.doc("days/"+viewDate+"/flags/"+x.id).delete();
   }catch(e){ setNotice(e&&e.code==="permission-denied"? "Ongoing issues need the openIssues rule adding in Firestore." : "That issue couldn't be moved. Try again."); }
 }
+function saveLocalTN(){ try{ localStorage.setItem("cc-team-notes",JSON.stringify(teamNotes)); }catch(e){} }
+async function tnUpdate(n,patch){
+  if(mode==="local"){ Object.assign(n,patch); saveLocalTN(); render(); return; }
+  try{ await db.doc("teamNotes/"+n.id).set(patch,{merge:true}); }catch(e){ setNotice("That change didn't save. Try again."); }
+}
+async function tnRemove(n){
+  if(!confirm("Remove this "+(n.kind==="pin"?"pinned note":"reminder")+"?")) return;
+  if(mode==="local"){ teamNotes=teamNotes.filter(y=>y.id!==n.id); saveLocalTN(); render(); return; }
+  try{ await db.doc("teamNotes/"+n.id).delete(); }catch(e){ setNotice("That note couldn't be removed. Try again."); }
+}
+document.getElementById("tnOpen").onclick=()=>{ tnFormOpen=true; document.getElementById("tn-kind").value="pin"; document.getElementById("tn-text").placeholder="e.g. Onboarding guide for new coordinators"; document.getElementById("tn-from").value=viewDate; renderTeamNotes(); document.getElementById("tn-text").focus(); };
+document.getElementById("tn-cancel").onclick=()=>{ tnFormOpen=false; document.getElementById("tn-err").textContent=""; renderTeamNotes(); };
+document.getElementById("tn-kind").onchange=e=>{ const rem=e.target.value==="reminder"; document.getElementById("tn-text").placeholder= rem? "e.g. New starter Priya joins Monday, buddy with Najma" : "e.g. Onboarding guide for new coordinators"; renderTeamNotes(); };
+document.getElementById("tnPinToggle").onclick=()=>{ tnShowPins=!tnShowPins; renderTeamNotes(); };
+document.getElementById("tn-add").onclick=async()=>{
+  const g=id=>document.getElementById(id), err=g("tn-err");
+  const kind=g("tn-kind").value, text=g("tn-text").value.trim(); let link=g("tn-link").value.trim();
+  if(!text){ err.textContent="Write the note first."; return; }
+  if(link && !/^https?:\/\//i.test(link)) link="https://"+link;
+  if(link){ try{ new URL(link); }catch(e){ err.textContent="That link doesn't look right."; return; } }
+  const rec={kind,text,link:link||null,addedBy:myId,addedByName:(typeof myName!=="undefined"?myName:""),at:Date.now()};
+  if(kind==="reminder"){ rec.from=g("tn-from").value||viewDate; rec.done=false; }
+  err.textContent=""; const btn=g("tn-add"); btn.disabled=true;
+  try{
+    if(mode==="local"){ rec.id="n"+rec.at; teamNotes.push(rec); saveLocalTN(); }
+    else await db.collection("teamNotes").add(rec);
+    ["tn-text","tn-link"].forEach(id=>g(id).value=""); tnFormOpen=false; if(kind==="pin") tnShowPins=true; render();
+  }catch(e){ err.textContent=(e&&e.code==="permission-denied")? "The Team board needs the teamNotes rule adding in Firestore." : "That didn't save. Try again."; }
+  btn.disabled=false;
+};
 async function removeFlag(x){
   if(!confirm("Remove this issue?")) return;
   if(mode==="local"){ flags=flags.filter(y=>y.id!==x.id); try{ localStorage.setItem("cc-flags-"+viewDate,JSON.stringify(flags)); }catch(e){} render(); return; }
@@ -1395,7 +1560,7 @@ let myName="";
   });
   auth.getRedirectResult().catch(explain);
   auth.onAuthStateChanged(u=>{
-    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubOpen){unsubOpen();unsubOpen=null;} openIssues=[]; if(unsubSched){unsubSched();unsubSched=null;} if(unsubSide){unsubSide();unsubSide=null;} if(unsubTexts){unsubTexts();unsubTexts=null;} stopPresence();
+    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubOpen){unsubOpen();unsubOpen=null;} openIssues=[]; if(unsubTN){unsubTN();unsubTN=null;} teamNotes=[]; if(unsubSched){unsubSched();unsubSched=null;} if(unsubSide){unsubSide();unsubSide=null;} if(unsubTexts){unsubTexts();unsubTexts=null;} stopPresence();
     if(!u){
       myEmail="";
       mode="shared"; db=null; ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
