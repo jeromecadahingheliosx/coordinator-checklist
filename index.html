@@ -353,6 +353,21 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 /* "1 issue logged today" is a pill you can tap, not an underlined link */
 .carry #carryIssues{text-decoration:none;background:var(--bg);color:var(--linkink);border:1px solid var(--linkline);border-radius:999px;padding:2px 10px;font:600 11.5px "Inter",sans-serif}
 .carry #carryIssues:hover{border-color:var(--linkink)}
+/* ---- ongoing issues ---- */
+.fgroup{margin:12px 14px 0;font:700 10.5px "Inter",sans-serif;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.fact{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.flag .ft .fday{display:block;font:500 10.5px "Inter",sans-serif;color:var(--muted);margin-top:2px}
+.otag{display:inline-block;font:600 10.5px "Inter",sans-serif;border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:1px;background:var(--bg);color:var(--linkink);border:1px solid var(--linkline)}
+.flag.ongoing{border-left-color:#B7791F;background:#FFF8EC}
+.flag.ongoing .otag{color:#8A5A12;border-color:#F0D9B0}
+.flag.ongoing .rm.clr{border-color:var(--linkink);color:var(--linkink);font-weight:600}
+.flag.cleared{background:transparent;border-left-color:var(--line);opacity:.7}
+.flag.cleared .fw{color:var(--ink)}
+.flag.cleared .otag{color:var(--done);border-color:var(--line)}
+.fnote{margin:3px 0 0;font-size:12px;color:var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .flag.ongoing{background:#2E2410;border-left-color:#E0A63A}:root:not([data-theme="light"]) .flag.ongoing .otag{color:#F2C879;border-color:#5A4520}}
+:root[data-theme="dark"] .flag.ongoing{background:#2E2410;border-left-color:#E0A63A}
+:root[data-theme="dark"] .flag.ongoing .otag{color:#F2C879;border-color:#5A4520}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -479,7 +494,8 @@ const MANAGER_EMAILS = ["emmanuelle.cadahing@heliosx.com", "angel.jones@heliosx.
           <div class="f" style="flex:0 1 170px"><label for="fl-type">Type</label><select id="fl-type"><option>General</option><option>Prescriber</option><option>Live chat</option><option>Shift &amp; cover</option><option>Queues &amp; workflow</option><option>Orders</option><option>Systems &amp; tools</option><option>Communication</option><option>Other</option></select></div>
           <div class="f"><label for="fl-who">Who or what (optional)</label><input type="text" id="fl-who" placeholder="e.g. Dr Sarah Khan, Titan Q, Hex report"></div>
           <div class="f tiny"><label for="fl-time">Time</label><input type="text" id="fl-time" placeholder="14:05"></div>
-          <div class="f wide"><label for="fl-what">What happened</label><input type="text" id="fl-what" placeholder="e.g. Joined live chat 20 minutes late; Hex report not loading since 10am"></div>
+          <div class="f wide"><label for="fl-what">What happened</label><input type="text" id="fl-what" placeholder="e.g. Joined live chat 20 minutes late; Hex report not loading since 10am">
+            <div class="row"><input type="checkbox" id="fl-keep"><label for="fl-keep" style="margin:0;font-weight:400">Ongoing: keep it on the list every day until someone clears it</label></div></div>
           <button class="addbtn" id="fl-add">Add issue</button>
           <button class="sd-cancel small" id="fl-cancel">Cancel</button>
           <p class="formerr" id="fl-err"></p>
@@ -639,7 +655,7 @@ const EMPTY=()=>({text:"",by:null,lastBy:null,at:null});
 const NOTE_PATH={am:"meta/am", pm:"meta/note"};           // older location, read-only fallback
 const notePath=(day,k)=>"handover/"+day+"_"+k;             // only editors can write here
 let noteSrc={am:{},pm:{},prev:{}}, notesLocked=false;
-let requests=[], showPast=false, unsubReqs=null, reqFormOpen=false, flags=[], prevFlags=[], flagFormOpen=false;
+let requests=[], showPast=false, unsubReqs=null, reqFormOpen=false, flags=[], prevFlags=[], flagFormOpen=false, openIssues=[], unsubOpen=null;
 let notes = {am:EMPTY(), pm:EMPTY()}, prevPm = EMPTY();
 let db=null, user=null, myId=null, names={}, unsubTicks=null, unsubNotes=[], readOnly=false, mode="local";
 
@@ -650,18 +666,58 @@ function hm(ts){ return ts? new Date(ts).toLocaleTimeString("en-GB",{hour:"2-dig
 function nameOf(id){ if(!id) return mode==="local"?"you":"Someone"; if(id===myId) return "you"; return names[id] || "Someone"; }
 function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
 
+function shortDate(key){ const [y,m,d]=key.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"}); }
+function ongoingForDay(day){ return openIssues.filter(x=>x.day && x.day<=day && (!x.cleared || (x.clearedDay||"")>=day)); }
+function stillOpenCount(day){ return openIssues.filter(x=>x.day && x.day<=day && !x.cleared).length; }
+function flagBody(x){
+  const body=el("div"); const w=el("p","fw",x.who||x.type||"Issue"); if(x.who) w.append(el("span","ftag",x.type||"Other")); else if(x.type) w.firstChild.textContent=x.type;
+  body.append(w); if(x.what) body.append(el("p","fx",x.what));
+  return body;
+}
+function renderOngoing(list){
+  const items=ongoingForDay(viewDate).sort((a,b)=>(a.cleared?1:0)-(b.cleared?1:0)||(a.day+(a.time||"")).localeCompare(b.day+(b.time||"")));
+  if(!items.length) return 0;
+  const open=items.filter(x=>!x.cleared).length;
+  list.append(el("p","fgroup","Ongoing"+(open?" · "+open+" still open":"")));
+  items.forEach(x=>{
+    const row=el("div","flag ongoing"+(x.cleared?" cleared":""));
+    const t=el("div","ft",x.time||"–"); if(x.day!==viewDate) t.append(el("span","fday",shortDate(x.day))); row.append(t);
+    const body=flagBody(x);
+    const since=x.day===viewDate? "Logged today" : "Open since "+shortDate(x.day);
+    body.firstChild.append(el("span","otag", x.cleared? "Cleared" : since));
+    let meta="Logged by "+nameOf(x.addedBy)+(x.at?" at "+hm(x.at):"")+(x.day!==viewDate?" on "+shortDate(x.day):"");
+    if(x.cleared) meta+=" · Cleared by "+(x.clearedBy===myId?"you":(x.clearedByName||nameOf(x.clearedBy)))+(x.clearedAt?" at "+hm(x.clearedAt):"")+((x.clearedDay&&x.clearedDay!==viewDate)?" on "+shortDate(x.clearedDay):"");
+    body.append(el("p","fm",meta));
+    if(x.clearNote) body.append(el("p","fnote","Outcome: "+x.clearNote));
+    row.append(body);
+    const act=el("div","fact");
+    if(!readOnly){
+      if(!x.cleared){ const c=el("button","rm clr","Clear"); c.setAttribute("aria-label","Clear this ongoing issue"); c.onclick=()=>clearIssue(x); act.append(c); }
+      else if(x.clearedDay===viewDate){ const r=el("button","rm","Reopen"); r.onclick=()=>updateOpen(x,{cleared:false,clearedDay:null,clearedAt:null,clearedBy:null,clearedByName:null,clearNote:null}); act.append(r); }
+      const d=el("button","rm","Remove"); d.setAttribute("aria-label","Remove this issue completely"); d.onclick=()=>removeOpen(x); act.append(d);
+    }
+    row.append(act); list.append(row);
+  });
+  return items.length;
+}
 function renderFlags(){
   const list=document.getElementById("flagList"); list.replaceChildren();
+  const ongoingN=renderOngoing(list);
   const fs=[...flags].sort((a,b)=>(a.time||"").localeCompare(b.time||"")||(a.at||0)-(b.at||0));
-  if(!fs.length) list.append(el("p","empty", viewDate===todayKey()? "No issues today." : "No issues were logged on this day."));
+  if(ongoingN) list.append(el("p","fgroup", viewDate===todayKey()? "Logged today" : "Logged this day"));
+  if(!fs.length) list.append(el("p","empty", viewDate===todayKey()? (ongoingN?"Nothing else logged today.":"No issues today.") : (ongoingN?"Nothing else logged on this day.":"No issues were logged on this day.")));
   fs.forEach(x=>{
     const row=el("div","flag");
     row.append(el("div","ft",x.time||"–"));
-    const body=el("div"); const w=el("p","fw",x.who||x.type||"Flag"); if(x.who) w.append(el("span","ftag",x.type||"Other")); else if(x.type) w.firstChild.textContent=x.type;
-    body.append(w); if(x.what) body.append(el("p","fx",x.what));
+    const body=flagBody(x);
     if(x.addedBy) body.append(el("p","fm","Logged by "+nameOf(x.addedBy)+(x.at?" at "+hm(x.at):"")));
     row.append(body);
-    if(!readOnly){ const b=el("button","rm","Remove"); b.setAttribute("aria-label","Remove this issue"); b.onclick=()=>removeFlag(x); row.append(b); } else row.append(el("span"));
+    const act=el("div","fact");
+    if(!readOnly){
+      const k=el("button","rm","Keep open"); k.title="Move to Ongoing so it shows every day until someone clears it"; k.onclick=()=>keepOpen(x); act.append(k);
+      const b=el("button","rm","Remove"); b.setAttribute("aria-label","Remove this issue"); b.onclick=()=>removeFlag(x); act.append(b);
+    }
+    row.append(act);
     list.append(row);
   });
   document.getElementById("flagForm").hidden=readOnly||!flagFormOpen;
@@ -807,8 +863,11 @@ function renderCarry(isToday){
   document.getElementById("carryMeta").textContent = n.at? "Written by "+nameOf(n.by)+(n.lastBy&&n.lastBy!==n.by?", edited by "+nameOf(n.lastBy):"")+" at "+hm(n.at) : "";
   const iss=document.getElementById("carryIssues");
   const cnt = which==="am"? flags.length : prevFlags.length;
-  iss.hidden=!cnt;
-  iss.textContent = cnt? cnt+(cnt===1?" issue":" issues")+" logged "+(which==="am"? (isToday?"today":"that day") : (isToday?"yesterday":"the day before"))+(which==="am"?" ↓":" →") : "";
+  const ong = which==="am"? stillOpenCount(viewDate) : 0;
+  iss.hidden=!cnt && !ong;
+  const parts=[]; if(cnt) parts.push(cnt+(cnt===1?" issue":" issues")+" logged "+(which==="am"? (isToday?"today":"that day") : (isToday?"yesterday":"the day before")));
+  if(ong) parts.push(ong+" ongoing");
+  iss.textContent = parts.length? parts.join(" · ")+(which==="am"?" ↓":" →") : "";
   iss.title = which==="am" ? "Jump to Issues today" : "Open that day's issues";
   iss.onclick=()=>{ if(which!=="am") go(srcDay); setTimeout(()=>document.getElementById("flags").scrollIntoView({behavior:"smooth",block:"start"}),50); };
   const sw=document.getElementById("carrySwap");
@@ -851,6 +910,7 @@ function localLoad(){
   notes={am:rd("cc-am-"+viewDate)||EMPTY(), pm:rd("cc-note-"+viewDate)||EMPTY()};
   prevPm=rd("cc-note-"+shift(viewDate,-1))||EMPTY();
   if(mode==="local") requests=rd("cc-requests")||[];
+  if(mode==="local") openIssues=rd("cc-open-issues")||[];
   flags = mode==="local" ? (rd("cc-flags-"+viewDate)||[]) : flags;
   prevFlags = mode==="local" ? (rd("cc-flags-"+shift(viewDate,-1))||[]) : prevFlags;
 }
@@ -931,7 +991,14 @@ async function saveNote(k){
 }
 function saveAll(){ ["am","pm"].forEach(k=>{ clearTimeout(timers[k]); saveNote(k); }); }
 
+function subscribeOpen(){
+  if(unsubOpen) return;
+  unsubOpen=db.collection("openIssues").onSnapshot(snap=>{
+    openIssues=snap.docs.map(d=>Object.assign({id:d.id}, d.data()||{})); openIssues.forEach(x=>{ if(x.addedBy&&x.addedByName) names[x.addedBy]=x.addedByName; }); render();
+  }, e=>setNotice(e&&e.code==="permission-denied"? "Ongoing issues need the openIssues rule adding in Firestore." : "Couldn't load ongoing issues. Refresh the page to try again."));
+}
 function subscribeRequests(){
+  subscribeOpen();
   if(unsubReqs) return;
   unsubReqs=db.collection("requests").onSnapshot(snap=>{
     requests=snap.docs.map(d=>Object.assign({id:d.id}, d.data()||{})); requests.forEach(r=>{ if(r.addedBy&&r.addedByName) names[r.addedBy]=r.addedByName; }); render();
@@ -958,12 +1025,40 @@ document.getElementById("fl-add").onclick=async()=>{
   const rec={type,who,what,time,addedBy:myId,addedByName:(typeof myName!=="undefined"?myName:(names[myId]||"")),at:Date.now()};
   const btn=g("fl-add"); btn.disabled=true;
   try{
-    if(mode==="local"){ rec.id="f"+rec.at; flags.push(rec); try{ localStorage.setItem("cc-flags-"+viewDate,JSON.stringify(flags)); }catch(e){} }
+    if(g("fl-keep").checked){ await addOpen(Object.assign(rec,{day:viewDate,cleared:false})); }
+    else if(mode==="local"){ rec.id="f"+rec.at; flags.push(rec); try{ localStorage.setItem("cc-flags-"+viewDate,JSON.stringify(flags)); }catch(e){} }
     else await db.collection("days/"+viewDate+"/flags").add(rec);
-    ["fl-who","fl-what","fl-time"].forEach(id=>g(id).value=""); g("fl-type").selectedIndex=0; flagFormOpen=false; render();
+    ["fl-who","fl-what","fl-time"].forEach(id=>g(id).value=""); g("fl-type").selectedIndex=0; g("fl-keep").checked=false; flagFormOpen=false; render();
   }catch(e){ err.textContent=(e&&(e.code==="permission-denied"||e.code==="invalid_argument"))? "You don't have access to add issues." : "That issue didn't save. Try again."; }
   btn.disabled=false;
 };
+function saveLocalOpen(){ try{ localStorage.setItem("cc-open-issues",JSON.stringify(openIssues)); }catch(e){} }
+async function addOpen(rec){
+  if(mode==="local"){ rec.id="o"+Date.now(); openIssues.push(rec); saveLocalOpen(); return; }
+  await db.collection("openIssues").add(rec);
+}
+async function updateOpen(x,patch){
+  if(mode==="local"){ Object.assign(x,patch); saveLocalOpen(); render(); return; }
+  try{ await db.doc("openIssues/"+x.id).set(patch,{merge:true}); }catch(e){ setNotice("That change didn't save. Try again."); }
+}
+async function clearIssue(x){
+  const note=prompt("Clear this issue?\n\n"+(x.who?x.who+": ":"")+(x.what||"")+"\n\nWhat happened in the end? (optional)","");
+  if(note===null) return;
+  await updateOpen(x,{cleared:true,clearedDay:viewDate,clearedAt:Date.now(),clearedBy:myId,clearedByName:(typeof myName!=="undefined"?myName:""),clearNote:note.trim()||null});
+}
+async function removeOpen(x){
+  if(!confirm("Remove this issue completely? It will disappear from every day. To close it but keep the record, use Clear instead.")) return;
+  if(mode==="local"){ openIssues=openIssues.filter(y=>y.id!==x.id); saveLocalOpen(); render(); return; }
+  try{ await db.doc("openIssues/"+x.id).delete(); }catch(e){ setNotice("That issue couldn't be removed. Try again."); }
+}
+async function keepOpen(x){
+  const rec=Object.assign({},x,{day:viewDate,cleared:false}); delete rec.id;
+  try{
+    await addOpen(rec);
+    if(mode==="local"){ flags=flags.filter(y=>y.id!==x.id); try{ localStorage.setItem("cc-flags-"+viewDate,JSON.stringify(flags)); }catch(e){} render(); }
+    else await db.doc("days/"+viewDate+"/flags/"+x.id).delete();
+  }catch(e){ setNotice(e&&e.code==="permission-denied"? "Ongoing issues need the openIssues rule adding in Firestore." : "That issue couldn't be moved. Try again."); }
+}
 async function removeFlag(x){
   if(!confirm("Remove this issue?")) return;
   if(mode==="local"){ flags=flags.filter(y=>y.id!==x.id); try{ localStorage.setItem("cc-flags-"+viewDate,JSON.stringify(flags)); }catch(e){} render(); return; }
@@ -1300,7 +1395,7 @@ let myName="";
   });
   auth.getRedirectResult().catch(explain);
   auth.onAuthStateChanged(u=>{
-    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubSched){unsubSched();unsubSched=null;} if(unsubSide){unsubSide();unsubSide=null;} if(unsubTexts){unsubTexts();unsubTexts=null;} stopPresence();
+    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubOpen){unsubOpen();unsubOpen=null;} openIssues=[]; if(unsubSched){unsubSched();unsubSched=null;} if(unsubSide){unsubSide();unsubSide=null;} if(unsubTexts){unsubTexts();unsubTexts=null;} stopPresence();
     if(!u){
       myEmail="";
       mode="shared"; db=null; ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
