@@ -311,6 +311,18 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--grad:linear-gradient(120deg,#2E4650 0%,#35515E 55%,#3B5966 100%)}}
 :root[data-theme="dark"]{--grad:linear-gradient(120deg,#2E4650 0%,#35515E 55%,#3B5966 100%)}
 .carry #carryIssues{color:var(--hdr-issue,#FFE2D4)}
+/* who's online */
+.online{flex-basis:100%;display:flex;align-items:center;gap:6px 8px;flex-wrap:wrap;padding-top:9px;border-top:1px solid rgba(255,255,255,.22);font:500 12px "Inter",sans-serif;color:#fff}
+.online .olab{display:inline-flex;align-items:center;gap:7px;margin-right:2px;color:rgba(255,255,255,.92)}
+.online .olab::before{content:"";width:8px;height:8px;border-radius:50%;background:#5BE3A6;box-shadow:0 0 0 3px rgba(91,227,166,.28)}
+.online .ppl{display:flex;gap:6px;flex-wrap:wrap}
+.person{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);border-radius:999px;padding:2px 10px 2px 2px;white-space:nowrap}
+.person .av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:700 10px/1 "Inter",sans-serif;color:#fff;background:var(--c,#3D4DB0);overflow:hidden;flex:0 0 22px}
+.person .av img{width:100%;height:100%;object-fit:cover;display:block}
+.person.away{opacity:.6}
+.person.away .st{font-weight:400;color:rgba(255,255,255,.85)}
+.person.more{padding:2px 10px}
+.online .oerr{color:rgba(255,255,255,.85);font-weight:400}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -351,6 +363,10 @@ const MANAGER_EMAILS = ["emmanuelle.cadahing@heliosx.com", "angel.jones@heliosx.
       <div class="count" id="count">0/0</div>
     </div>
     <p class="alldone" id="alldone" hidden>All done for today. Nice work.</p>
+    <div class="online" id="online" hidden aria-live="polite">
+      <span class="olab" id="onlineLab">On now</span>
+      <div class="ppl" id="onlinePpl"></div>
+    </div>
   </header>
   <p class="notice" id="notice">Connecting…</p>
   <div class="gate" id="gate" hidden>
@@ -1165,6 +1181,64 @@ document.getElementById("jump").addEventListener("change",e=>{ const v=e.target.
 setInterval(()=>{ if(viewDate===todayKey() && !document.activeElement.matches("textarea")) render(); }, 60000);
 
 localLoad(); render();
+
+/* ===== Who's online =====
+   Each signed-in person writes presence/{uid} every minute. Anyone seen in the last 3 minutes shows in the header;
+   people whose tab is in the background show as "away". Needs the presence rule in Firestore (see setup note). */
+const PRESENCE_BEAT=60000, PRESENCE_WINDOW=3*60000, PRESENCE_SHOW=8;
+let presenceRef=null, presenceTimer=null, presenceTick=null, unsubPresence=null, presenceList=[];
+function presenceState(){ return document.visibilityState==="hidden"?"away":"active"; }
+function presenceBeat(state){
+  if(!presenceRef) return Promise.resolve();
+  return presenceRef.set({ name:myName, email:myEmail, photo:(presenceRef._photo||""), state:state||presenceState(),
+    lastSeen:firebase.firestore.FieldValue.serverTimestamp() }, {merge:true}).catch(()=>{});
+}
+function onVis(){ presenceBeat(); }
+function onHide(){ if(presenceRef) presenceRef.set({state:"offline"},{merge:true}).catch(()=>{}); }
+function avColor(s){ let h=0; for(const ch of s) h=(h*31+ch.charCodeAt(0))>>>0; return "hsl("+(h%360)+" 45% 38%)"; }
+function initials(n){ const p=(n||"?").replace(/@.*/,"").split(/[\s._-]+/).filter(Boolean); return ((p[0]||"?")[0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase(); }
+function renderOnline(){
+  const box=document.getElementById("online"), ppl=document.getElementById("onlinePpl"), lab=document.getElementById("onlineLab");
+  if(!db){ box.hidden=true; return; }
+  const now=Date.now();
+  const live=presenceList.filter(p=>p.state!=="offline" && p.t && now-p.t<PRESENCE_WINDOW)
+    .sort((a,b)=>(b.id===myId)-(a.id===myId) || (a.state==="away")-(b.state==="away") || a.name.localeCompare(b.name));
+  ppl.replaceChildren();
+  lab.textContent=live.length?("On now ("+live.length+")"):"On now";
+  live.slice(0,PRESENCE_SHOW).forEach(p=>{
+    const away=p.state==="away", first=(p.name||p.email).split(" ")[0];
+    const chip=el("span","person"+(away?" away":"")); chip.title=p.name+(p.email&&p.email!==p.name?" ("+p.email+")":"")+(away?" · away":"");
+    const av=el("span","av"); av.style.setProperty("--c",avColor(p.email||p.id)); av.textContent=initials(p.name||p.email);
+    if(p.photo){ const im=new Image(); im.alt=""; im.referrerPolicy="no-referrer"; im.onload=()=>av.replaceChildren(im); im.src=p.photo; }
+    chip.append(av, el("span","nm",p.id===myId?first+" (you)":first));
+    if(away) chip.append(el("span","st","away"));
+    ppl.append(chip);
+  });
+  if(live.length>PRESENCE_SHOW){ const m=el("span","person more","+"+(live.length-PRESENCE_SHOW)+" more"); m.title=live.slice(PRESENCE_SHOW).map(p=>p.name).join(", "); ppl.append(m); }
+  box.hidden=false;
+}
+function startPresence(u){
+  stopPresence();
+  presenceRef=db.collection("presence").doc(u.uid); presenceRef._photo=u.photoURL||"";
+  presenceBeat();
+  presenceTimer=setInterval(()=>presenceBeat(),PRESENCE_BEAT);
+  presenceTick=setInterval(renderOnline,30000);
+  document.addEventListener("visibilitychange",onVis); window.addEventListener("pagehide",onHide);
+  unsubPresence=db.collection("presence").onSnapshot(snap=>{
+    presenceList=snap.docs.map(d=>{ const x=d.data({serverTimestamps:"estimate"}); return {id:d.id,name:x.name||x.email||"Someone",email:x.email||"",photo:x.photo||"",state:x.state||"active",t:x.lastSeen&&x.lastSeen.toMillis?x.lastSeen.toMillis():0}; });
+    renderOnline();
+  }, e=>{
+    const box=document.getElementById("online"); box.hidden=false;
+    document.getElementById("onlineLab").textContent="On now";
+    document.getElementById("onlinePpl").replaceChildren(el("span","oerr", e&&e.code==="permission-denied"?"Can't show who's online yet: the Firestore rules need the presence rule added.":"Can't load who's online right now."));
+  });
+}
+function stopPresence(){
+  if(presenceTimer) clearInterval(presenceTimer); if(presenceTick) clearInterval(presenceTick); presenceTimer=presenceTick=null;
+  if(unsubPresence){ unsubPresence(); unsubPresence=null; }
+  document.removeEventListener("visibilitychange",onVis); window.removeEventListener("pagehide",onHide);
+  presenceRef=null; presenceList=[]; document.getElementById("online").hidden=true;
+}
 let myName="";
 (function boot(){
   const gate=document.getElementById("gate");
@@ -1195,7 +1269,7 @@ let myName="";
   });
   auth.getRedirectResult().catch(explain);
   auth.onAuthStateChanged(u=>{
-    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubSched){unsubSched();unsubSched=null;} if(unsubSide){unsubSide();unsubSide=null;} if(unsubTexts){unsubTexts();unsubTexts=null;}
+    if(unsubTicks){unsubTicks();unsubTicks=null;} unsubNotes.forEach(f=>f()); unsubNotes=[]; if(unsubReqs){unsubReqs();unsubReqs=null;} if(unsubSched){unsubSched();unsubSched=null;} if(unsubSide){unsubSide();unsubSide=null;} if(unsubTexts){unsubTexts();unsubTexts=null;} stopPresence();
     if(!u){
       myEmail="";
       mode="shared"; db=null; ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
@@ -1212,9 +1286,9 @@ let myName="";
     db.doc("canwrite/handover").get().then(()=>{ notesLocked=false; render(); })
       .catch(e=>{ if(e&&e.code==="permission-denied"){ notesLocked=true; render(); } });
     const n=document.getElementById("notice"); n.textContent="Shared live. Signed in as "+myName+".";
-    const so=el("button","signout","Sign out"); so.onclick=()=>auth.signOut(); n.append(so);
+    const so=el("button","signout","Sign out"); so.onclick=async()=>{ if(presenceRef) await presenceRef.set({state:"offline"},{merge:true}).catch(()=>{}); auth.signOut(); }; n.append(so);
     ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
-    render(); subscribe(); subscribeRequests(); subscribeSchedule(); subscribeSide(); subscribeTexts();
+    render(); subscribe(); subscribeRequests(); subscribeSchedule(); subscribeSide(); subscribeTexts(); startPresence(u);
   });
 })();
 </script>
