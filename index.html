@@ -478,6 +478,10 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 :root[data-theme="dark"] .flag.ongoing .otag{color:#F2C879;border-color:#5A4520}
 /* ---- Drop-in tab ---- */
 .infoside.dicol{display:flex;flex-direction:column;gap:14px}
+#dropView{flex-direction:column;align-items:stretch}
+#dropView .infomain,#dropView .infoside{flex:none;width:100%}
+#dropView .box2{overflow:visible}
+#dropView .box2 > .bh{border-radius:13px 13px 0 0}
 #dropins .bh .addopen{margin-left:auto;background:var(--bg)}
 .dibar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 12px 0}
 .diseg{display:inline-flex;flex-wrap:wrap;gap:2px;padding:3px;background:var(--panel);border-radius:999px}
@@ -931,7 +935,7 @@ let requests=[], showPast=false, unsubReqs=null, reqFormOpen=false, flags=[], pr
 let notes = {am:EMPTY(), pm:EMPTY()}, prevPm = EMPTY();
 let db=null, user=null, myId=null, names={}, unsubTicks=null, unsubNotes=[], readOnly=false, mode="local";
 /* ===== Drop-in: questions for the daily drop-in session (replaces the Ops Coordinator Daily Drop Ins sheet) =====
-   Stored in Firestore at dropins/{id}. Anyone signed in can add and update; only managers can remove.
+   Stored in Firestore at dropins/{id}. Anyone signed in can add and update; managers, or whoever added it, can remove.
    Fields: q, day (raised), raisedBy, link, status (open | progress | resolved), outcome, owner,
    kind, fromIssue, pinned, addedBy/addedByName/at, edited*, resolved*. */
 const DI_STATUS={open:"To discuss",progress:"In progress",resolved:"Resolved"};
@@ -959,7 +963,7 @@ async function diUpdate(x,patch){
 async function diRemove(x){
   if(!confirm("Remove this completely? To close it but keep the record, record an outcome and mark it resolved instead.")) return;
   if(mode==="local"){ dropins=dropins.filter(y=>y.id!==x.id); diSaveLocal(); render(); return; }
-  try{ await db.doc("dropins/"+x.id).delete(); }catch(e){ setNotice("That couldn't be removed. Only managers can remove drop-in questions."); }
+  try{ await db.doc("dropins/"+x.id).delete(); }catch(e){ setNotice(e&&e.code==="permission-denied"? "That couldn't be removed. You can remove questions you added; managers can remove any." : "That couldn't be removed. Try again."); }
 }
 function diSay(t){ const s=document.getElementById("diStatus"); s.textContent=t; clearTimeout(diSay._t); diSay._t=setTimeout(()=>s.textContent="",4000); }
 function diDate(day){ if(!day) return "–"; const [y,m,d]=day.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-GB",{day:"numeric",month:"short"})+(y!==new Date().getFullYear()?" "+y:""); }
@@ -1003,16 +1007,23 @@ function diRow(x){
   const act=el("div","fact");
   if(!readOnly){
     const items=[];
-    if(st!=="resolved") items.push({label:"Record outcome",cls:"go",fn:()=>diOpenEdit(x,{status:"resolved"},"outcome")});
+    if(st!=="resolved"){
+      items.push({label:"Resolve with outcome",cls:"go",title:"Write what was agreed and mark it resolved",fn:()=>diOpenEdit(x,{status:"resolved"},"outcome")});
+      items.push({label:"Mark resolved",title:"Resolve it now without writing an outcome",fn:()=>diResolveNow(x)});
+    }
     if(st==="open") items.push({label:"Mark in progress",title:"Agreed, and someone is following it up",fn:()=>diOpenEdit(x,{status:"progress"},"owner")});
     if(st==="resolved") items.push({label:"Reopen",fn:()=>diUpdate(x,{status:"open",resolvedAt:null,resolvedDay:null,resolvedBy:null,resolvedByName:null}).catch(e=>setNotice(diErr(e,"change")))});
     if(st==="resolved" && x.outcome && !x.pinned && x.kind!=="rota") items.push({label:"Pin to Team board",title:"Adds the question and its answer to Good to know",fn:()=>diPin(x)});
     items.push({label:"Edit",fn:()=>diOpenEdit(x)});
-    if(canManageLists()) items.push({label:"Remove",cls:"bad",fn:()=>diRemove(x)});
+    if(canManageLists() || (x.addedBy && x.addedBy===myId)) items.push({label:"Remove",cls:"bad",fn:()=>diRemove(x)});
     act.append(rowMenu(items,"Actions for this question"));
   }
   row.append(act);
   return row;
+}
+function diResolveNow(x){
+  const now=Date.now(), me=diMe();
+  diUpdate(x,{status:"resolved",resolvedAt:now,resolvedDay:todayKey(),resolvedBy:myId,resolvedByName:me,editedAt:now,editedBy:myId,editedByName:me}).catch(e=>setNotice(diErr(e,"change")));
 }
 function diOpenEdit(x,preset,focus){
   diEdit=x? x.id : "new";
