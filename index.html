@@ -120,8 +120,8 @@ section h2.sh{margin:0;font:600 14px "Inter",sans-serif}
 .logbtn:hover{background:var(--tone,var(--panel))}
 .editsched{margin-left:auto;font:600 12px "Inter",sans-serif;border-radius:999px;border:1.5px solid var(--tone-ink);background:var(--bg);color:var(--tone-ink);padding:3px 12px;cursor:pointer}
 .editsched:hover{background:var(--panel)}
-dialog#schedDlg,dialog#sideDlg,dialog#textDlg{width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 40px);border:0;border-radius:16px;padding:0;background:var(--page);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
-dialog#schedDlg::backdrop,dialog#sideDlg::backdrop,dialog#textDlg::backdrop{background:rgba(10,12,30,.45)}
+dialog#schedDlg,dialog#sideDlg,dialog#textDlg,dialog#pplDlg{width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 40px);border:0;border-radius:16px;padding:0;background:var(--page);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog#schedDlg::backdrop,dialog#sideDlg::backdrop,dialog#textDlg::backdrop,dialog#pplDlg::backdrop{background:rgba(10,12,30,.45)}
 .sd-head{padding:16px 18px 8px}
 .sd-head h2{margin:0;font:700 17px "Space Grotesk",sans-serif}
 .sd-head p{margin:4px 0 0;font-size:12.5px;color:var(--muted)}
@@ -240,6 +240,14 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .toggle{background:none;border:0;color:var(--blue);font:500 12.5px "Inter",sans-serif;cursor:pointer;padding:6px 2px}
 .formerr{color:var(--late);font-size:12.5px;margin:4px 2px 0;flex-basis:100%}
 .formerr:empty{display:none}
+.pplgrid{padding:6px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pplgrid label{display:block;font-size:11.5px;font-weight:600;margin:0 0 3px}
+.pplgrid textarea{width:100%;min-height:260px;resize:vertical;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:8px 10px;font:400 13px/1.5 "Inter",sans-serif}
+@media (max-width:560px){.pplgrid{grid-template-columns:1fr}.pplgrid textarea{min-height:160px}}
+.pplhint{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0;padding:8px 12px;border-top:1px solid var(--line);font-size:12.5px}
+.pplhint span{flex:1 1 220px}
+.pplhint button{font:500 12px "Inter",sans-serif;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:4px 11px;cursor:pointer}
+.pplhint button.yes{border-color:var(--linkink);color:var(--linkink)}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 /* one shared header colour (slate lilac) */
 :root{--hdr:#F3F2FA;--hdr-ink:#33335C;--hdr-sub:#5E5E80;--page:#E4E8F4;--cardline:#D6DAE5;--boxshadow:0 1px 2px rgba(30,35,70,.06),0 2px 8px rgba(30,35,70,.05)}
@@ -560,16 +568,18 @@ const MANAGER_EMAILS = ["emmanuelle.cadahing@heliosx.com", "angel.jones@heliosx.
       <section id="radar" class="box2 tone-req">
         <div class="bh"><h2>Requests &amp; issues</h2></div>
       <div id="reqs" class="part">
-        <div class="subh"><h3 id="rqTitle">Special allocation &amp; other requests</h3><span class="pcount" id="rqCount"></span><span class="when" id="rqWhen">Each stays until its end date.</span><button class="editsched edittext" data-sec="reqs" hidden aria-label="Edit the requests wording">Edit</button><button class="addopen sm" id="addOpen">+ Add a request</button></div>
+        <div class="subh"><h3 id="rqTitle">Special allocation &amp; other requests</h3><span class="pcount" id="rqCount"></span><span class="when" id="rqWhen">Each stays until its end date.</span><button class="editsched edittext" data-sec="reqs" hidden aria-label="Edit the requests wording">Edit</button><button class="editsched" id="pplOpen" hidden>People list</button><button class="addopen sm" id="addOpen">+ Add a request</button></div>
         <div id="reqList"></div>
         <div class="reqfoot" id="rqFoot">
           <button class="toggle" id="pastToggle" hidden></button>
         </div>
+        <p class="pplhint" id="pplHint" hidden><span id="pplHintText"></span><button class="yes" id="pplHintAdd">Add to people list</button><button id="pplHintNo">Not now</button></p>
+        <datalist id="dl-prescribers"></datalist><datalist id="dl-leads"></datalist><datalist id="dl-people"></datalist>
         <div class="addreq pad" id="addReq" hidden style="margin-top:0;border-top:1px solid var(--line)">
           <div class="f" style="flex:0 1 150px"><label for="rq-type">Type</label><select id="rq-type"><option value="allocation">Allocation request</option><option value="other">Other request</option></select></div>
-          <div class="f"><label for="rq-who" id="rq-who-l">Prescriber</label><input type="text" id="rq-who" placeholder="e.g. Dr Sarah Khan"></div>
+          <div class="f"><label for="rq-who" id="rq-who-l">Prescriber</label><input type="text" id="rq-who" list="dl-prescribers" autocomplete="off" placeholder="Start typing a name"></div>
           <div class="f wide"><label for="rq-what">Request</label><input type="text" id="rq-what" placeholder="e.g. Side effects only, no GP letters"></div>
-          <div class="f"><label for="rq-by">Requested by</label><input type="text" id="rq-by" placeholder="e.g. team lead or clinical manager"></div>
+          <div class="f"><label for="rq-by">Requested by</label><input type="text" id="rq-by" list="dl-leads" autocomplete="off" placeholder="Start typing a name"></div>
           <div class="f"><label for="rq-until">Until</label><input type="date" id="rq-until">
             <div class="row"><input type="checkbox" id="rq-open"><label for="rq-open" style="margin:0;font-weight:400">Until further notice</label></div></div>
           <button class="addbtn" id="rq-add">Add request</button>
@@ -582,7 +592,7 @@ const MANAGER_EMAILS = ["emmanuelle.cadahing@heliosx.com", "angel.jones@heliosx.
         <div id="flagList"></div>
         <div class="addreq pad flagform" id="flagForm" hidden style="margin-top:0;border-top:1px solid var(--line)">
           <div class="f" style="flex:0 1 170px"><label for="fl-type">Type</label><select id="fl-type"><option>General</option><option>Prescriber</option><option>Live chat</option><option>Shift &amp; cover</option><option>Queues &amp; workflow</option><option>Orders</option><option>Systems &amp; tools</option><option>Communication</option><option>Other</option></select></div>
-          <div class="f"><label for="fl-who">Who or what (optional)</label><input type="text" id="fl-who" placeholder="e.g. Dr Sarah Khan, Titan Q, Hex report"></div>
+          <div class="f"><label for="fl-who">Who or what (optional)</label><input type="text" id="fl-who" list="dl-people" autocomplete="off" placeholder="e.g. Dr Sarah Khan, Titan Q, Hex report"></div>
           <div class="f tiny"><label for="fl-time">Time</label><input type="text" id="fl-time" placeholder="14:05"></div>
           <div class="f wide"><label for="fl-what">What happened</label><input type="text" id="fl-what" placeholder="e.g. Joined live chat 20 minutes late; Hex report not loading since 10am">
             <div class="row"><input type="checkbox" id="fl-keep"><label for="fl-keep" style="margin:0;font-weight:400">Ongoing: keep it on the list every day until someone clears it</label></div></div>
@@ -693,6 +703,23 @@ const MANAGER_EMAILS = ["emmanuelle.cadahing@heliosx.com", "angel.jones@heliosx.
     <span style="flex:1"></span>
     <button class="sd-cancel" id="sideCancel">Cancel</button>
     <button class="addbtn" id="sideSave">Save tasks</button>
+  </div>
+</dialog>
+
+<dialog id="pplDlg" aria-labelledby="pplTitle">
+  <div class="sd-head">
+    <h2 id="pplTitle">People list</h2>
+    <p>These names show as suggestions when you add a request or an issue. One name per line. To bring in a list, copy the column of names from your spreadsheet and paste it here.</p>
+  </div>
+  <div class="pplgrid">
+    <div><label for="pplPres">Prescribers</label><textarea id="pplPres" spellcheck="false" placeholder="Dr Sarah Khan&#10;Dr James Okafor"></textarea><p class="sd-hint" id="pplPresN"></p></div>
+    <div><label for="pplLeads">Team leads and clinical managers</label><textarea id="pplLeads" spellcheck="false" placeholder="Priya Shah&#10;Tom Hughes"></textarea><p class="sd-hint" id="pplLeadsN"></p></div>
+  </div>
+  <p class="formerr" id="pplErr" style="padding:0 18px"></p>
+  <div class="sd-foot">
+    <span style="flex:1"></span>
+    <button class="sd-cancel" id="pplCancel">Cancel</button>
+    <button class="addbtn" id="pplSave">Save list</button>
   </div>
 </dialog>
 
@@ -1123,6 +1150,7 @@ function renderTimeline(isToday,nowHM){
   });
   document.getElementById("editSched").hidden=!canEditSchedule();
   document.querySelectorAll(".edittext").forEach(b=>b.hidden=!canEditWording());
+  document.getElementById("pplOpen").hidden=!canEditSchedule();
 }
 function renderSide(){
   const side=document.getElementById("side"); side.replaceChildren();
@@ -1334,7 +1362,8 @@ function saveLocalReqs(){ try{ localStorage.setItem("cc-requests",JSON.stringify
 document.getElementById("rq-type").onchange=e=>{
   const other=e.target.value==="other";
   document.getElementById("rq-who-l").textContent= other? "Who it's about (optional)" : "Prescriber";
-  document.getElementById("rq-who").placeholder= other? "e.g. a prescriber, team or inbox" : "e.g. Dr Sarah Khan";
+  document.getElementById("rq-who").placeholder= other? "e.g. a prescriber, team or inbox" : "Start typing a name";
+  document.getElementById("rq-who").setAttribute("list", other? "dl-people" : "dl-prescribers");
   document.getElementById("rq-what").placeholder= other? "e.g. Cover the coordinator inbox 2–3pm" : "e.g. Side effects only, no GP letters";
 };
 function nowHHMM(){ const n=new Date(); return String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0"); }
@@ -1437,6 +1466,7 @@ document.getElementById("rq-add").onclick=async()=>{
   try{
     if(mode==="local"){ rec.id="r"+rec.at; requests.push(rec); saveLocalReqs(); render(); }
     else await db.collection("requests").add(rec);
+    offerNewPeople(type==="allocation"? prescriber : "", requestedBy);
     ["rq-who","rq-what","rq-by","rq-until"].forEach(id=>g(id).value=""); g("rq-open").checked=false; g("rq-until").disabled=false; g("rq-type").value="allocation"; g("rq-type").dispatchEvent(new Event("change")); reqFormOpen=false; renderRequests();
   }catch(e){ err.textContent= e&&(e.code==="invalid_argument"||e.code==="permission-denied") ? "You don't have access to add requests." : "That request didn't save. Try again."; }
   btn.disabled=false;
@@ -1574,6 +1604,76 @@ document.getElementById("sideSave").onclick=async()=>{
     else await db.doc("config/side").set({sections:{[sideEditing]:entry}, by:myId, at:Date.now()},{merge:true});
     document.getElementById("sideDlg").close();
   }catch(e){ err.textContent=(e&&(e.code==="permission-denied"||e.code==="invalid_argument"))? "You don't have permission to change these tasks." : "The tasks didn't save. Try again."; }
+  btn.disabled=false;
+};
+
+/* People list: prescribers and team leads, offered as type-ahead suggestions.
+   Saved to config/people ({prescribers:[], leads:[]}); local mode uses localStorage. */
+let PEOPLE={prescribers:[],leads:[]}, unsubPeople=null, pplPending=null;
+const pplKey=n=>n.toLowerCase().replace(/\s+/g," ").trim();
+function cleanNames(list){
+  const seen=new Map();
+  for(let n of list){ n=String(n||"").replace(/^["'\s]+|["'\s]+$/g,"").replace(/\s+/g," "); if(n && !seen.has(pplKey(n))) seen.set(pplKey(n),n); }
+  return [...seen.values()].sort((a,b)=>a.localeCompare(b,"en-GB",{sensitivity:"base"}));
+}
+const parseNames=txt=>cleanNames((txt||"").split(/[\n\t;]+/));
+function fillList(id,names){ const dl=document.getElementById(id); dl.replaceChildren(...names.map(n=>{ const o=document.createElement("option"); o.value=n; return o; })); }
+function applyPeople(v){
+  PEOPLE={prescribers:cleanNames((v&&v.prescribers)||[]), leads:cleanNames((v&&v.leads)||[])};
+  fillList("dl-prescribers",PEOPLE.prescribers); fillList("dl-leads",PEOPLE.leads);
+  fillList("dl-people",cleanNames([...PEOPLE.prescribers,...PEOPLE.leads]));
+}
+try{ applyPeople(JSON.parse(localStorage.getItem("cc-people")||"null")); }catch(e){}
+function subscribePeople(){
+  if(unsubPeople){ unsubPeople(); unsubPeople=null; }
+  unsubPeople=db.doc("config/people").onSnapshot(sn=>applyPeople(sn.exists? sn.data() : null), ()=>{});
+}
+async function savePeople(next){
+  const out={prescribers:cleanNames(next.prescribers), leads:cleanNames(next.leads)};
+  if(mode==="local"||!db){ try{ localStorage.setItem("cc-people",JSON.stringify(out)); }catch(e){} applyPeople(out); return; }
+  await db.doc("config/people").set({...out, by:myId, at:Date.now()});
+}
+function pplCount(){
+  const a=parseNames(document.getElementById("pplPres").value).length, b=parseNames(document.getElementById("pplLeads").value).length;
+  document.getElementById("pplPresN").textContent=a+(a===1?" name":" names");
+  document.getElementById("pplLeadsN").textContent=b+(b===1?" name":" names");
+}
+document.getElementById("pplOpen").onclick=()=>{
+  document.getElementById("pplPres").value=PEOPLE.prescribers.join("\n");
+  document.getElementById("pplLeads").value=PEOPLE.leads.join("\n");
+  document.getElementById("pplErr").textContent=""; pplCount();
+  document.getElementById("pplDlg").showModal();
+};
+document.getElementById("pplPres").oninput=pplCount;
+document.getElementById("pplLeads").oninput=pplCount;
+document.getElementById("pplCancel").onclick=()=>document.getElementById("pplDlg").close();
+document.getElementById("pplSave").onclick=async()=>{
+  const err=document.getElementById("pplErr"), btn=document.getElementById("pplSave"); err.textContent=""; btn.disabled=true;
+  try{
+    await savePeople({prescribers:parseNames(document.getElementById("pplPres").value), leads:parseNames(document.getElementById("pplLeads").value)});
+    document.getElementById("pplDlg").close();
+  }catch(e){ err.textContent=(e&&(e.code==="permission-denied"||e.code==="invalid_argument"))? "You don't have permission to change the people list." : "The list didn't save. Try again."; }
+  btn.disabled=false;
+};
+function offerNewPeople(prescriber,lead){
+  const hint=document.getElementById("pplHint");
+  if(!canEditSchedule()){ hint.hidden=true; return; }
+  const has=(list,n)=>list.some(x=>pplKey(x)===pplKey(n));
+  const p=prescriber&&!has(PEOPLE.prescribers,prescriber)? prescriber : "";
+  const l=lead&&!has(PEOPLE.leads,lead)? lead : "";
+  if(!p&&!l){ hint.hidden=true; return; }
+  pplPending={p,l};
+  const bits=[]; if(p) bits.push(p+" (prescriber)"); if(l) bits.push(l+" (team lead)");
+  document.getElementById("pplHintText").textContent=bits.join(" and ")+(bits.length>1?" aren't":" isn't")+" on the people list yet.";
+  hint.hidden=false;
+}
+document.getElementById("pplHintNo").onclick=()=>{ document.getElementById("pplHint").hidden=true; pplPending=null; };
+document.getElementById("pplHintAdd").onclick=async()=>{
+  if(!pplPending) return; const btn=document.getElementById("pplHintAdd"); btn.disabled=true;
+  try{
+    await savePeople({prescribers:[...PEOPLE.prescribers,...(pplPending.p?[pplPending.p]:[])], leads:[...PEOPLE.leads,...(pplPending.l?[pplPending.l]:[])]});
+    document.getElementById("pplHint").hidden=true; pplPending=null;
+  }catch(e){ document.getElementById("pplHintText").textContent=(e&&e.code==="permission-denied")? "You don't have permission to change the people list." : "That didn't save. Try again."; }
   btn.disabled=false;
 };
 
@@ -1770,7 +1870,7 @@ let myName="";
     const n=document.getElementById("notice"); n.textContent="Shared live. Signed in as "+myName+".";
     const so=el("button","signout","Sign out"); so.onclick=async()=>{ if(presenceRef) await presenceRef.set({state:"offline"},{merge:true}).catch(()=>{}); auth.signOut(); }; n.append(so);
     ticks={}; notes={am:EMPTY(),pm:EMPTY()}; prevPm=EMPTY(); requests=[];
-    render(); subscribe(); subscribeRequests(); subscribeSchedule(); subscribeSide(); subscribeTexts(); startPresence(u); loadMyNotes(); loadCap();
+    render(); subscribe(); subscribeRequests(); subscribeSchedule(); subscribeSide(); subscribePeople(); subscribeTexts(); startPresence(u); loadMyNotes(); loadCap();
   });
 })();
 </script>
