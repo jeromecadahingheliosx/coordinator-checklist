@@ -227,8 +227,17 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .rm{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:3px 11px;font:500 12px "Inter",sans-serif;cursor:pointer}
 .rm:hover{border-color:var(--late);color:var(--late)}
 /* Edit / Remove / Clear / Keep open on request and issue rows: small and side by side */
-.req .fact,.flag .fact{flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:4px}
-.req .rm,.flag .rm{padding:1px 8px;font-size:11px;line-height:18px;border-radius:6px}
+.rowmenu{position:relative}
+.rowmenu .dots{border:0;background:transparent;color:var(--muted);font:700 11px/1 "Inter",sans-serif;letter-spacing:1px;padding:5px 7px;border-radius:6px;cursor:pointer;opacity:.7}
+.req:hover .dots,.flag:hover .dots,.rowmenu.open .dots{opacity:1}
+.rowmenu .dots:hover,.rowmenu.open .dots{background:var(--chip);color:var(--ink)}
+.rowmenu .dots:focus-visible{opacity:1;outline:2px solid var(--linkline)}
+.rowmenu .menu{display:none;position:absolute;right:0;top:calc(100% + 4px);z-index:30;min-width:132px;padding:4px;background:var(--bg);border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 18px rgba(30,40,70,.14)}
+.rowmenu.open .menu{display:flex;flex-direction:column}
+.rowmenu .menu button{border:0;background:transparent;color:var(--ink);text-align:left;font:500 12.5px "Inter",sans-serif;padding:7px 10px;border-radius:5px;cursor:pointer;white-space:nowrap}
+.rowmenu .menu button:hover,.rowmenu .menu button:focus-visible{background:var(--chip);outline:none}
+.rowmenu .menu button.go{color:var(--linkink);font-weight:600}
+.rowmenu .menu button.bad{color:var(--late)}
 .empty{padding:12px;color:var(--muted);margin:0}
 .addreq{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
 .addreq .f{flex:1 1 170px;min-width:0}
@@ -858,6 +867,23 @@ function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.clas
 function shortDate(key){ const [y,m,d]=key.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"}); }
 function ongoingForDay(day){ return openIssues.filter(x=>x.day && x.day<=day && (!x.cleared || (x.clearedDay||"")>=day)); }
 function stillOpenCount(day){ return openIssues.filter(x=>x.day && x.day<=day && !x.cleared).length; }
+/* ••• menu on request and issue rows */
+function closeRowMenus(except){ document.querySelectorAll(".rowmenu.open").forEach(m=>{ if(m!==except){ m.classList.remove("open"); m.querySelector(".dots").setAttribute("aria-expanded","false"); } }); }
+function rowMenu(items,label){
+  const wrap=el("div","rowmenu"), btn=el("button","dots","•••"), menu=el("div","menu");
+  btn.setAttribute("aria-label",label||"More actions"); btn.setAttribute("aria-haspopup","menu"); btn.setAttribute("aria-expanded","false"); btn.title="More actions";
+  menu.setAttribute("role","menu");
+  items.forEach(it=>{ const b=el("button",it.cls||null,it.label); b.setAttribute("role","menuitem"); if(it.title) b.title=it.title;
+    b.onclick=e=>{ e.stopPropagation(); closeRowMenus(); it.fn(); }; menu.append(b); });
+  btn.onclick=e=>{ e.stopPropagation(); const open=!wrap.classList.contains("open"); closeRowMenus(wrap); wrap.classList.toggle("open",open); btn.setAttribute("aria-expanded",String(open)); if(open) menu.querySelector("button").focus(); };
+  menu.addEventListener("keydown",e=>{ const bs=[...menu.querySelectorAll("button")], i=bs.indexOf(document.activeElement);
+    if(e.key==="ArrowDown"){ e.preventDefault(); bs[(i+1)%bs.length].focus(); }
+    else if(e.key==="ArrowUp"){ e.preventDefault(); bs[(i-1+bs.length)%bs.length].focus(); }
+    else if(e.key==="Escape"){ closeRowMenus(); btn.focus(); } });
+  wrap.append(btn,menu); return wrap;
+}
+document.addEventListener("click",e=>{ if(!e.target.closest(".rowmenu")) closeRowMenus(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeRowMenus(); });
 function editedNote(x){ return x.editedAt? ", edited by "+(x.editedBy===myId?"you":(x.editedByName||nameOf(x.editedBy)))+" at "+hm(x.editedAt) : ""; }
 function flagBody(x){
   const body=el("div"); const w=el("p","fw",x.who||x.type||"Issue"); if(x.who) w.append(el("span","ftag",x.type||"Other")); else if(x.type) w.firstChild.textContent=x.type;
@@ -882,10 +908,12 @@ function renderOngoing(list){
     row.append(body);
     const act=el("div","fact");
     if(!readOnly){
-      if(!x.cleared){ const c=el("button","rm clr","Clear"); c.setAttribute("aria-label","Clear this ongoing issue"); c.onclick=()=>clearIssue(x); act.append(c); }
-      else if(x.clearedDay===viewDate){ const r=el("button","rm","Reopen"); r.onclick=()=>updateOpen(x,{cleared:false,clearedDay:null,clearedAt:null,clearedBy:null,clearedByName:null,clearNote:null}); act.append(r); }
-      const ed=el("button","rm","Edit"); ed.setAttribute("aria-label","Edit this issue"); ed.onclick=()=>editFlag(x,"open"); act.append(ed);
-      const d=el("button","rm","Remove"); d.setAttribute("aria-label","Remove this issue completely"); d.onclick=()=>removeOpen(x); act.append(d);
+      const items=[];
+      if(!x.cleared) items.push({label:"Clear",cls:"go",fn:()=>clearIssue(x)});
+      else if(x.clearedDay===viewDate) items.push({label:"Reopen",fn:()=>updateOpen(x,{cleared:false,clearedDay:null,clearedAt:null,clearedBy:null,clearedByName:null,clearNote:null})});
+      items.push({label:"Edit",fn:()=>editFlag(x,"open")});
+      items.push({label:"Remove",cls:"bad",fn:()=>removeOpen(x)});
+      act.append(rowMenu(items,"Actions for this issue"));
     }
     row.append(act); list.append(row);
   });
@@ -1101,9 +1129,11 @@ function renderFlags(){
     row.append(body);
     const act=el("div","fact");
     if(!readOnly){
-      const ed=el("button","rm","Edit"); ed.setAttribute("aria-label","Edit this issue"); ed.onclick=()=>editFlag(x,"day"); act.append(ed);
-      const k=el("button","rm","Keep open"); k.title="Move to Ongoing so it shows every day until someone clears it"; k.onclick=()=>keepOpen(x); act.append(k);
-      const b=el("button","rm","Remove"); b.setAttribute("aria-label","Remove this issue"); b.onclick=()=>removeFlag(x); act.append(b);
+      act.append(rowMenu([
+        {label:"Edit",fn:()=>editFlag(x,"day")},
+        {label:"Keep open",title:"Move to Ongoing so it shows every day until someone clears it",fn:()=>keepOpen(x)},
+        {label:"Remove",cls:"bad",fn:()=>removeFlag(x)}
+      ],"Actions for this issue"));
     }
     row.append(act);
     list.append(row);
@@ -1134,8 +1164,7 @@ function renderRequests(){
     body.append(el("p","m",bits.join(", ")));
     row.append(body);
     if(!readOnly){ const act=el("div","fact");
-      const e=el("button","rm","Edit"); e.setAttribute("aria-label","Edit request for "+(r.prescriber||"prescriber")); e.onclick=()=>editReq(r); act.append(e);
-      const b=el("button","rm","Remove"); b.setAttribute("aria-label","Remove request for "+(r.prescriber||"prescriber")); b.onclick=()=>removeReq(r); act.append(b);
+      act.append(rowMenu([{label:"Edit",fn:()=>editReq(r)},{label:"Remove",cls:"bad",fn:()=>removeReq(r)}],"Actions for request for "+(r.prescriber||"prescriber")));
       row.append(act); }
     listEl.append(row);
   });
