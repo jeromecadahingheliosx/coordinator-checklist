@@ -413,14 +413,15 @@ details.key dt{font-weight:600} details.key dd{margin:0;color:var(--muted)}
 .caprow2{display:flex;gap:8px;align-items:center;margin-top:6px}
 .capsla{margin-top:8px;max-width:160px}
 @media (max-width:560px){.cap .capin{grid-template-columns:1fr 1fr}.cap .capin label:first-child{grid-column:1/-1}}
-#myText{width:100%;min-height:150px;resize:vertical;border-radius:10px;border:1px solid var(--line);background:#FFFDF6;color:var(--ink);padding:10px 12px;font:400 13px/1.55 "Inter",sans-serif}
+#myText{--rule:#E6DFC8;width:100%;min-height:168px;resize:vertical;border-radius:10px;border:1px solid var(--line);color:var(--ink);padding:8px 12px;font:400 13px/24px "Inter",sans-serif;
+  background-color:#FFFDF6;background-image:linear-gradient(to bottom,transparent 23px,var(--rule) 23px,var(--rule) 24px);background-size:100% 24px;background-position:0 8px;background-attachment:local}
 #myText:focus{outline:2px solid var(--linkline);border-color:var(--linkink)}
 .mnfoot{display:flex;align-items:center;gap:8px;margin-top:8px}
 .mnstatus{font-size:11.5px;color:var(--muted)}
 .mnfoot .addopen.sm{margin-left:auto;padding:3px 12px;font-size:12px}
 .mnhint{margin:8px 2px 0;font-size:11px;color:var(--muted)}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #myText{background:var(--bg)}}
-:root[data-theme="dark"] #myText{background:var(--bg)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #myText{background-color:var(--bg);--rule:var(--line)}}
+:root[data-theme="dark"] #myText{background-color:var(--bg);--rule:var(--line)}
 .infoview .box2{margin:0}
 #todayView[hidden],#infoView[hidden]{display:none!important}
 /* ---- team notes ---- */
@@ -833,6 +834,7 @@ const EMPTY=()=>({text:"",by:null,lastBy:null,at:null});
 const NOTE_PATH={am:"meta/am", pm:"meta/note"};           // older location, read-only fallback
 const notePath=(day,k)=>"handover/"+day+"_"+k;             // only editors can write here
 let noteSrc={am:{},pm:{},prev:{}}, notesLocked=false;
+let reqEdit=null, flagEdit=null;
 let requests=[], showPast=false, unsubReqs=null, reqFormOpen=false, flags=[], prevFlags=[], flagFormOpen=false, openIssues=[], unsubOpen=null, teamNotes=[], unsubTN=null, tnFormOpen=false, tnShowPins=false;
 let notes = {am:EMPTY(), pm:EMPTY()}, prevPm = EMPTY();
 let db=null, user=null, myId=null, names={}, unsubTicks=null, unsubNotes=[], readOnly=false, mode="local";
@@ -847,6 +849,7 @@ function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.clas
 function shortDate(key){ const [y,m,d]=key.split("-").map(Number); return new Date(y,m-1,d).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"}); }
 function ongoingForDay(day){ return openIssues.filter(x=>x.day && x.day<=day && (!x.cleared || (x.clearedDay||"")>=day)); }
 function stillOpenCount(day){ return openIssues.filter(x=>x.day && x.day<=day && !x.cleared).length; }
+function editedNote(x){ return x.editedAt? ", edited by "+(x.editedBy===myId?"you":(x.editedByName||nameOf(x.editedBy)))+" at "+hm(x.editedAt) : ""; }
 function flagBody(x){
   const body=el("div"); const w=el("p","fw",x.who||x.type||"Issue"); if(x.who) w.append(el("span","ftag",x.type||"Other")); else if(x.type) w.firstChild.textContent=x.type;
   body.append(w); if(x.what) body.append(el("p","fx",x.what));
@@ -863,7 +866,7 @@ function renderOngoing(list){
     const body=flagBody(x);
     const since=x.day===viewDate? "Logged today" : "Open since "+shortDate(x.day);
     body.firstChild.append(el("span","otag", x.cleared? "Cleared" : since));
-    let meta="Logged by "+nameOf(x.addedBy)+(x.at?" at "+hm(x.at):"")+(x.day!==viewDate?" on "+shortDate(x.day):"");
+    let meta="Logged by "+nameOf(x.addedBy)+(x.at?" at "+hm(x.at):"")+(x.day!==viewDate?" on "+shortDate(x.day):"")+editedNote(x);
     if(x.cleared) meta+=" · Cleared by "+(x.clearedBy===myId?"you":(x.clearedByName||nameOf(x.clearedBy)))+(x.clearedAt?" at "+hm(x.clearedAt):"")+((x.clearedDay&&x.clearedDay!==viewDate)?" on "+shortDate(x.clearedDay):"");
     body.append(el("p","fm",meta));
     if(x.clearNote) body.append(el("p","fnote","Outcome: "+x.clearNote));
@@ -872,6 +875,7 @@ function renderOngoing(list){
     if(!readOnly){
       if(!x.cleared){ const c=el("button","rm clr","Clear"); c.setAttribute("aria-label","Clear this ongoing issue"); c.onclick=()=>clearIssue(x); act.append(c); }
       else if(x.clearedDay===viewDate){ const r=el("button","rm","Reopen"); r.onclick=()=>updateOpen(x,{cleared:false,clearedDay:null,clearedAt:null,clearedBy:null,clearedByName:null,clearNote:null}); act.append(r); }
+      const ed=el("button","rm","Edit"); ed.setAttribute("aria-label","Edit this issue"); ed.onclick=()=>editFlag(x,"open"); act.append(ed);
       const d=el("button","rm","Remove"); d.setAttribute("aria-label","Remove this issue completely"); d.onclick=()=>removeOpen(x); act.append(d);
     }
     row.append(act); list.append(row);
@@ -1050,16 +1054,19 @@ function renderFlags(){
     const row=el("div","flag");
     row.append(el("div","ft",x.time||"–"));
     const body=flagBody(x);
-    if(x.addedBy) body.append(el("p","fm","Logged by "+nameOf(x.addedBy)+(x.at?" at "+hm(x.at):"")));
+    if(x.addedBy) body.append(el("p","fm","Logged by "+nameOf(x.addedBy)+(x.at?" at "+hm(x.at):"")+editedNote(x)));
     row.append(body);
     const act=el("div","fact");
     if(!readOnly){
+      const ed=el("button","rm","Edit"); ed.setAttribute("aria-label","Edit this issue"); ed.onclick=()=>editFlag(x,"day"); act.append(ed);
       const k=el("button","rm","Keep open"); k.title="Move to Ongoing so it shows every day until someone clears it"; k.onclick=()=>keepOpen(x); act.append(k);
       const b=el("button","rm","Remove"); b.setAttribute("aria-label","Remove this issue"); b.onclick=()=>removeFlag(x); act.append(b);
     }
     row.append(act);
     list.append(row);
   });
+  document.getElementById("fl-add").textContent=flagEdit?"Save changes":"Add issue";
+  document.getElementById("fl-keep").parentElement.hidden=!!flagEdit;
   document.getElementById("flagForm").hidden=readOnly||!flagFormOpen;
   document.getElementById("flagOpen").hidden=readOnly||flagFormOpen;
 }
@@ -1080,14 +1087,19 @@ function renderRequests(){
     const bits=[]; if(r.requestedBy) bits.push("Requested by "+r.requestedBy);
     bits.push(r.until? (isPast?"Ended ":"Until ")+niceDate(r.until) : "Until further notice");
     if(r.addedBy) bits.push("added by "+nameOf(r.addedBy));
+    if(r.editedAt) bits.push("edited by "+(r.editedBy===myId?"you":(r.editedByName||nameOf(r.editedBy)))+" at "+hm(r.editedAt));
     body.append(el("p","m",bits.join(", ")));
     row.append(body);
-    if(!readOnly){ const b=el("button","rm","Remove"); b.setAttribute("aria-label","Remove request for "+(r.prescriber||"prescriber")); b.onclick=()=>removeReq(r); row.append(b); }
+    if(!readOnly){ const act=el("div","fact");
+      const e=el("button","rm","Edit"); e.setAttribute("aria-label","Edit request for "+(r.prescriber||"prescriber")); e.onclick=()=>editReq(r); act.append(e);
+      const b=el("button","rm","Remove"); b.setAttribute("aria-label","Remove request for "+(r.prescriber||"prescriber")); b.onclick=()=>removeReq(r); act.append(b);
+      row.append(act); }
     listEl.append(row);
   });
   const pt=document.getElementById("pastToggle");
   pt.hidden=!past.length; pt.textContent=showPast? "Hide past requests" : "Show past requests ("+past.length+")";
   document.getElementById("rqFoot").hidden=!past.length;
+  document.getElementById("rq-add").textContent=reqEdit?"Save changes":"Add request";
   document.getElementById("addReq").hidden=readOnly||!reqFormOpen; document.getElementById("addOpen").hidden=readOnly||reqFormOpen;
 }
 
@@ -1098,6 +1110,8 @@ function labelFor(id){
 }
 let myEmail="";
 function canEditWording(){ return mode==="local" || (canEditSchedule() && MANAGER_EMAILS.includes(myEmail)); }
+/* People list, schedule and task lists: managers only (same list as MANAGER_EMAILS). */
+function canManageLists(){ return canEditWording(); }
 function canEditSchedule(){ return mode==="local" || (!!db && !readOnly && !notesLocked); }
 function hhmm(){ const n=new Date(); return String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0"); }
 function whoLine(id){ const t=ticks[id]; return t? nameOf(t.by)+" at "+hm(t.at) : ""; }
@@ -1148,9 +1162,9 @@ function renderTimeline(isToday,nowHM){
     dd.append("Times: "+c.times.map(x=>x.t).join(", ")+".");
     kl.append(dd);
   });
-  document.getElementById("editSched").hidden=!canEditSchedule();
+  document.getElementById("editSched").hidden=!canManageLists();
   document.querySelectorAll(".edittext").forEach(b=>b.hidden=!canEditWording());
-  document.getElementById("pplOpen").hidden=!canEditSchedule();
+  document.getElementById("pplOpen").hidden=!canManageLists();
 }
 function renderSide(){
   const side=document.getElementById("side"); side.replaceChildren();
@@ -1158,7 +1172,7 @@ function renderSide(){
     const sec=el("section","box2 tone-"+(s.tone||"start")); const head=el("div","bh"); head.append(el("h2",null,s.title));
     { const tot=s.tasks.length, dn=s.tasks.filter(t=>isDone(t.id)).length;
       const pill=el("span","hcount"+(dn===tot?" full":""), dn+" of "+tot+(s.log?" checked":" done")); head.append(pill); } if(s.when) head.append(el("span","when",s.when));
-    if(canEditSchedule()){ const eb=el("button","editsched","Edit"); eb.setAttribute("aria-label","Edit "+s.title+" tasks"); eb.onclick=()=>openSide(sideKey(s)); head.append(eb); }
+    if(canManageLists()){ const eb=el("button","editsched","Edit"); eb.setAttribute("aria-label","Edit "+s.title+" tasks"); eb.onclick=()=>openSide(sideKey(s)); head.append(eb); }
     sec.append(head);
     const list=el("div");
     s.tasks.forEach(t=>{
@@ -1367,8 +1381,18 @@ document.getElementById("rq-type").onchange=e=>{
   document.getElementById("rq-what").placeholder= other? "e.g. Cover the coordinator inbox 2–3pm" : "e.g. Side effects only, no GP letters";
 };
 function nowHHMM(){ const n=new Date(); return String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0"); }
-document.getElementById("flagOpen").onclick=()=>{ flagFormOpen=true; document.getElementById("fl-time").value=nowHHMM(); renderFlags(); document.getElementById("fl-who").focus(); };
-document.getElementById("fl-cancel").onclick=()=>{ flagFormOpen=false; document.getElementById("fl-err").textContent=""; renderFlags(); };
+function resetFlagForm(){
+  const g=id=>document.getElementById(id); flagEdit=null;
+  ["fl-who","fl-what","fl-time"].forEach(id=>g(id).value=""); g("fl-type").selectedIndex=0; g("fl-keep").checked=false; g("fl-err").textContent="";
+}
+function editFlag(x,kind){
+  const g=id=>document.getElementById(id); resetFlagForm(); flagEdit={x,kind};
+  g("fl-type").value=x.type||"Other"; if(g("fl-type").selectedIndex<0) g("fl-type").value="Other";
+  g("fl-who").value=x.who||""; g("fl-what").value=x.what||""; g("fl-time").value=x.time||"";
+  flagFormOpen=true; renderFlags(); g("flagForm").scrollIntoView({block:"nearest",behavior:"smooth"}); g("fl-what").focus();
+}
+document.getElementById("flagOpen").onclick=()=>{ resetFlagForm(); flagFormOpen=true; document.getElementById("fl-time").value=nowHHMM(); renderFlags(); document.getElementById("fl-who").focus(); };
+document.getElementById("fl-cancel").onclick=()=>{ resetFlagForm(); flagFormOpen=false; renderFlags(); };
 document.getElementById("fl-add").onclick=async()=>{
   const g=id=>document.getElementById(id), err=g("fl-err");
   const type=g("fl-type").value, who=g("fl-who").value.trim(), what=g("fl-what").value.trim();
@@ -1377,8 +1401,19 @@ document.getElementById("fl-add").onclick=async()=>{
   if(time && !m){ err.textContent="Use a time like 14:05, or leave it blank."; return; }
   if(m) time=String(Math.min(23,+m[1])).padStart(2,"0")+":"+m[2];
   err.textContent="";
+  const btn=g("fl-add");
+  if(flagEdit){
+    const {x,kind}=flagEdit, patch={type,who,what,time,editedBy:myId,editedByName:(typeof myName!=="undefined"?myName:(names[myId]||"")),editedAt:Date.now()};
+    btn.disabled=true;
+    try{
+      if(mode==="local"){ Object.assign(x,patch); if(kind==="open") saveLocalOpen(); else { try{ localStorage.setItem("cc-flags-"+viewDate,JSON.stringify(flags)); }catch(e){} } }
+      else await db.doc((kind==="open"?"openIssues/":"days/"+viewDate+"/flags/")+x.id).set(patch,{merge:true});
+      resetFlagForm(); flagFormOpen=false; render();
+    }catch(e){ err.textContent=(e&&(e.code==="permission-denied"||e.code==="invalid_argument"))? "Editing isn't allowed yet: the "+(kind==="open"?"openIssues":"flags")+" rule in Firestore needs to allow updates." : "Your changes didn't save. Try again."; }
+    btn.disabled=false; return;
+  }
   const rec={type,who,what,time,addedBy:myId,addedByName:(typeof myName!=="undefined"?myName:(names[myId]||"")),at:Date.now()};
-  const btn=g("fl-add"); btn.disabled=true;
+  btn.disabled=true;
   try{
     if(g("fl-keep").checked){ await addOpen(Object.assign(rec,{day:viewDate,cleared:false})); }
     else if(mode==="local"){ rec.id="f"+rec.at; flags.push(rec); try{ localStorage.setItem("cc-flags-"+viewDate,JSON.stringify(flags)); }catch(e){} }
@@ -1449,8 +1484,20 @@ async function removeFlag(x){
   if(mode==="local"){ flags=flags.filter(y=>y.id!==x.id); try{ localStorage.setItem("cc-flags-"+viewDate,JSON.stringify(flags)); }catch(e){} render(); return; }
   try{ await db.doc("days/"+viewDate+"/flags/"+x.id).delete(); }catch(e){ setNotice("That issue couldn't be removed. Try again."); }
 }
-document.getElementById("addOpen").onclick=()=>{ reqFormOpen=true; renderRequests(); document.getElementById("rq-who").focus(); };
-document.getElementById("rq-cancel").onclick=()=>{ reqFormOpen=false; document.getElementById("rq-err").textContent=""; renderRequests(); };
+document.getElementById("addOpen").onclick=()=>{ resetReqForm(); reqFormOpen=true; renderRequests(); document.getElementById("rq-who").focus(); };
+function resetReqForm(){
+  const g=id=>document.getElementById(id); reqEdit=null;
+  ["rq-who","rq-what","rq-by","rq-until"].forEach(id=>g(id).value=""); g("rq-open").checked=false; g("rq-until").disabled=false;
+  g("rq-type").value="allocation"; g("rq-type").dispatchEvent(new Event("change")); g("rq-err").textContent="";
+}
+function editReq(r){
+  const g=id=>document.getElementById(id); resetReqForm(); reqEdit=r;
+  g("rq-type").value=r.type==="other"?"other":"allocation"; g("rq-type").dispatchEvent(new Event("change"));
+  g("rq-who").value=r.prescriber||""; g("rq-what").value=r.request||""; g("rq-by").value=r.requestedBy||"";
+  g("rq-open").checked=!r.until; g("rq-until").value=r.until||""; g("rq-until").disabled=!r.until;
+  reqFormOpen=true; renderRequests(); g("addReq").scrollIntoView({block:"nearest",behavior:"smooth"}); g("rq-what").focus();
+}
+document.getElementById("rq-cancel").onclick=()=>{ resetReqForm(); reqFormOpen=false; renderRequests(); };
 document.getElementById("pastToggle").onclick=()=>{ showPast=!showPast; renderRequests(); };
 document.getElementById("rq-open").onchange=e=>{ document.getElementById("rq-until").disabled=e.target.checked; };
 document.getElementById("rq-add").onclick=async()=>{
@@ -1461,8 +1508,19 @@ document.getElementById("rq-add").onclick=async()=>{
   if(type==="allocation"&&!prescriber){ err.textContent="Add the prescriber's name for an allocation request."; return; }
   if(!open&&!until){ err.textContent="Pick an end date, or tick until further notice."; return; }
   err.textContent="";
+  const btn=g("rq-add");
+  if(reqEdit){
+    const r=reqEdit, patch={type,prescriber,request,requestedBy,until,editedBy:myId,editedByName:myName,editedAt:Date.now()};
+    btn.disabled=true;
+    try{
+      if(mode==="local"){ Object.assign(r,patch); saveLocalReqs(); }
+      else await db.doc("requests/"+r.id).set(patch,{merge:true});
+      resetReqForm(); reqFormOpen=false; renderRequests();
+    }catch(e){ err.textContent=(e&&(e.code==="permission-denied"||e.code==="invalid_argument"))? "Editing isn't allowed yet: the requests rule in Firestore needs to allow updates." : "Your changes didn't save. Try again."; }
+    btn.disabled=false; return;
+  }
   const rec={type,prescriber,request,requestedBy,until,addedBy:myId,addedByName:myName,at:Date.now()};
-  const btn=g("rq-add"); btn.disabled=true;
+  btn.disabled=true;
   try{
     if(mode==="local"){ rec.id="r"+rec.at; requests.push(rec); saveLocalReqs(); render(); }
     else await db.collection("requests").add(rec);
@@ -1486,6 +1544,7 @@ function subscribeSchedule(){
 let draft=[];
 function slug(x){ return (x||"check").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,20)||"check"; }
 function openSched(){
+  if(!canManageLists()) return;
   draft=JSON.parse(JSON.stringify(CHECKS)).map(c=>({...c, timesText:c.times.map(x=>x.t).join(", ")}));
   document.getElementById("schedErr").textContent="";
   drawSched(); document.getElementById("schedDlg").showModal();
@@ -1549,6 +1608,7 @@ let sideDraft=[], sideEditing=null;
 const linksText=ls=>(ls||[]).map(l=>(l.label? l.label+" | " : "")+l.url).join("\n");
 const toDraft=tasks=>JSON.parse(JSON.stringify(tasks)).map(t=>({...t, linksText:linksText(t.links)}));
 function openSide(key){
+  if(!canManageLists()) return;
   const s=SIDE.find(x=>sideKey(x)===key); if(!s) return;
   sideEditing=key; sideDraft=toDraft(s.tasks);
   document.getElementById("sideTitle").textContent="Edit "+s.title+" tasks";
@@ -1639,6 +1699,7 @@ function pplCount(){
   document.getElementById("pplLeadsN").textContent=b+(b===1?" name":" names");
 }
 document.getElementById("pplOpen").onclick=()=>{
+  if(!canManageLists()) return;
   document.getElementById("pplPres").value=PEOPLE.prescribers.join("\n");
   document.getElementById("pplLeads").value=PEOPLE.leads.join("\n");
   document.getElementById("pplErr").textContent=""; pplCount();
@@ -1657,7 +1718,7 @@ document.getElementById("pplSave").onclick=async()=>{
 };
 function offerNewPeople(prescriber,lead){
   const hint=document.getElementById("pplHint");
-  if(!canEditSchedule()){ hint.hidden=true; return; }
+  if(!canManageLists()){ hint.hidden=true; return; }
   const has=(list,n)=>list.some(x=>pplKey(x)===pplKey(n));
   const p=prescriber&&!has(PEOPLE.prescribers,prescriber)? prescriber : "";
   const l=lead&&!has(PEOPLE.leads,lead)? lead : "";
